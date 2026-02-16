@@ -7,23 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Datasync.Server" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.EntityFrameworkCore" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.NSwag" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.OpenApi" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.Swashbuckle" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Identity.Web" Version="4.3.0" />
     <PackageReference Include="Microsoft.OData.Core" Version="8.4.3" />
     <PackageReference Include="Microsoft.OData.Edm" Version="8.4.3" />
     <PackageReference Include="Microsoft.Spatial" Version="8.4.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Server.NSwag\CommunityToolkit.Datasync.Server.NSwag.csproj" />
-    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Server.OpenApi\CommunityToolkit.Datasync.Server.OpenApi.csproj" />
-    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Server.Swashbuckle\CommunityToolkit.Datasync.Server.Swashbuckle.csproj" />
-    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

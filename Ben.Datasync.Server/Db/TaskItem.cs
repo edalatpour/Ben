@@ -7,17 +7,20 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sample.Datasync.Server.Db;
 
-public class TaskItem : EntityTableData
+public class TaskItem : EntityTableData, IUserOwned
 {
     public DateTime Key { get; set; }
 
-    public string Status { get; set; }
+    public string Status { get; set; } = string.Empty;
 
-    public string Priority { get; set; }
+    public string Priority { get; set; } = string.Empty;
 
     public int Order { get; set; }
 
     [Required, MinLength(1)]
     public string Title { get; set; } = string.Empty;
+
+    [Required]
+    public string UserId { get; set; } = string.Empty;
 
 }

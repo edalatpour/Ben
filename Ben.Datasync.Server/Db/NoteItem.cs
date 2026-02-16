@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sample.Datasync.Server.Db;
 
-public class NoteItem : EntityTableData
+public class NoteItem : EntityTableData, IUserOwned
 {
     public DateTime Key { get; set; }
 
@@ -15,5 +15,8 @@ public class NoteItem : EntityTableData
 
     [Required, MinLength(1)]
     public string Text { get; set; } = string.Empty;
+
+    [Required]
+    public string UserId { get; set; } = string.Empty;
     
 }

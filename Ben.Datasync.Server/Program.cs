@@ -6,8 +6,11 @@ using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.NSwag;
 using CommunityToolkit.Datasync.Server.OpenApi;
 using CommunityToolkit.Datasync.Server.Swashbuckle;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
+using Sample.Datasync.Server;
 using Sample.Datasync.Server.Db;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -22,6 +25,29 @@ bool openApiEnabled = swaggerDriver?.Equals("NET9", StringComparison.InvariantCu
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDatasyncServices();
+
+// Add HTTP context accessor for access control providers
+builder.Services.AddHttpContextAccessor();
+
+// Configure authentication
+// Support for Microsoft Entra ID (Azure AD)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(options =>
+    {
+        builder.Configuration.Bind("AzureAd", options);
+        options.TokenValidationParameters.NameClaimType = "name";
+    }, options =>
+    {
+        builder.Configuration.Bind("AzureAd", options);
+    });
+
+// Add authorization
+builder.Services.AddAuthorization();
+
+// Register the PersonalAccessControlProvider for user-scoped data
+builder.Services.AddScoped<IAccessControlProvider<NoteItem>, PersonalAccessControlProvider<NoteItem>>();
+builder.Services.AddScoped<IAccessControlProvider<TaskItem>, PersonalAccessControlProvider<TaskItem>>();
+
 builder.Services.AddControllers();
 
 if (nswagEnabled)
@@ -63,6 +89,8 @@ if (swashbuckleEnabled)
     _ = app.UseSwagger().UseSwaggerUI();
 }
 
+// Enable authentication and authorization middleware
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

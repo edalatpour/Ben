@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sample.Datasync.Server.Db;
 
@@ -11,10 +12,11 @@ namespace Sample.Datasync.Server.Controllers;
 
 [Route("tables/[controller]")]
 [ApiExplorerSettings(IgnoreApi = false)]
+[Authorize]
 public class NoteItemController : TableController<NoteItem>
 {
-    public NoteItemController(AppDbContext context) 
-        : base(new EntityTableRepository<NoteItem>(context))
+    public NoteItemController(AppDbContext context, IAccessControlProvider<NoteItem> accessControlProvider) 
+        : base(new EntityTableRepository<NoteItem>(context), accessControlProvider)
     {
     }
 }
