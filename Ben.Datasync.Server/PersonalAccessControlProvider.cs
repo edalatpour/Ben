@@ -25,23 +25,29 @@ public class PersonalAccessControlProvider<T> : IAccessControlProvider<T>
     }
 
     /// <summary>
+    /// Extracts the user ID from the claims principal.
+    /// Supports multiple claim types commonly used by different identity providers.
+    /// </summary>
+    private string? GetUserIdFromClaims(ClaimsPrincipal? user)
+    {
+        if (user?.Identity?.IsAuthenticated != true)
+        {
+            return null;
+        }
+
+        return user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? user.FindFirst("sub")?.Value
+            ?? user.FindFirst("oid")?.Value
+            ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+    }
+
+    /// <summary>
     /// Returns a filter expression that limits data to only records owned by the authenticated user.
     /// </summary>
     public Expression<Func<T, bool>>? GetDataView()
     {
         var user = _httpContextAccessor.HttpContext?.User;
-        
-        if (user?.Identity?.IsAuthenticated != true)
-        {
-            // If user is not authenticated, return filter that matches nothing
-            return _ => false;
-        }
-
-        // Get the user ID from claims (supports multiple claim types)
-        string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? user.FindFirst("sub")?.Value
-            ?? user.FindFirst("oid")?.Value
-            ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        string? userId = GetUserIdFromClaims(user);
 
         if (string.IsNullOrEmpty(userId))
         {
@@ -59,17 +65,7 @@ public class PersonalAccessControlProvider<T> : IAccessControlProvider<T>
     public ValueTask<bool> IsAuthorizedAsync(TableOperation operation, T? entity, CancellationToken cancellationToken = default)
     {
         var user = _httpContextAccessor.HttpContext?.User;
-        
-        if (user?.Identity?.IsAuthenticated != true)
-        {
-            return new ValueTask<bool>(false);
-        }
-
-        // Get the user ID from claims
-        string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? user.FindFirst("sub")?.Value
-            ?? user.FindFirst("oid")?.Value
-            ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        string? userId = GetUserIdFromClaims(user);
 
         if (string.IsNullOrEmpty(userId))
         {
@@ -86,14 +82,10 @@ public class PersonalAccessControlProvider<T> : IAccessControlProvider<T>
     /// </summary>
     public ValueTask PreCommitHookAsync(TableOperation operation, T entity, CancellationToken cancellationToken = default)
     {
-        var user = _httpContextAccessor.HttpContext?.User;
-        
-        if (user?.Identity?.IsAuthenticated == true && operation == TableOperation.Create)
+        if (operation == TableOperation.Create)
         {
-            string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                ?? user.FindFirst("sub")?.Value
-                ?? user.FindFirst("oid")?.Value
-                ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            var user = _httpContextAccessor.HttpContext?.User;
+            string? userId = GetUserIdFromClaims(user);
 
             if (!string.IsNullOrEmpty(userId))
             {

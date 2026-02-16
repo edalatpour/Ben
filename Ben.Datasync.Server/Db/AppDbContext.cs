@@ -44,11 +44,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     [SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "Model builder ignores return value.")]
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Tells EF Core that the TodoItem entity has a trigger.
+        // Tells EF Core that the TaskItem entity has a trigger.
         modelBuilder.Entity<TaskItem>()
             .ToTable(tb => tb.HasTrigger("TaskItem_datasync"));
 
-        // Tells EF Core that the TodoList entity has a trigger.
+        // Tells EF Core that the NoteItem entity has a trigger.
         modelBuilder.Entity<NoteItem>()
             .ToTable(tb => tb.HasTrigger("NoteItem_datasync"));
 
