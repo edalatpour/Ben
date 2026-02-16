@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Sample.Datasync.Server;
 using Sample.Datasync.Server.Db;
+using System.IdentityModel.Tokens.Jwt;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -34,11 +35,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
-        // Support Microsoft accounts (both personal and work/school)
-        var microsoftAuthority = $"{builder.Configuration["AzureAd:Instance"]}{builder.Configuration["AzureAd:TenantId"]}/v2.0";
-        options.Authority = microsoftAuthority;
-        options.Audience = builder.Configuration["AzureAd:ClientId"];
-        
         // Configure token validation to support multiple issuers
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
@@ -50,7 +46,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             // Support multiple issuers: Microsoft and Google
             ValidIssuers = new[]
             {
-                // Microsoft personal accounts
+                // Microsoft personal accounts (this is the Microsoft-assigned tenant ID for all personal accounts)
                 "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0",
                 // Microsoft work/school accounts (common tenant)
                 $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}/v2.0",
@@ -70,11 +66,48 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             
             // Map name claim for consistent user identification
             NameClaimType = "name",
-            RoleClaimType = "roles"
+            RoleClaimType = "roles",
+            
+            // Custom issuer signing key resolver to fetch keys from multiple providers
+            IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) =>
+            {
+                // Determine the issuer from the token
+                var jsonToken = securityToken as System.IdentityModel.Tokens.Jwt.JwtSecurityToken;
+                var issuer = jsonToken?.Issuer;
+                
+                if (string.IsNullOrEmpty(issuer))
+                {
+                    return Enumerable.Empty<SecurityKey>();
+                }
+                
+                // Fetch signing keys based on issuer
+                string metadataUrl;
+                if (issuer.Contains("login.microsoftonline.com"))
+                {
+                    // Microsoft tokens
+                    metadataUrl = $"{issuer.TrimEnd('/')}/.well-known/openid-configuration";
+                }
+                else if (issuer.Contains("accounts.google.com") || issuer == "accounts.google.com")
+                {
+                    // Google tokens
+                    metadataUrl = "https://accounts.google.com/.well-known/openid-configuration";
+                }
+                else
+                {
+                    // Unknown issuer
+                    return Enumerable.Empty<SecurityKey>();
+                }
+                
+                // Fetch and cache signing keys
+                var configurationManager = new Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration>(
+                    metadataUrl,
+                    new Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever(),
+                    new Microsoft.IdentityModel.Protocols.HttpDocumentRetriever());
+                
+                var config = configurationManager.GetConfigurationAsync(CancellationToken.None).GetAwaiter().GetResult();
+                return config.SigningKeys;
+            }
         };
-        
-        // Configure metadata address to fetch signing keys from Microsoft
-        options.MetadataAddress = $"{microsoftAuthority}/.well-known/openid-configuration";
         
         // Add event handlers for better debugging and multi-provider support
         options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents

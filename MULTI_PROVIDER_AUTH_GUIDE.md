@@ -244,7 +244,8 @@ private string? GetUserIdFromClaims(ClaimsPrincipal? user)
 2. **Decode Token**:
    - Go to https://jwt.ms and paste the token
    - Verify:
-     - `iss`: `https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0` (personal accounts tenant)
+     - `iss`: `https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0`  
+       *(Note: 9188040d-6c67-4c5b-b112-36a304b66dad is the Microsoft-assigned tenant ID that ALL personal accounts share - this is not a placeholder)*
      - `aud`: Your Microsoft client ID
      - `sub`: User's unique ID
 
