@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:Ben.Views"
+             x:Class="Ben.Views.NotesPageView">
+
+    <Grid Padding="16"
+          RowDefinitions="Auto,Auto,*"
+          RowSpacing="8">
+
+        <VerticalStackLayout Spacing="0"
+                             HorizontalOptions="End"
+                             VerticalOptions="Start">
+            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dd}'}"
+                   Style="{StaticResource DateNumber}"
+                   HorizontalTextAlignment="End"/>
+            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dddd}'}"
+                   Style="{StaticResource DateText}"
+                   HorizontalTextAlignment="End"/>
+            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:MMMM yyyy}'}"
+                   Style="{StaticResource DateText}"
+                   HorizontalTextAlignment="End"/>
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*"
+              ColumnSpacing="10"
+              Padding="0,4,0,0">
+            <Label Grid.Column="0"
+                   Text="Daily Notes"
+                   Style="{StaticResource SectionTitle}"
+                   HorizontalTextAlignment="Center"/>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <BoxView Grid.ColumnSpan="2"
+                     HeightRequest="3"
+                     BackgroundColor="{StaticResource Ink}"/>
+            <BoxView Grid.RowSpan="2"
+                     WidthRequest="1"
+                     BackgroundColor="{StaticResource Ink}"/>
+
+            <Grid Grid.Row="1"
+                  Grid.Column="1"
+                  BackgroundColor="{StaticResource WritingPaper}">
+                <CollectionView x:Name="NotesList"
+                                ItemsSource="{Binding CurrentDay.Notes}"
+                                ItemsLayout="VerticalList"
+                                BackgroundColor="Transparent"
+                                Margin="0,0,0,8">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="36,1,*"
+                                  ColumnSpacing="8"
+                                  Padding="0,0,0,0">
+                                <Label Grid.Column="0"
+                                       Text="{Binding Order}"
+                                       HorizontalTextAlignment="End"
+                                       VerticalTextAlignment="Start"
+                                       Style="{StaticResource Handwriting}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPlaceholder}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsEditing}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <BoxView Grid.Column="1"
+                                         WidthRequest="1"
+                                         BackgroundColor="{StaticResource Line}"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Fill"/>
+                                <Label Grid.Column="2"
+                                       Text="{Binding Text}"
+                                       LineBreakMode="WordWrap"
+                                       HorizontalTextAlignment="Start"
+                                       VerticalTextAlignment="Start"
+                                       Style="{StaticResource Handwriting}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPlaceholder}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsEditing}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnNoteTapped"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Entry Grid.Column="2"
+                                       Text="{Binding Text}"
+                                       Completed="OnNewNoteCompleted"
+                                       ReturnType="Done"
+                                       Placeholder="Add a note..."
+                                       IsVisible="{Binding IsPlaceholder}"
+                                       VerticalOptions="Start"
+                                       Style="{StaticResource Handwriting}"
+                                       BackgroundColor="Transparent"/>
+                                <Entry Grid.Column="2"
+                                       Text="{Binding Text}"
+                                       Completed="OnEditNoteCompleted"
+                                       Unfocused="OnEditNoteUnfocused"
+                                       ReturnType="Done"
+                                       IsVisible="{Binding IsEditing}"
+                                       VerticalOptions="Start"
+                                       Style="{StaticResource Handwriting}"
+                                       BackgroundColor="Transparent"
+                                       StyleClass="NoteEditEntry"/>
+                                <BoxView Grid.ColumnSpan="3"
+                                         HeightRequest="1"
+                                         BackgroundColor="{StaticResource Line}"
+                                         VerticalOptions="End"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+
+            <BoxView Grid.Row="1"
+                     Grid.ColumnSpan="2"
+                     HeightRequest="1"
+                     BackgroundColor="{StaticResource Ink}"
+                     VerticalOptions="End"/>
+        </Grid>
+    </Grid>
+</ContentView>

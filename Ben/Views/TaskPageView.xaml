@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:Ben.Views"
+             x:Class="Ben.Views.TaskPageView">
+
+    <Grid Padding="16"
+          RowDefinitions="Auto,Auto,*"
+          RowSpacing="8">
+
+        <VerticalStackLayout Spacing="0"
+                             HorizontalOptions="Start"
+                             VerticalOptions="Start">
+            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dd}'}"
+                   Style="{StaticResource DateNumber}"
+                   HorizontalTextAlignment="Start"/>
+            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dddd}'}"
+                   Style="{StaticResource DateText}"
+                   HorizontalTextAlignment="Start"/>
+            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:MMMM yyyy}'}"
+                   Style="{StaticResource DateText}"
+                   HorizontalTextAlignment="Start"/>
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="38,38,*"
+              ColumnSpacing="10"
+              Padding="0,4,0,0">
+            <Label Text="▼"
+                   Grid.Column="0"
+                   Style="{StaticResource SectionTitle}"
+                   HorizontalTextAlignment="Center"/>
+            <Label Text="ABC"
+                   Grid.Column="1"
+                   Style="{StaticResource SectionTitle}"
+                   HorizontalTextAlignment="Center"/>
+            <Label Text="Prioritized Daily Task List"
+                   Grid.Column="2"
+                   Style="{StaticResource SectionTitle}"
+                   HorizontalTextAlignment="Center"/>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <BoxView Grid.ColumnSpan="2"
+                     HeightRequest="3"
+                     BackgroundColor="{StaticResource Ink}"/>
+            <BoxView Grid.RowSpan="2"
+                     WidthRequest="1"
+                     BackgroundColor="{StaticResource Ink}"/>
+
+            <Grid Grid.Row="1"
+                  Grid.Column="1"
+                  BackgroundColor="{StaticResource WritingPaper}">
+                <CollectionView x:Name="TaskList"
+                                ItemsSource="{Binding CurrentDay.Tasks}"
+                                ItemsLayout="VerticalList"
+                                BackgroundColor="Transparent"
+                                Margin="0,0,0,8">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="32,1,16,16,1,*"
+                                  ColumnSpacing="8"
+                                  Padding="0,0,0,0">
+                                <Grid.GestureRecognizers>
+                                    <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
+                                    <DropGestureRecognizer Drop="OnTaskDrop"/>
+                                </Grid.GestureRecognizers>
+
+                                <!-- <Grid.GestureRecognizers>
+                                                           <TapGestureRecognizer Tapped="OnTaskStatusTapped" />
+                                                       </Grid.GestureRecognizers> -->
+                                <Label Grid.Column="0"
+                                       Text="{Binding StatusGlyph}"
+                                       Padding="8,0,0,0"
+                                       HorizontalOptions="Fill"
+                                       VerticalOptions="Fill"
+                                       VerticalTextAlignment="Center"
+                                       HorizontalTextAlignment="Center"
+                                       FontSize="24"
+                                       TextColor="{StaticResource Ink}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnTaskStatusTapped"/>
+                                    </Label.GestureRecognizers>
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPlaceholder}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPriorityBucket}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+
+                                <BoxView Grid.Column="1"
+                                         WidthRequest="1"
+                                         BackgroundColor="{StaticResource Line}"/>
+                                <Label Grid.Column="2"
+                                       Text="{Binding Priority}"
+                                       Style="{StaticResource Handwriting}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPlaceholder}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPriorityBucket}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Grid.Column="3"
+                                       Text="{Binding Order}"
+                                       Style="{StaticResource Handwriting}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPlaceholder}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPriorityBucket}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <BoxView Grid.Column="4"
+                                         WidthRequest="1"
+                                         BackgroundColor="{StaticResource Line}"/>
+                                <Label Grid.Column="5"
+                                       Text="{Binding Title}"
+                                       LineBreakMode="WordWrap"
+                                       HorizontalTextAlignment="Start"
+                                       VerticalTextAlignment="Start"
+                                       Style="{StaticResource Handwriting}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPlaceholder}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsPriorityBucket}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsEditing}"
+                                                     Value="True">
+                                            <Setter Property="IsVisible"
+                                                    Value="False"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnTaskTitleTapped"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Label Grid.Column="2"
+                                       Text="{Binding Priority}"
+                                       VerticalOptions="Center"
+                                       FontFamily="Bradley Hand"
+                                       FontSize="24"
+                                       FontAttributes="Italic"
+                                       TextColor="{StaticResource Accent}"
+                                       IsVisible="{Binding IsPriorityBucket}"/>
+                                <Entry Grid.Column="5"
+                                       Text="{Binding Title}"
+                                       Completed="OnNewTaskCompleted"
+                                       ReturnType="Done"
+                                       Placeholder="Add a task..."
+                                       IsVisible="{Binding IsAddPlaceholder}"
+                                       VerticalOptions="Center"
+                                       FontFamily="Bradley Hand"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource Ink}"
+                                       BackgroundColor="Transparent"/>
+                                <Entry Grid.Column="5"
+                                       Text="{Binding Title}"
+                                       Completed="OnEditTaskCompleted"
+                                       Unfocused="OnEditTaskUnfocused"
+                                       ReturnType="Done"
+                                       IsVisible="{Binding IsEditing}"
+                                       VerticalOptions="Center"
+                                       FontFamily="Bradley Hand"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource Ink}"
+                                       BackgroundColor="Transparent"
+                                       StyleClass="TaskTitleEditEntry"/>
+                                <BoxView Grid.ColumnSpan="6"
+                                         HeightRequest="1"
+                                         BackgroundColor="{StaticResource Line}"
+                                         VerticalOptions="End"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+
+            <BoxView Grid.Row="1"
+                     Grid.ColumnSpan="2"
+                     HeightRequest="1"
+                     BackgroundColor="{StaticResource Ink}"
+                     VerticalOptions="End"/>
+        </Grid>
+
+    </Grid>
+
+</ContentView>

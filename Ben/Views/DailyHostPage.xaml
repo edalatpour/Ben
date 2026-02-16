@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:Ben.Views"
+             x:Class="Ben.Views.DailyHostPage"
+             x:Name="HostPage">
+  <!-- SafeAreaEdges="None" -->
+
+  <Grid x:Name="RootGrid"
+        Style="{StaticResource PaperRootGrid}">
+    <!-- SafeAreaEdges="None" -->
+    <Grid.GestureRecognizers>
+      <SwipeGestureRecognizer Direction="Left"
+                              Swiped="OnSwipeLeft"/>
+      <SwipeGestureRecognizer Direction="Right"
+                              Swiped="OnSwipeRight"/>
+    </Grid.GestureRecognizers>
+
+    <!-- Landscape: show both pages -->
+    <Grid x:Name="LandscapeGrid"
+          ColumnDefinitions="*,*"
+          IsVisible="False">
+      <views:TaskPageView x:Name="LandscapeTasks"/>
+      <views:NotesPageView x:Name="LandscapeNotes"
+                           Grid.Column="1"/>
+    </Grid>
+
+    <!-- Portrait: show one page at a time -->
+    <Grid x:Name="PortraitGrid"
+          IsVisible="True">
+      <ContentView x:Name="SinglePageHost"/>
+    </Grid>
+
+    <Grid ColumnDefinitions="Auto,*,Auto"
+          IsVisible="{Binding Source={x:Reference HostPage}, Path=ShowDesktopArrows}"
+          VerticalOptions="Fill"
+          HorizontalOptions="Fill"
+          InputTransparent="True"
+          CascadeInputTransparent="False">
+      <Button Grid.Column="0"
+              Text="&lt;"
+              Clicked="OnPreviousClicked"
+              BackgroundColor="Transparent"
+              TextColor="{StaticResource Ink}"
+              Opacity="0.35"
+              FontSize="30"
+              WidthRequest="44"
+              HeightRequest="60"
+              Padding="6"
+              Margin="6,0,0,0"
+              VerticalOptions="Center"
+              HorizontalOptions="Start"/>
+      <Button Grid.Column="2"
+              Text="&gt;"
+              Clicked="OnNextClicked"
+              BackgroundColor="Transparent"
+              TextColor="{StaticResource Ink}"
+              Opacity="0.35"
+              FontSize="30"
+              WidthRequest="44"
+              HeightRequest="60"
+              Padding="6"
+              Margin="0,0,6,0"
+              VerticalOptions="Center"
+              HorizontalOptions="End"/>
+    </Grid>
+
+  </Grid>
+
+</ContentPage>
