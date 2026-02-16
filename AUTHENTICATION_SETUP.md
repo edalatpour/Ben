@@ -4,16 +4,17 @@ This guide explains how to configure authentication for the Ben Datasync Server 
 
 ## ⚠️ Important: Multi-Provider Support
 
-**The server now supports multiple authentication providers including Personal Microsoft accounts and Google accounts.**
+**The server now supports multiple authentication providers including Personal Microsoft accounts, Google accounts, and Apple ID.**
 
 For detailed information about multi-provider authentication setup, please see:
-- **[MULTI_PROVIDER_AUTH_GUIDE.md](MULTI_PROVIDER_AUTH_GUIDE.md)** - Comprehensive guide for setting up Microsoft and Google authentication
+- **[MULTI_PROVIDER_AUTH_GUIDE.md](MULTI_PROVIDER_AUTH_GUIDE.md)** - Comprehensive guide for Microsoft, Google, and Apple authentication
+- **[APPLE_AUTH_GUIDE.md](APPLE_AUTH_GUIDE.md)** - Detailed Apple ID (Sign in with Apple) setup guide
 
-This document provides the basic authentication setup. For production deployments with multiple authentication providers, refer to the multi-provider guide.
+This document provides the basic authentication setup. For production deployments with multiple authentication providers, refer to the multi-provider guides.
 
 ## Overview
 
-The Ben application now implements **personal tables** (user-scoped data) where each user can only access their own Notes and Tasks. This requires authentication via Microsoft, Google, or Entra ID accounts.
+The Ben application now implements **personal tables** (user-scoped data) where each user can only access their own Notes and Tasks. This requires authentication via Microsoft, Google, Apple ID, or Entra ID accounts.
 
 ## Server-Side Configuration (Ben.Datasync.Server)
 

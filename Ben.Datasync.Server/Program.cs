@@ -31,7 +31,7 @@ builder.Services.AddDatasyncServices();
 builder.Services.AddHttpContextAccessor();
 
 // Configure authentication
-// Support for multiple authentication providers: Microsoft (Personal & Work/School) and Google
+// Support for multiple authentication providers: Microsoft (Personal & Work/School), Google, and Apple
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
@@ -43,7 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             
-            // Support multiple issuers: Microsoft and Google
+            // Support multiple issuers: Microsoft, Google, and Apple
             ValidIssuers = new[]
             {
                 // Microsoft personal accounts (this is the Microsoft-assigned tenant ID for all personal accounts)
@@ -54,14 +54,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 $"{builder.Configuration["AzureAd:Instance"]}{builder.Configuration["AzureAd:TenantId"]}/v2.0",
                 // Google accounts
                 "https://accounts.google.com",
-                "accounts.google.com"
+                "accounts.google.com",
+                // Apple accounts
+                "https://appleid.apple.com"
             },
             
             // Support multiple audiences (client IDs)
             ValidAudiences = new[]
             {
                 builder.Configuration["AzureAd:ClientId"] ?? "",
-                builder.Configuration["GoogleAuth:ClientId"] ?? ""
+                builder.Configuration["GoogleAuth:ClientId"] ?? "",
+                builder.Configuration["AppleAuth:ClientId"] ?? ""
             },
             
             // Map name claim for consistent user identification
@@ -91,6 +94,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 {
                     // Google tokens
                     metadataUrl = "https://accounts.google.com/.well-known/openid-configuration";
+                }
+                else if (issuer.Contains("appleid.apple.com") || issuer == "https://appleid.apple.com")
+                {
+                    // Apple tokens
+                    metadataUrl = "https://appleid.apple.com/.well-known/openid-configuration";
                 }
                 else
                 {

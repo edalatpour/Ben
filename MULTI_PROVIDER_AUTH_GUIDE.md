@@ -1,6 +1,6 @@
 # Multi-Provider Authentication Guide
 
-This guide explains how the Ben Datasync Server supports authentication from multiple identity providers, including Personal Microsoft accounts and Google accounts.
+This guide explains how the Ben Datasync Server supports authentication from multiple identity providers, including Personal Microsoft accounts, Google accounts, and Apple ID.
 
 ## Overview
 
@@ -8,6 +8,7 @@ The server is configured to accept JWT tokens from multiple identity providers:
 - **Microsoft Personal Accounts** (e.g., outlook.com, hotmail.com)
 - **Microsoft Work/School Accounts** (Azure AD organizational accounts)
 - **Google Accounts** (e.g., gmail.com, Google Workspace)
+- **Apple ID** (Sign in with Apple)
 
 This is achieved through a flexible JWT Bearer authentication configuration that validates tokens from multiple issuers.
 
@@ -20,10 +21,12 @@ The server validates JWT tokens by checking:
 1. **Issuer**: The token must be issued by a trusted identity provider
    - Microsoft: `https://login.microsoftonline.com/{tenantId}/v2.0`
    - Google: `https://accounts.google.com`
+   - Apple: `https://appleid.apple.com`
 
 2. **Audience**: The token must be intended for this API
    - Your Microsoft Client ID (from Azure AD app registration)
    - Your Google Client ID (from Google Cloud Console)
+   - Your Apple Services ID (from Apple Developer Console)
 
 3. **Signature**: The token must be signed by the identity provider's signing key
 
@@ -53,6 +56,9 @@ This ensures consistent user identification regardless of which provider issued 
   },
   "GoogleAuth": {
     "ClientId": "your-google-client-id-here.apps.googleusercontent.com"
+  },
+  "AppleAuth": {
+    "ClientId": "your.apple.services.id"
   }
 }
 ```
@@ -64,6 +70,9 @@ This ensures consistent user identification regardless of which provider issued 
 
 **GoogleAuth Configuration:**
 - `ClientId`: Your Google OAuth 2.0 client ID
+
+**AppleAuth Configuration:**
+- `ClientId`: Your Apple Services ID (reverse domain notation)
 
 ### Setting Up Microsoft Authentication
 
@@ -432,11 +441,13 @@ The Ben Datasync Server now supports:
 - ✅ Microsoft Personal Accounts (outlook.com, hotmail.com, live.com)
 - ✅ Microsoft Work/School Accounts (Azure AD)
 - ✅ Google Accounts (gmail.com, Google Workspace)
+- ✅ Apple ID (Sign in with Apple)
 - ✅ Extensible to additional providers
 
 Each provider maintains separate user identities for security. The implementation uses standard JWT Bearer authentication with multi-issuer support, making it compatible with any OpenID Connect compliant provider.
 
 For client implementation details, see:
+- `APPLE_AUTH_GUIDE.md` - Apple ID setup and implementation
 - `CLIENT_AUTH_GUIDE.md` - MAUI client setup
 - `AUTHENTICATION_SETUP.md` - General authentication guide
 - `IMPLEMENTATION_SUMMARY.md` - Technical overview
