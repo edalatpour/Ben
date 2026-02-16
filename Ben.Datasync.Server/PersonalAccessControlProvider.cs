@@ -35,10 +35,15 @@ public class PersonalAccessControlProvider<T> : IAccessControlProvider<T>
             return null;
         }
 
-        return user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? user.FindFirst("sub")?.Value
+        // Try multiple claim types in order of preference
+        // "sub" is the standard OpenID Connect subject claim used by Google, Microsoft, and others
+        // "oid" is used by Microsoft Azure AD for object ID
+        // ClaimTypes.NameIdentifier is the standard .NET claim type
+        return user.FindFirst("sub")?.Value
+            ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value
             ?? user.FindFirst("oid")?.Value
-            ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value
+            ?? user.FindFirst("user_id")?.Value; // Additional fallback for some providers
     }
 
     /// <summary>

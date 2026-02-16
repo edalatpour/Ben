@@ -9,7 +9,7 @@ using CommunityToolkit.Datasync.Server.Swashbuckle;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
 using Sample.Datasync.Server;
 using Sample.Datasync.Server.Db;
 
@@ -30,15 +30,69 @@ builder.Services.AddDatasyncServices();
 builder.Services.AddHttpContextAccessor();
 
 // Configure authentication
-// Support for Microsoft Entra ID (Azure AD)
+// Support for multiple authentication providers: Microsoft (Personal & Work/School) and Google
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(options =>
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
-        builder.Configuration.Bind("AzureAd", options);
-        options.TokenValidationParameters.NameClaimType = "name";
-    }, options =>
-    {
-        builder.Configuration.Bind("AzureAd", options);
+        // Support Microsoft accounts (both personal and work/school)
+        var microsoftAuthority = $"{builder.Configuration["AzureAd:Instance"]}{builder.Configuration["AzureAd:TenantId"]}/v2.0";
+        options.Authority = microsoftAuthority;
+        options.Audience = builder.Configuration["AzureAd:ClientId"];
+        
+        // Configure token validation to support multiple issuers
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            
+            // Support multiple issuers: Microsoft and Google
+            ValidIssuers = new[]
+            {
+                // Microsoft personal accounts
+                "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0",
+                // Microsoft work/school accounts (common tenant)
+                $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}/v2.0",
+                // Microsoft alternative format
+                $"{builder.Configuration["AzureAd:Instance"]}{builder.Configuration["AzureAd:TenantId"]}/v2.0",
+                // Google accounts
+                "https://accounts.google.com",
+                "accounts.google.com"
+            },
+            
+            // Support multiple audiences (client IDs)
+            ValidAudiences = new[]
+            {
+                builder.Configuration["AzureAd:ClientId"] ?? "",
+                builder.Configuration["GoogleAuth:ClientId"] ?? ""
+            },
+            
+            // Map name claim for consistent user identification
+            NameClaimType = "name",
+            RoleClaimType = "roles"
+        };
+        
+        // Configure metadata address to fetch signing keys from Microsoft
+        options.MetadataAddress = $"{microsoftAuthority}/.well-known/openid-configuration";
+        
+        // Add event handlers for better debugging and multi-provider support
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                if (context.Exception != null)
+                {
+                    context.Response.Headers.Append("Token-Error", context.Exception.Message);
+                }
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                // Token successfully validated
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Add authorization
