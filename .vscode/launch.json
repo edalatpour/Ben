@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Ben.Client (Windows)",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/Ben.Client/Ben.Client.csproj",
+      "preLaunchTask": "build-windows-debug"
+    }
+  ]
+}
