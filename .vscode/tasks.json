@@ -2,7 +2,7 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build-ios-debug",
+			"label": "build-windows-debug",
 			"type": "shell",
 			"command": "dotnet",
 			"args": [
@@ -10,16 +10,8 @@
 				"-t:Build",
 				"-p:Configuration=Debug",
 				"-f",
-				"net10.0-ios",
-				"-r",
-				"iossimulator-arm64",
-				"-p:CustomAfterMicrosoftCSharpTargets=/Users/timeda/.vscode/extensions/ms-dotnettools.dotnet-maui-1.13.20-darwin-arm64/dist/resources/Custom.After.Microsoft.CSharp.targets",
-				"-p:MauiVSCodeBuildOutputFile=/var/folders/s9/phntxh7s1dq9vh964nqcl0h40000gq/T/dotnet-maui/maui-vsc-0c5c3db0-e361-4525-bd71-87040b26b9a2.json",
-				"-p:MauiTargetProject=/Users/timeda/Projects/Ben/Ben/Ben.csproj",
-				"-p:XamlTools=/Users/timeda/.vscode/extensions/ms-dotnettools.csharp-2.120.3-darwin-arm64/.xamlTools",
-				"-p:EnableDiagnostics=True",
-				"-p:EnableMauiXamlDiagnostics=True",
-				"/Users/timeda/Projects/Ben/Ben/Ben.csproj"
+				"net10.0-windows10.0.19041.0",
+				"./Ben.Client/Ben.Client.csproj"
 			],
 			"isBackground": false,
 			"problemMatcher": [],
@@ -34,16 +26,8 @@
 				"-t:Build",
 				"-p:Configuration=Debug",
 				"-f",
-				"net10.0-ios",
-				"-r",
-				"iossimulator-arm64",
-				"-p:CustomAfterMicrosoftCSharpTargets=/Users/timeda/.vscode/extensions/ms-dotnettools.dotnet-maui-1.13.20-darwin-arm64/dist/resources/Custom.After.Microsoft.CSharp.targets",
-				"-p:MauiVSCodeBuildOutputFile=/var/folders/s9/phntxh7s1dq9vh964nqcl0h40000gq/T/dotnet-maui/maui-vsc-cb2fbc11-3d4c-4b26-aff2-e49fdc4e6d89.json",
-				"-p:MauiTargetProject=/Users/timeda/Projects/Ben/Ben/Ben.csproj",
-				"-p:XamlTools=/Users/timeda/.vscode/extensions/ms-dotnettools.csharp-2.120.3-darwin-arm64/.xamlTools",
-				"-p:EnableDiagnostics=True",
-				"-p:EnableMauiXamlDiagnostics=True",
-				"/Users/timeda/Projects/Ben/Ben/Ben.csproj"
+				"net10.0-windows10.0.19041.0",
+				"./Ben.Client/Ben.Client.csproj"
 			],
 			"isBackground": false,
 			"problemMatcher": [],
