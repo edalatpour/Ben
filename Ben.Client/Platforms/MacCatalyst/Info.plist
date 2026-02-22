@@ -36,5 +36,23 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<!-- MSAL redirect URI scheme: msalYOUR_MICROSOFT_CLIENT_ID://auth -->
+	<!-- TODO: Replace YOUR_MICROSOFT_CLIENT_ID with your Azure AD app registration client ID -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>msalYOUR_MICROSOFT_CLIENT_ID</string>
+			</array>
+		</dict>
+		<!-- Google OAuth callback scheme -->
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.edalatpour.ben</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

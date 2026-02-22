@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ben.Views.LoginPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource Paper}">
+
+  <ScrollView>
+    <VerticalStackLayout
+        VerticalOptions="Center"
+        HorizontalOptions="Center"
+        Spacing="0"
+        Padding="40,60">
+
+      <!-- App name -->
+      <Label Text="Ben"
+             Style="{StaticResource DateNumber}"
+             HorizontalTextAlignment="Center"
+             Margin="0,0,0,8" />
+
+      <!-- Subtitle -->
+      <Label Text="Sign in to sync your notes and tasks&#x0a;across all of your devices."
+             Style="{StaticResource DateText}"
+             HorizontalTextAlignment="Center"
+             Margin="0,0,0,48" />
+
+      <!-- Microsoft sign-in button -->
+      <Button x:Name="MicrosoftButton"
+              Text="Continue with Microsoft"
+              Clicked="OnMicrosoftClicked"
+              BackgroundColor="{StaticResource Accent}"
+              TextColor="White"
+              CornerRadius="8"
+              FontFamily="OpenSansRegular"
+              FontSize="15"
+              HeightRequest="50"
+              WidthRequest="280"
+              Margin="0,0,0,14"
+              HorizontalOptions="Center" />
+
+      <!-- Google sign-in button -->
+      <Button x:Name="GoogleButton"
+              Text="Continue with Google"
+              Clicked="OnGoogleClicked"
+              BackgroundColor="{StaticResource Accent}"
+              TextColor="White"
+              CornerRadius="8"
+              FontFamily="OpenSansRegular"
+              FontSize="15"
+              HeightRequest="50"
+              WidthRequest="280"
+              Margin="0,0,0,14"
+              HorizontalOptions="Center" />
+
+      <!-- Apple sign-in button -->
+      <Button x:Name="AppleButton"
+              Text="Continue with Apple"
+              Clicked="OnAppleClicked"
+              BackgroundColor="{StaticResource Ink}"
+              TextColor="White"
+              CornerRadius="8"
+              FontFamily="OpenSansRegular"
+              FontSize="15"
+              HeightRequest="50"
+              WidthRequest="280"
+              Margin="0,0,0,28"
+              HorizontalOptions="Center" />
+
+      <!-- Skip / continue without signing in -->
+      <Button x:Name="SkipButton"
+              Text="Continue without signing in"
+              Clicked="OnSkipClicked"
+              BackgroundColor="Transparent"
+              TextColor="{StaticResource Ink}"
+              FontFamily="OpenSansRegular"
+              FontSize="13"
+              BorderWidth="0"
+              HorizontalOptions="Center" />
+
+      <!-- Activity indicator shown during sign-in -->
+      <ActivityIndicator x:Name="SignInActivity"
+                         IsRunning="False"
+                         IsVisible="False"
+                         Color="{StaticResource Accent}"
+                         Margin="0,24,0,0"
+                         HorizontalOptions="Center" />
+
+    </VerticalStackLayout>
+  </ScrollView>
+
+</ContentPage>

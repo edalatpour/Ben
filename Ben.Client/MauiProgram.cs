@@ -27,9 +27,18 @@ public static class MauiProgram
 
         string dbPath = Path.Combine(FileSystem.AppDataDirectory, "planner.datasync.db");
 
-        builder.Services.AddSingleton(new DatasyncOptions
+        // Register authentication services.
+        builder.Services.AddSingleton<AuthenticationService>();
+        builder.Services.AddSingleton<AuthTokenHandler>();
+
+        builder.Services.AddSingleton(sp =>
         {
-            Endpoint = new Uri("https://app-qg762nqxq5bva.azurewebsites.net/")
+            var authHandler = sp.GetRequiredService<AuthTokenHandler>();
+            return new DatasyncOptions
+            {
+                Endpoint = new Uri("https://app-qg762nqxq5bva.azurewebsites.net/"),
+                AuthHandler = authHandler
+            };
         });
 
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
@@ -44,6 +53,7 @@ public static class MauiProgram
         // Register ViewModels + Pages
         builder.Services.AddTransient<DailyViewModel>();
         builder.Services.AddTransient<DailyHostPage>();
+        builder.Services.AddTransient<LoginPage>();
 
         var app = builder.Build();
 

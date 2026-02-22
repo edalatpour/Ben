@@ -46,6 +46,11 @@ public class PlannerDbContext : OfflineDbContext
             Timeout = TimeSpan.FromSeconds(30)
         };
 
+        if (_options.AuthHandler != null)
+        {
+            clientOptions.HttpPipeline = [_options.AuthHandler];
+        }
+
         optionsBuilder.UseHttpClientOptions(clientOptions);
 
         optionsBuilder.Entity<TaskItem>(cfg =>
