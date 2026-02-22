@@ -1,1 +1,1 @@
-Ben is a digital planner for organizing your daily tasks abd takimg notes. It is based on the Franklin Planner paper-based planner.
+Ben is a digital planner for organizing your daily tasks and takimg notes. It is based on the Franklin Planner paper-based planner.
