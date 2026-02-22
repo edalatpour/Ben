@@ -148,7 +148,7 @@ Use https://jwt.io to create test tokens with:
 3. **Configure Scopes**
    ```
    Go to: Expose an API
-   Add scope: access_as_user
+   Add scope:   
    Who can consent: Admins and users
    ```
 
