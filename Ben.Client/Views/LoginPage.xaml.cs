@@ -12,6 +12,18 @@ public partial class LoginPage : ContentPage
         _authService = authService;
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Attempt to silently restore a previous session (or honour a prior "skip" choice).
+        // If successful, go straight to the main page without showing the login UI.
+        if (await _authService.TryRestoreSessionAsync())
+        {
+            await NavigateToMainAsync();
+        }
+    }
+
     private async void OnMicrosoftClicked(object sender, EventArgs e)
     {
         await TrySignInAsync(() => _authService.SignInWithMicrosoftAsync());
@@ -29,8 +41,8 @@ public partial class LoginPage : ContentPage
 
     private async void OnSkipClicked(object sender, EventArgs e)
     {
-        // User chose to continue without signing in.
-        // The app works offline; sync is simply skipped when no token is present.
+        // Persist the "skip" choice so this screen is not shown again on subsequent launches.
+        _authService.MarkAsSkipped();
         await NavigateToMainAsync();
     }
 

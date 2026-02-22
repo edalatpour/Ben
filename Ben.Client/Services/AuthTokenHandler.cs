@@ -16,6 +16,9 @@ public class AuthTokenHandler : DelegatingHandler
         _authService = authService;
     }
 
+    /// <summary>Gets whether the user currently has a valid access token.</summary>
+    public bool IsAuthenticated => _authService.IsAuthenticated;
+
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
         CancellationToken cancellationToken)

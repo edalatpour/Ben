@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 
 namespace Ben.Services;
@@ -5,6 +6,7 @@ namespace Ben.Services;
 /// <summary>
 /// Manages authentication state and access tokens for multiple identity providers:
 /// Microsoft (personal and work/school accounts via MSAL), Google, and Apple.
+/// Auth choice is persisted across launches using Preferences and SecureStorage.
 /// </summary>
 public class AuthenticationService
 {
@@ -31,12 +33,28 @@ public class AuthenticationService
     // Scopes requested from Microsoft identity platform.
     private static readonly string[] MicrosoftScopes = ["openid", "profile", "email", "offline_access"];
 
+    // Preferences key that stores which provider the user last used (or "skipped").
+    private const string PrefsKeyProvider = "auth_provider";
+
+    // SecureStorage keys for non-MSAL tokens (MSAL manages its own cache).
+    private const string SecureKeyGoogleToken = "auth_google_token";
+    private const string SecureKeyAppleToken = "auth_apple_token";
+
+    // Provider name constants stored in Preferences.
+    private const string ProviderNone = "none";
+    private const string ProviderMicrosoft = "microsoft";
+    private const string ProviderGoogle = "google";
+    private const string ProviderApple = "apple";
+    private const string ProviderSkipped = "skipped";
+
     private readonly IPublicClientApplication _msalClient;
+    private readonly ILogger<AuthenticationService> _logger;
 
     private string? _accessToken;
 
-    public AuthenticationService()
+    public AuthenticationService(ILogger<AuthenticationService> logger)
     {
+        _logger = logger;
         _msalClient = PublicClientApplicationBuilder
             .Create(MicrosoftClientId)
             // "common" accepts both personal Microsoft accounts and work/school accounts.
@@ -56,8 +74,30 @@ public class AuthenticationService
     /// <summary>Gets the current access token, or null if the user is not authenticated.</summary>
     public string? AccessToken => _accessToken;
 
-    /// <summary>Gets whether the user is currently authenticated.</summary>
+    /// <summary>Gets whether the user is currently authenticated with a valid token.</summary>
     public bool IsAuthenticated => !string.IsNullOrEmpty(_accessToken);
+
+    /// <summary>
+    /// Attempts to restore a previous session without showing UI.
+    /// Returns <c>true</c> if the session was restored (authenticated) OR if the user previously
+    /// chose to skip sign-in (offline-only mode). Returns <c>false</c> only on first launch or
+    /// after sign-out, meaning the login screen should be shown.
+    /// </summary>
+    public async Task<bool> TryRestoreSessionAsync()
+    {
+        string provider = Preferences.Default.Get(PrefsKeyProvider, ProviderNone);
+
+        return provider switch
+        {
+            ProviderMicrosoft => await TryRestoreMicrosoftSessionAsync(),
+            ProviderGoogle => await TryRestoreStoredTokenAsync(SecureKeyGoogleToken),
+            ProviderApple => await TryRestoreStoredTokenAsync(SecureKeyAppleToken),
+            // User explicitly skipped sign-in; allow straight into the app (offline mode).
+            ProviderSkipped => true,
+            // First launch or after sign-out – show login page.
+            _ => false
+        };
+    }
 
     /// <summary>
     /// Signs in with a Microsoft account (personal or work/school) using MSAL.
@@ -90,6 +130,7 @@ public class AuthenticationService
 
             // Use the id_token so the server can validate the issuer and user identity.
             _accessToken = result.IdToken ?? result.AccessToken;
+            Preferences.Default.Set(PrefsKeyProvider, ProviderMicrosoft);
             return true;
         }
         catch (MsalException)
@@ -142,6 +183,8 @@ public class AuthenticationService
             if (result.Properties.TryGetValue("id_token", out string? idToken) && !string.IsNullOrEmpty(idToken))
             {
                 _accessToken = idToken;
+                Preferences.Default.Set(PrefsKeyProvider, ProviderGoogle);
+                await SecureStorage.Default.SetAsync(SecureKeyGoogleToken, idToken);
                 return true;
             }
 
@@ -180,6 +223,8 @@ public class AuthenticationService
             if (result.Properties.TryGetValue("id_token", out string? idToken) && !string.IsNullOrEmpty(idToken))
             {
                 _accessToken = idToken;
+                Preferences.Default.Set(PrefsKeyProvider, ProviderApple);
+                await SecureStorage.Default.SetAsync(SecureKeyAppleToken, idToken);
                 return true;
             }
 
@@ -210,6 +255,8 @@ public class AuthenticationService
             if (result.Properties.TryGetValue("id_token", out string? idToken) && !string.IsNullOrEmpty(idToken))
             {
                 _accessToken = idToken;
+                Preferences.Default.Set(PrefsKeyProvider, ProviderApple);
+                await SecureStorage.Default.SetAsync(SecureKeyAppleToken, idToken);
                 return true;
             }
 
@@ -226,10 +273,32 @@ public class AuthenticationService
         }
     }
 
-    /// <summary>Signs out the current user and clears stored tokens.</summary>
+    /// <summary>
+    /// Records that the user chose to continue without signing in.
+    /// The app will work offline; this preference is remembered across launches.
+    /// </summary>
+    public void MarkAsSkipped()
+    {
+        Preferences.Default.Set(PrefsKeyProvider, ProviderSkipped);
+    }
+
+    /// <summary>
+    /// Signs out the current user, clears all stored tokens and preferences, and stops sync.
+    /// </summary>
     public async Task SignOutAsync()
     {
         _accessToken = null;
+        Preferences.Default.Remove(PrefsKeyProvider);
+
+        try
+        {
+            SecureStorage.Default.Remove(SecureKeyGoogleToken);
+            SecureStorage.Default.Remove(SecureKeyAppleToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to remove tokens from SecureStorage during sign-out.");
+        }
 
         // Remove all cached MSAL accounts.
         var accounts = await _msalClient.GetAccountsAsync();
@@ -237,5 +306,60 @@ public class AuthenticationService
         {
             await _msalClient.RemoveAsync(account);
         }
+    }
+
+    /// <summary>
+    /// Attempts to silently restore a Microsoft session from MSAL's token cache.
+    /// Clears the saved provider preference if the cache has expired or is empty.
+    /// </summary>
+    private async Task<bool> TryRestoreMicrosoftSessionAsync()
+    {
+        try
+        {
+            var accounts = await _msalClient.GetAccountsAsync();
+            var account = accounts.FirstOrDefault();
+
+            if (account == null)
+            {
+                Preferences.Default.Remove(PrefsKeyProvider);
+                return false;
+            }
+
+            var result = await _msalClient
+                .AcquireTokenSilent(MicrosoftScopes, account)
+                .ExecuteAsync();
+
+            _accessToken = result.IdToken ?? result.AccessToken;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex, "Silent Microsoft token acquisition failed; user will be prompted to sign in.");
+            Preferences.Default.Remove(PrefsKeyProvider);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Restores a Google or Apple token from SecureStorage.
+    /// </summary>
+    private async Task<bool> TryRestoreStoredTokenAsync(string secureKey)
+    {
+        try
+        {
+            string? token = await SecureStorage.Default.GetAsync(secureKey);
+            if (!string.IsNullOrEmpty(token))
+            {
+                _accessToken = token;
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to retrieve token from SecureStorage (key: {Key}); user will be prompted to sign in.", secureKey);
+        }
+
+        Preferences.Default.Remove(PrefsKeyProvider);
+        return false;
     }
 }
