@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Identity.Client;
 
 namespace Ben.Services;
@@ -11,22 +12,22 @@ public class AuthenticationService
     // TODO: Replace with your Azure AD app registration client ID.
     // Register at https://portal.azure.com -> Azure Active Directory -> App registrations.
     // Set Supported account types to "Accounts in any organizational directory and personal Microsoft accounts".
-    private const string MicrosoftClientId = "YOUR_MICROSOFT_CLIENT_ID";
+    private const string MicrosoftClientId = "d5a4dd1f-e90b-4c48-8031-15041bd3c02c";
 
-    // TODO: Replace with your Google OAuth 2.0 client ID.
-    // Register at https://console.cloud.google.com -> APIs & Services -> Credentials.
     private const string GoogleClientId = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
-
-    // TODO: Replace with your Apple Services ID (reverse domain notation).
-    // Register at https://developer.apple.com -> Certificates, Identifiers & Profiles -> Identifiers -> Services IDs.
-    private const string AppleServicesId = "YOUR_APPLE_SERVICES_ID";
 
     // TODO: Replace with your server-side Apple Sign In callback URL.
     // This URL must be registered as a Return URL in your Apple Services ID configuration.
+    private const string AppleServicesId = "MY_APPLE_SERVICES_ID";
     private const string AppleCallbackUrl = "https://your-server.example.com/auth/apple/callback";
 
-    // Redirect scheme registered in Info.plist for MSAL callback.
+    // Redirect URI for MSAL callback (platform-specific).
+    // Windows desktop requires loopback redirect URI; mobile platforms use custom scheme.
+#if WINDOWS
+    private const string MicrosoftRedirectUri = "http://localhost";
+#else
     private const string MicrosoftRedirectUri = $"msal{MicrosoftClientId}://auth";
+#endif
 
     // Scopes requested from Microsoft identity platform.
     private static readonly string[] MicrosoftScopes = ["openid", "profile", "email", "offline_access"];
@@ -92,8 +93,9 @@ public class AuthenticationService
             _accessToken = result.IdToken ?? result.AccessToken;
             return true;
         }
-        catch (MsalException)
+        catch (MsalException e)
         {
+            Debug.WriteLine($"MSAL error during Microsoft sign-in: {e.Message}");
             return false;
         }
         catch (Exception)

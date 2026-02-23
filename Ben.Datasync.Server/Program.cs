@@ -20,6 +20,22 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
     ?? throw new ApplicationException("DefaultConnection is not set");
 
 string? swaggerDriver = builder.Configuration["Swagger:Driver"];
+
+// Cache configuration managers for token validation to avoid deadlocks
+var microsoftConfigManager = new Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration>(
+    "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
+    new Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever(),
+    new Microsoft.IdentityModel.Protocols.HttpDocumentRetriever());
+
+var googleConfigManager = new Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration>(
+    "https://accounts.google.com/.well-known/openid-configuration",
+    new Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever(),
+    new Microsoft.IdentityModel.Protocols.HttpDocumentRetriever());
+
+var appleConfigManager = new Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration>(
+    "https://appleid.apple.com/.well-known/openid-configuration",
+    new Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever(),
+    new Microsoft.IdentityModel.Protocols.HttpDocumentRetriever());
 bool nswagEnabled = swaggerDriver?.Equals("NSwag", StringComparison.InvariantCultureIgnoreCase) == true;
 bool swashbuckleEnabled = swaggerDriver?.Equals("Swashbuckle", StringComparison.InvariantCultureIgnoreCase) == true;
 bool openApiEnabled = swaggerDriver?.Equals("NET9", StringComparison.InvariantCultureIgnoreCase) == true;
@@ -83,37 +99,36 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     return Enumerable.Empty<SecurityKey>();
                 }
                 
-                // Fetch signing keys based on issuer
-                string metadataUrl;
-                if (issuer.Contains("login.microsoftonline.com"))
+                // Use cached configuration managers to avoid blocking async calls
+                try
                 {
-                    // Microsoft tokens
-                    metadataUrl = $"{issuer.TrimEnd('/')}/.well-known/openid-configuration";
+                    Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration> configManager;
+                    
+                    if (issuer.Contains("login.microsoftonline.com"))
+                    {
+                        configManager = microsoftConfigManager;
+                    }
+                    else if (issuer.Contains("accounts.google.com") || issuer == "accounts.google.com")
+                    {
+                        configManager = googleConfigManager;
+                    }
+                    else if (issuer.Contains("appleid.apple.com") || issuer == "https://appleid.apple.com")
+                    {
+                        configManager = appleConfigManager;
+                    }
+                    else
+                    {
+                        return Enumerable.Empty<SecurityKey>();
+                    }
+                    
+                    // Use Task.Run to avoid deadlocks from sync-over-async
+                    var config = Task.Run(async () => await configManager.GetConfigurationAsync(CancellationToken.None)).GetAwaiter().GetResult();
+                    return config.SigningKeys;
                 }
-                else if (issuer.Contains("accounts.google.com") || issuer == "accounts.google.com")
+                catch
                 {
-                    // Google tokens
-                    metadataUrl = "https://accounts.google.com/.well-known/openid-configuration";
-                }
-                else if (issuer.Contains("appleid.apple.com") || issuer == "https://appleid.apple.com")
-                {
-                    // Apple tokens
-                    metadataUrl = "https://appleid.apple.com/.well-known/openid-configuration";
-                }
-                else
-                {
-                    // Unknown issuer
                     return Enumerable.Empty<SecurityKey>();
                 }
-                
-                // Fetch and cache signing keys
-                var configurationManager = new Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration>(
-                    metadataUrl,
-                    new Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever(),
-                    new Microsoft.IdentityModel.Protocols.HttpDocumentRetriever());
-                
-                var config = configurationManager.GetConfigurationAsync(CancellationToken.None).GetAwaiter().GetResult();
-                return config.SigningKeys;
             }
         };
         
@@ -165,11 +180,33 @@ if (openApiEnabled)
 
 WebApplication app = builder.Build();
 
-// Initialize the database
-using (IServiceScope scope = app.Services.CreateScope())
+var startupLogger = app.Logger;
+AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+    startupLogger.LogCritical(args.ExceptionObject as Exception, "Unhandled exception caused process termination.");
+TaskScheduler.UnobservedTaskException += (_, args) =>
 {
-    AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await context.InitializeDatabaseAsync();
+    startupLogger.LogError(args.Exception, "Unobserved task exception.");
+    args.SetObserved();
+};
+app.Lifetime.ApplicationStarted.Register(() =>
+    startupLogger.LogInformation("Application started. Environment: {EnvironmentName}", app.Environment.EnvironmentName));
+app.Lifetime.ApplicationStopping.Register(() => startupLogger.LogInformation("Application stopping."));
+app.Lifetime.ApplicationStopped.Register(() => startupLogger.LogInformation("Application stopped."));
+
+// Initialize the database
+try
+{
+    using (IServiceScope scope = app.Services.CreateScope())
+    {
+        AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await context.InitializeDatabaseAsync();
+    }
+}
+catch (Exception ex)
+{
+    // Log the error but don't crash the application
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Failed to initialize database. The application will start but database operations may fail.");
 }
 
 app.UseHttpsRedirection();
