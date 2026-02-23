@@ -1,21 +1,24 @@
 namespace Ben.Views;
 
 using Ben.Models;
+using Ben.Services;
 using Ben.ViewModels;
 using Microsoft.Maui.Devices;
 
 public partial class DailyHostPage : ContentPage
 {
     private readonly DailyViewModel _viewModel;
+    private readonly AuthenticationService _authService;
     readonly TaskPageView _portraitTasks;
     readonly NotesPageView _portraitNotes;
     bool _isNavigating;
     bool _isLandscape;
 
-    public DailyHostPage(DailyViewModel vm)
+    public DailyHostPage(DailyViewModel vm, AuthenticationService authService)
     {
         InitializeComponent();
         _viewModel = vm;
+        _authService = authService;
         BindingContext = vm;
         _portraitTasks = new TaskPageView { BindingContext = ViewModel };
         _portraitNotes = new NotesPageView { BindingContext = ViewModel };
@@ -128,5 +131,28 @@ public partial class DailyHostPage : ContentPage
     async void OnNextClicked(object sender, EventArgs e)
     {
         await NextPage();
+    }
+
+    async void OnAccountClicked(object sender, EventArgs e)
+    {
+        if (_authService.IsAuthenticated)
+        {
+            bool confirm = await DisplayAlert(
+                "Sign Out",
+                "Sign out and stop syncing? Your local data will be kept.",
+                "Sign Out",
+                "Cancel");
+
+            if (confirm)
+            {
+                await _authService.SignOutAsync();
+                await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
+            }
+        }
+        else
+        {
+            // User is in offline mode; offer to sign in now.
+            await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
+        }
     }
 }

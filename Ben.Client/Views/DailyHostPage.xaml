@@ -65,6 +65,21 @@
               HorizontalOptions="End"/>
     </Grid>
 
+    <!-- Account button: tap to sign out (when authenticated) or sign in (when offline) -->
+    <Button x:Name="AccountButton"
+            Text="⊙"
+            Clicked="OnAccountClicked"
+            BackgroundColor="Transparent"
+            TextColor="{StaticResource Ink}"
+            Opacity="0.4"
+            FontSize="18"
+            WidthRequest="40"
+            HeightRequest="40"
+            Padding="4"
+            Margin="0,8,10,0"
+            VerticalOptions="Start"
+            HorizontalOptions="End" />
+
   </Grid>
 
 </ContentPage>

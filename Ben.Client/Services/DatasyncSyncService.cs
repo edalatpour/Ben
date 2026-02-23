@@ -76,6 +76,12 @@ public sealed class DatasyncSyncService : IDisposable
             return;
         }
 
+        // Skip sync when the user is not authenticated – data stays local only.
+        if (_options.AuthHandler != null && !_options.AuthHandler.IsAuthenticated)
+        {
+            return;
+        }
+
         if (_connectivity.NetworkAccess != NetworkAccess.Internet)
         {
             return;
