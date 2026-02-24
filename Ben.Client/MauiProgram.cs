@@ -33,7 +33,12 @@ public static class MauiProgram
         });
 
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
+
+        // Authentication
+        builder.Services.AddSingleton<IAuthService, AuthService>();
         builder.Services.AddSingleton<DatasyncSyncService>();
+
+        builder.Services.AddSingleton<IAlertService, AlertService>();
 
         builder.Services.AddDbContext<PlannerDbContext>(options =>
             options.UseSqlite($"Filename={dbPath}"));
@@ -44,6 +49,11 @@ public static class MauiProgram
         // Register ViewModels + Pages
         builder.Services.AddTransient<DailyViewModel>();
         builder.Services.AddTransient<DailyHostPage>();
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<LoginPage>();
+
+        // AppShell needs IAuthService
+        builder.Services.AddSingleton<AppShell>();
 
         var app = builder.Build();
 
@@ -56,6 +66,7 @@ public static class MauiProgram
             var repo = scope.ServiceProvider.GetRequiredService<PlannerRepository>();
             repo.EnsureNoteOrderBackfillAsync().GetAwaiter().GetResult();
 
+            // Only start sync if the user is authenticated.
             var syncService = scope.ServiceProvider.GetRequiredService<DatasyncSyncService>();
             syncService.Start();
         }

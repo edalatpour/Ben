@@ -10,8 +10,10 @@ public sealed class DatasyncSyncService : IDisposable
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConnectivity _connectivity;
     private readonly DatasyncOptions _options;
+    private readonly IAuthService _authService;
     private readonly ILogger<DatasyncSyncService> _logger;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
+    private readonly object _startLock = new();
     private bool _started;
     private bool _disposed;
 
@@ -19,29 +21,58 @@ public sealed class DatasyncSyncService : IDisposable
         IServiceScopeFactory scopeFactory,
         IConnectivity connectivity,
         DatasyncOptions options,
+        IAuthService authService,
         ILogger<DatasyncSyncService> logger)
     {
         _scopeFactory = scopeFactory;
         _connectivity = connectivity;
         _options = options;
+        _authService = authService;
         _logger = logger;
     }
 
     public void Start()
     {
-        if (_started)
+        lock (_startLock)
         {
-            return;
+            if (_started)
+            {
+                return;
+            }
+
+            if (_options.Endpoint == null)
+            {
+                return;
+            }
+
+            // Do not sync when the user is not authenticated (local-only mode).
+            if (!_authService.IsAuthenticated)
+            {
+                return;
+            }
+
+            _started = true;
+            _connectivity.ConnectivityChanged += OnConnectivityChanged;
         }
 
-        if (_options.Endpoint == null)
-        {
-            return;
-        }
-
-        _started = true;
-        _connectivity.ConnectivityChanged += OnConnectivityChanged;
         _ = TrySyncAsync();
+    }
+
+    /// <summary>
+    /// Stops and restarts the sync service. Call this after the user signs in.
+    /// </summary>
+    public void Restart()
+    {
+        lock (_startLock)
+        {
+            if (_started)
+            {
+                _connectivity.ConnectivityChanged -= OnConnectivityChanged;
+                _started = false;
+            }
+        }
+
+        Start();
     }
 
     public void Dispose()

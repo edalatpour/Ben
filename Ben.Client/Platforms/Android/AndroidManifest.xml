@@ -1,6 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
+		<!-- MSAL redirect activity for Microsoft sign-in -->
+		<activity
+			android:name="microsoft.identity.client.BrowserTabActivity"
+			android:configChanges="orientation|screenSize"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<!-- Replace TODO_REPLACE_WITH_ANDROID_SIGNATURE_HASH with the actual hash -->
+				<data android:scheme="msauth" android:host="com.edalatpour.ben" />
+			</intent-filter>
+		</activity>
+		<!-- Google / WebAuthenticator redirect -->
+		<activity
+			android:name="microsoft.maui.authentication.WebAuthenticatorCallbackActivity"
+			android:exported="true"
+			android:launchMode="singleTop">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="com.edalatpour.ben" />
+			</intent-filter>
+		</activity>
+	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 </manifest>

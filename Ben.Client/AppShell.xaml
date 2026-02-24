@@ -7,10 +7,13 @@
     Title="Ben"
     Shell.NavBarIsVisible="False">
 
+    <!-- Login is the default entry point; DailyHostPage is the main app. -->
+    <ShellContent
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Route="login" />
 
     <ShellContent
         ContentTemplate="{DataTemplate views:DailyHostPage}"
-        Route="DailyHostPage" />
-
+        Route="main" />
 
 </Shell>

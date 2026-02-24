@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ben.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:Ben.ViewModels"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource Paper}">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="32,60,32,40"
+            Spacing="0"
+            VerticalOptions="Center">
+
+            <!-- App title -->
+            <Label
+                Text="Ben"
+                FontSize="64"
+                FontAttributes="Bold"
+                TextColor="{StaticResource Ink}"
+                HorizontalOptions="Center"
+                Margin="0,0,0,4" />
+
+            <Label
+                Text="Your personal planner"
+                FontSize="16"
+                TextColor="{StaticResource Accent}"
+                HorizontalOptions="Center"
+                Margin="0,0,0,48" />
+
+            <!-- Sign-in prompt -->
+            <Label
+                Text="Sign in to sync your data across devices"
+                FontSize="14"
+                TextColor="{StaticResource Ink}"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Margin="0,0,0,24" />
+
+            <!-- Microsoft button -->
+            <Button
+                Text="Continue with Microsoft"
+                Command="{Binding SignInWithMicrosoftCommand}"
+                IsEnabled="{Binding IsNotBusy}"
+                BackgroundColor="{StaticResource Ink}"
+                TextColor="{StaticResource Paper}"
+                CornerRadius="8"
+                HeightRequest="48"
+                Margin="0,0,0,12" />
+
+            <!-- Google button -->
+            <Button
+                Text="Continue with Google"
+                Command="{Binding SignInWithGoogleCommand}"
+                IsEnabled="{Binding IsNotBusy}"
+                BackgroundColor="{StaticResource Ink}"
+                TextColor="{StaticResource Paper}"
+                CornerRadius="8"
+                HeightRequest="48"
+                Margin="0,0,0,12" />
+
+            <!-- Apple button (hidden on non-Apple platforms in code-behind) -->
+            <Button
+                x:Name="AppleButton"
+                Text="Continue with Apple"
+                Command="{Binding SignInWithAppleCommand}"
+                IsEnabled="{Binding IsNotBusy}"
+                BackgroundColor="{StaticResource Ink}"
+                TextColor="{StaticResource Paper}"
+                CornerRadius="8"
+                HeightRequest="48"
+                Margin="0,0,0,24" />
+
+            <!-- Activity indicator -->
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="{StaticResource Accent}"
+                HorizontalOptions="Center"
+                Margin="0,0,0,16" />
+
+            <!-- Error message -->
+            <Label
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding HasError}"
+                TextColor="#C0392B"
+                FontSize="13"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Margin="0,0,0,16" />
+
+            <!-- Divider -->
+            <BoxView
+                HeightRequest="1"
+                BackgroundColor="{StaticResource Line}"
+                Margin="0,0,0,16" />
+
+            <!-- Local-only option -->
+            <Button
+                Text="Skip – use locally only"
+                Command="{Binding ContinueLocallyCommand}"
+                IsEnabled="{Binding IsNotBusy}"
+                BackgroundColor="Transparent"
+                TextColor="{StaticResource Accent}"
+                FontSize="14"
+                BorderWidth="0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

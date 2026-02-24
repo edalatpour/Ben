@@ -9,21 +9,18 @@ using Windows.Graphics;
 #endif
 
 using Ben.Services;
-using Ben.ViewModels;
 
 namespace Ben;
 
 public partial class App : Application
 {
+    private readonly AppShell _appShell;
 
-    public App()
+    public App(AppShell appShell, IAlertService alertService)
     {
         InitializeComponent();
 
-        Services = new ServiceCollection()
-            .AddTransient<DailyViewModel>()
-            .AddTransient<IAlertService, AlertService>()
-            .BuildServiceProvider();
+        _appShell = appShell;
 
         Microsoft.Maui.Handlers.WindowHandler.Mapper.AppendToMapping(nameof(IWindow), (handler, view) =>
         {
@@ -35,17 +32,13 @@ public partial class App : Application
             appWindow.Resize(new SizeInt32(WindowWidth, WindowHeight));
 #endif
         });
-
     }
 
-    public IServiceProvider Services { get; }
-    
-        private const int WindowWidth = 1280;
-        private const int WindowHeight = 720;
-    
-        protected override Window CreateWindow(IActivationState? activationState)
+    private const int WindowWidth = 1280;
+    private const int WindowHeight = 720;
+
+    protected override Window CreateWindow(IActivationState? activationState)
     {
-        return new Window(new AppShell());
+        return new Window(_appShell);
     }
-
 }
