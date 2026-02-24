@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="Ben.Client/Ben.Client.csproj" />
-  <Project Path="Ben.Datasync.Server/Ben.Datasync.Server.csproj" />
 </Solution>
