@@ -39,11 +39,8 @@ public partial class App : Application
     }
 
     public IServiceProvider Services { get; }
-    
-        private const int WindowWidth = 1280;
-        private const int WindowHeight = 720;
-    
-        protected override Window CreateWindow(IActivationState? activationState)
+
+    protected override Window CreateWindow(IActivationState? activationState)
     {
         return new Window(new AppShell());
     }
