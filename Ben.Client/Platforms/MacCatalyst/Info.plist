@@ -36,5 +36,16 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>msauth.com.edalatpour.ben</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.edalatpour.ben</string>
+		</dict>
+	</array>
 </dict>
 </plist>
