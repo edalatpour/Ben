@@ -1,3 +1,3 @@
 select * from NoteItems;
 
-update NoteItems set Text = 'Fore' where Text = 'Four';
+update NoteItems set Text = 'Four' where Text = 'Fore';

@@ -17,6 +17,9 @@ public sealed class DatasyncSyncService : IDisposable
     private bool _started;
     private bool _disposed;
 
+    public event EventHandler? SyncStarted;
+    public event EventHandler? SyncCompleted;
+
     public DatasyncSyncService(
         IServiceScopeFactory scopeFactory,
         IConnectivity connectivity,
@@ -78,26 +81,30 @@ public sealed class DatasyncSyncService : IDisposable
     /// </summary>
     public async Task<bool> HasUnsyncedChangesAsync()
     {
+        var count = await GetUnsyncedChangesCountAsync();
+        return count > 0;
+    }
+
+    /// <summary>
+    /// Get the number of unsynced changes in the local database
+    /// </summary>
+    public async Task<int> GetUnsyncedChangesCountAsync()
+    {
         try
         {
             using IServiceScope scope = _scopeFactory.CreateScope();
             PlannerDbContext context = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
 
-            // Check if there are any pending changes in the offline store
-            var unsyncedTasks = await context.Tasks
-                .Where(t => t.Deleted || t.UpdatedAt > DateTime.MinValue)
-                .CountAsync();
-
-            var unsyncedNotes = await context.Notes
-                .Where(n => n.Deleted || n.UpdatedAt > DateTime.MinValue)
-                .CountAsync();
-
-            return unsyncedTasks > 0 || unsyncedNotes > 0;
+            // Query the Datasync operations queue to get pending changes
+            var count = await context.DatasyncOperationsQueue.CountAsync();
+            _logger.LogInformation("Found {Count} pending operations in queue", count);
+            
+            return count;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to check for unsynced changes.");
-            return false;
+            return 0;
         }
     }
 
@@ -139,6 +146,8 @@ public sealed class DatasyncSyncService : IDisposable
             return false;
         }
 
+        SyncStarted?.Invoke(this, EventArgs.Empty);
+
         try
         {
             using IServiceScope scope = _scopeFactory.CreateScope();
@@ -168,6 +177,7 @@ public sealed class DatasyncSyncService : IDisposable
         finally
         {
             _syncLock.Release();
+            SyncCompleted?.Invoke(this, EventArgs.Empty);
         }
     }
 }

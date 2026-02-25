@@ -8,6 +8,8 @@ public class AuthenticationService
     private const string ClientId = "d5a4dd1f-e90b-4c48-8031-15041bd3c02c"; // TODO: Replace with actual client ID
     private readonly string[] _scopes = new[] { "User.Read" };
     
+    public event EventHandler? AuthenticationStateChanged;
+    
     private const string AuthStateKey = "IsAuthenticated";
     private const string UserEmailKey = "UserEmail";
     private const string UserNameKey = "UserName";
@@ -125,6 +127,7 @@ public class AuthenticationService
             IsAuthenticated = false;
             UserEmail = null;
             UserName = null;
+            AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {
@@ -174,6 +177,7 @@ public class AuthenticationService
         IsAuthenticated = true;
         UserEmail = result.Account?.Username;
         UserName = result.Account?.Username?.Split('@')[0];
+        AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
     }
 }
 

@@ -7,7 +7,8 @@
   <!-- SafeAreaEdges="None" -->
 
   <Grid x:Name="RootGrid"
-        Style="{StaticResource PaperRootGrid}">
+        Style="{StaticResource PaperRootGrid}"
+        RowDefinitions="*,Auto">
     <!-- SafeAreaEdges="None" -->
     <Grid.GestureRecognizers>
       <SwipeGestureRecognizer Direction="Left"
@@ -63,6 +64,34 @@
               Margin="0,0,6,0"
               VerticalOptions="Center"
               HorizontalOptions="End"/>
+    </Grid>
+
+    <!-- Status Bar -->
+    <Grid Grid.Row="1"
+          ColumnDefinitions="*,*"
+          BackgroundColor="{StaticResource Paper}"
+          Padding="8,4"
+          HeightRequest="32">
+      <Label Grid.Column="0"
+             Text="{Binding LoginStatusText}"
+             FontSize="12"
+             TextColor="{StaticResource Ink}"
+             VerticalOptions="Center"
+             HorizontalOptions="Start">
+        <Label.GestureRecognizers>
+          <TapGestureRecognizer Tapped="OnLoginStatusTapped"/>
+        </Label.GestureRecognizers>
+      </Label>
+      <Label Grid.Column="1"
+             Text="{Binding SyncStatusText}"
+             FontSize="12"
+             TextColor="{StaticResource Ink}"
+             VerticalOptions="Center"
+             HorizontalOptions="End">
+        <Label.GestureRecognizers>
+          <TapGestureRecognizer Tapped="OnSyncStatusTapped"/>
+        </Label.GestureRecognizers>
+      </Label>
     </Grid>
 
   </Grid>

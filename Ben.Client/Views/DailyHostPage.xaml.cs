@@ -129,4 +129,14 @@ public partial class DailyHostPage : ContentPage
     {
         await NextPage();
     }
+
+    async void OnLoginStatusTapped(object sender, EventArgs e)
+    {
+        await ViewModel.OpenSettingsAsync();
+    }
+
+    async void OnSyncStatusTapped(object sender, EventArgs e)
+    {
+        await ViewModel.ForceSyncAsync();
+    }
 }

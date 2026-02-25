@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Maui.Networking;
 using Ben.Models;
 using Ben.Services;
 
@@ -18,12 +19,120 @@ public class DailyViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler PropertyChanged;
 
     private readonly PlannerRepository _repo;
+    private readonly AuthenticationService _authService;
+    private readonly DatasyncSyncService _syncService;
+    private readonly IConnectivity _connectivity;
+    private bool _isSyncing;
 
-    public DailyViewModel(PlannerRepository repo)
+    public DailyViewModel(PlannerRepository repo, AuthenticationService authService, DatasyncSyncService syncService, IConnectivity connectivity)
     {
         _repo = repo;
+        _authService = authService;
+        _syncService = syncService;
+        _connectivity = connectivity;
+        
         DateTime key = DateTime.Today;
         LoadDay(key);
+        
+        // Subscribe to events
+        _connectivity.ConnectivityChanged += OnConnectivityChanged;
+        _authService.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        _syncService.SyncStarted += OnSyncStarted;
+        _syncService.SyncCompleted += OnSyncCompleted;
+        
+        // Initial update
+        _ = UpdateStatus();
+    }
+
+    private void OnConnectivityChanged(object sender, ConnectivityChangedEventArgs e)
+    {
+        _ = UpdateStatus();
+    }
+
+    private void OnAuthenticationStateChanged(object sender, EventArgs e)
+    {
+        _ = UpdateStatus();
+    }
+
+    private void OnSyncStarted(object sender, EventArgs e)
+    {
+        _isSyncing = true;
+        _ = UpdateStatus();
+    }
+
+    private void OnSyncCompleted(object sender, EventArgs e)
+    {
+        _isSyncing = false;
+        _ = UpdateStatus();
+    }
+
+    private string _loginStatusText = "Offline";
+    public string LoginStatusText
+    {
+        get => _loginStatusText;
+        set { _loginStatusText = value; OnPropertyChanged(); }
+    }
+
+    private string _syncStatusText = "No connectivity";
+    public string SyncStatusText
+    {
+        get => _syncStatusText;
+        set { _syncStatusText = value; OnPropertyChanged(); }
+    }
+
+    private async Task UpdateStatus()
+    {
+        // Update login status
+        if (_authService.IsAuthenticated)
+        {
+            LoginStatusText = _authService.UserEmail ?? "Signed in";
+        }
+        else
+        {
+            LoginStatusText = "Offline";
+        }
+
+        // Update sync status
+        if (_isSyncing)
+        {
+            SyncStatusText = "Synchronizing...";
+        }
+        else if (_connectivity.NetworkAccess != NetworkAccess.Internet)
+        {
+            var pendingCount = await _syncService.GetUnsyncedChangesCountAsync();
+            if (pendingCount > 0)
+            {
+                SyncStatusText = pendingCount == 1 ? "1 pending change" : $"{pendingCount} pending changes";
+            }
+            else
+            {
+                SyncStatusText = "No connectivity";
+            }
+        }
+        else if (!_authService.IsAuthenticated)
+        {
+            var pendingCount = await _syncService.GetUnsyncedChangesCountAsync();
+            if (pendingCount > 0)
+            {
+                SyncStatusText = pendingCount == 1 ? "1 pending change" : $"{pendingCount} pending changes";
+            }
+            else
+            {
+                SyncStatusText = "Not signed in";
+            }
+        }
+        else
+        {
+            var pendingCount = await _syncService.GetUnsyncedChangesCountAsync();
+            if (pendingCount > 0)
+            {
+                SyncStatusText = pendingCount == 1 ? "1 pending change" : $"{pendingCount} pending changes";
+            }
+            else
+            {
+                SyncStatusText = "Up to date";
+            }
+        }
     }
 
     DailyData _currentDay;
@@ -90,6 +199,7 @@ public class DailyViewModel : INotifyPropertyChanged
         await _repo.AddTaskAsync(task);
         InsertTaskBeforePlaceholder(task);
         EnsurePriorityBuckets(CurrentDay);
+        await UpdateStatus();
     }
 
     static string NormalizeTaskTitle(string text)
@@ -109,6 +219,7 @@ public class DailyViewModel : INotifyPropertyChanged
     public async Task UpdateTaskAsync(TaskItem task)
     {
         await _repo.UpdateTaskAsync(task);
+        await UpdateStatus();
     }
 
     public async Task ReorderTaskAsync(TaskItem source, TaskItem target)
@@ -153,6 +264,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         await UpdateTaskOrderAsync();
         EnsurePriorityBuckets(CurrentDay);
+        await UpdateStatus();
     }
 
     public async Task DeleteNoteAsync(TaskItem task)
@@ -165,6 +277,7 @@ public class DailyViewModel : INotifyPropertyChanged
         await _repo.DeleteTaskAsync(task);
         CurrentDay.Tasks.Remove(task);
         EnsurePriorityBuckets(CurrentDay);
+        await UpdateStatus();
     }
 
     public async Task AddNoteAsync(string text)
@@ -184,11 +297,13 @@ public class DailyViewModel : INotifyPropertyChanged
         await _repo.AddNoteAsync(note);
         InsertNoteBeforePlaceholder(note);
         EnsurePlaceholderNote(CurrentDay);
+        await UpdateStatus();
     }
 
     public async Task UpdateNoteAsync(NoteItem note)
     {
         await _repo.UpdateNoteAsync(note);
+        await UpdateStatus();
     }
 
     public async Task DeleteNoteAsync(NoteItem note)
@@ -201,6 +316,7 @@ public class DailyViewModel : INotifyPropertyChanged
         await _repo.DeleteNoteAsync(note);
         CurrentDay.Notes.Remove(note);
         EnsurePlaceholderNote(CurrentDay);
+        await UpdateStatus();
     }
 
     public async Task GoForwardAsync()
@@ -239,6 +355,51 @@ public class DailyViewModel : INotifyPropertyChanged
 
     void OnPropertyChanged([CallerMemberName] string name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    public async Task OpenSettingsAsync()
+    {
+        try
+        {
+            await Shell.Current.GoToAsync("//SettingsPage");
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            Console.WriteLine($"Navigation error: {ex.Message}");
+        }
+    }
+
+    public async Task ForceSyncAsync()
+    {
+        if (!_authService.IsAuthenticated)
+        {
+            return;
+        }
+
+        if (_isSyncing)
+        {
+            return;
+        }
+
+        try
+        {
+            _isSyncing = true;
+            await UpdateStatus();
+            
+            var success = await _syncService.TrySyncNowAsync();
+            
+            if (success)
+            {
+                // Reload current day to show synced data
+                await LoadDay(CurrentDay.Key);
+            }
+        }
+        finally
+        {
+            _isSyncing = false;
+            await UpdateStatus();
+        }
+    }
 
     void EnsurePlaceholderNote(DailyData day)
     {
