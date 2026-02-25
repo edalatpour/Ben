@@ -1,4 +1,5 @@
 using CommunityToolkit.Datasync.Client.Offline;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Networking;
 using Ben.Data;
@@ -9,6 +10,7 @@ public sealed class DatasyncSyncService : IDisposable
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConnectivity _connectivity;
+    private readonly AuthenticationService _authService;
     private readonly DatasyncOptions _options;
     private readonly ILogger<DatasyncSyncService> _logger;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
@@ -18,11 +20,13 @@ public sealed class DatasyncSyncService : IDisposable
     public DatasyncSyncService(
         IServiceScopeFactory scopeFactory,
         IConnectivity connectivity,
+        AuthenticationService authService,
         DatasyncOptions options,
         ILogger<DatasyncSyncService> logger)
     {
         _scopeFactory = scopeFactory;
         _connectivity = connectivity;
+        _authService = authService;
         _options = options;
         _logger = logger;
     }
@@ -69,21 +73,70 @@ public sealed class DatasyncSyncService : IDisposable
         return TrySyncAsync();
     }
 
-    private async Task TrySyncAsync()
+    /// <summary>
+    /// Check if there are unsynced changes in the local database
+    /// </summary>
+    public async Task<bool> HasUnsyncedChangesAsync()
+    {
+        try
+        {
+            using IServiceScope scope = _scopeFactory.CreateScope();
+            PlannerDbContext context = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
+
+            // Check if there are any pending changes in the offline store
+            var unsyncedTasks = await context.Tasks
+                .Where(t => t.Deleted || t.UpdatedAt > DateTime.MinValue)
+                .CountAsync();
+
+            var unsyncedNotes = await context.Notes
+                .Where(n => n.Deleted || n.UpdatedAt > DateTime.MinValue)
+                .CountAsync();
+
+            return unsyncedTasks > 0 || unsyncedNotes > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to check for unsynced changes.");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Attempt to sync any pending changes
+    /// </summary>
+    public async Task<bool> TrySyncNowAsync()
+    {
+        if (!_authService.IsAuthenticated)
+        {
+            _logger.LogWarning("Cannot sync while not authenticated.");
+            return false;
+        }
+
+        return await TrySyncAsync();
+    }
+
+    private async Task<bool> TrySyncAsync()
     {
         if (_options.Endpoint == null)
         {
-            return;
+            return false;
+        }
+
+        // Don't sync if user is not authenticated
+        if (!_authService.IsAuthenticated)
+        {
+            _logger.LogInformation("Skipping sync - user is not authenticated.");
+            return false;
         }
 
         if (_connectivity.NetworkAccess != NetworkAccess.Internet)
         {
-            return;
+            return false;
         }
 
         if (!await _syncLock.WaitAsync(0))
         {
-            return;
+            return false;
         }
 
         try
@@ -104,10 +157,13 @@ public sealed class DatasyncSyncService : IDisposable
                 _logger.LogWarning("Datasync pull completed with {Count} failed requests.",
                     pullResult.FailedRequests.Count);
             }
+
+            return pushResult.IsSuccessful && pullResult.IsSuccessful;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Datasync synchronization failed.");
+            return false;
         }
         finally
         {

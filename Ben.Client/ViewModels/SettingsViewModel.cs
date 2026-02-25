@@ -9,6 +9,7 @@ namespace Ben.ViewModels;
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly AuthenticationService _authService;
+    private readonly DatasyncSyncService _syncService;
     private bool _isSyncEnabled;
     private bool _isSignedIn;
     private string _userEmail = string.Empty;
@@ -38,9 +39,10 @@ public partial class SettingsViewModel : ObservableObject
         set => SetProperty(ref _userName, value);
     }
 
-    public SettingsViewModel(AuthenticationService authService)
+    public SettingsViewModel(AuthenticationService authService, DatasyncSyncService syncService)
     {
         _authService = authService;
+        _syncService = syncService;
         
         // Initialize from stored auth state
         IsSignedIn = _authService.IsAuthenticated;
@@ -63,9 +65,12 @@ public partial class SettingsViewModel : ObservableObject
                 UserEmail = _authService.UserEmail ?? string.Empty;
                 UserName = _authService.UserName ?? string.Empty;
                 
+                // Trigger sync to push any offline changes to the server
+                _ = _syncService.TrySyncNowAsync();
+                
                 await Application.Current!.MainPage!.DisplayAlert(
                     "Success",
-                    $"Signed in as {UserEmail}",
+                    $"Signed in as {UserEmail}. Syncing changes...",
                     "OK");
             }
             else
@@ -90,16 +95,19 @@ public partial class SettingsViewModel : ObservableObject
     {
         try
         {
-            await _authService.SignOutAsync();
+            var success = await _authService.SignOutWithCleanupAsync(_syncService);
             
-            IsSignedIn = false;
-            UserEmail = string.Empty;
-            UserName = string.Empty;
-            
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Success",
-                "Signed out successfully",
-                "OK");
+            if (success)
+            {
+                IsSignedIn = false;
+                UserEmail = string.Empty;
+                UserName = string.Empty;
+                
+                await Application.Current!.MainPage!.DisplayAlert(
+                    "Success",
+                    "Signed out successfully",
+                    "OK");
+            }
         }
         catch (Exception ex)
         {

@@ -132,6 +132,43 @@ public class AuthenticationService
         }
     }
 
+    /// <summary>
+    /// Sign out while preserving local data. Unsynced changes remain on device for syncing on next login.
+    /// </summary>
+    /// <param name="syncService">The sync service reference (used to check for unsynced changes)</param>
+    /// <returns>True if sign out succeeded, False if user canceled</returns>
+    public async Task<bool> SignOutWithCleanupAsync(DatasyncSyncService syncService)
+    {
+        try
+        {
+            // Check if there are unsynced changes to warn user
+            var hasUnsyncedChanges = await syncService.HasUnsyncedChangesAsync();
+
+            if (hasUnsyncedChanges)
+            {
+                // Warn user that unsynced changes will remain locally
+                await Application.Current!.MainPage!.DisplayAlert(
+                    "Unsynced Changes",
+                    "You have changes that haven't been synced to the cloud yet. They will remain on this device and will be synced when you sign in again.",
+                    "OK");
+            }
+
+            // Sign out (this clears authentication state but preserves local data)
+            await SignOutAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Sign out error: {ex.Message}");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error",
+                $"Sign out failed: {ex.Message}",
+                "OK");
+            return false;
+        }
+    }
+
     private void UpdateAuthState(AuthenticationResult result)
     {
         IsAuthenticated = true;
