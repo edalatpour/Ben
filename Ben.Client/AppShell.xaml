@@ -10,7 +10,13 @@
 
     <ShellContent
         ContentTemplate="{DataTemplate views:DailyHostPage}"
-        Route="DailyHostPage" />
+        Route="DailyHostPage"
+        Shell.FlyoutItemIsVisible="False" />
+    
+    <ShellContent
+        Title="Settings"
+        ContentTemplate="{DataTemplate views:SettingsPage}"
+        Route="SettingsPage" />
 
 
 </Shell>

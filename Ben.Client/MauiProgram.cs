@@ -44,6 +44,8 @@ public static class MauiProgram
         // Register ViewModels + Pages
         builder.Services.AddTransient<DailyViewModel>();
         builder.Services.AddTransient<DailyHostPage>();
+        builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<SettingsPage>();
 
         var app = builder.Build();
 

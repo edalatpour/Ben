@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:Ben.ViewModels"
+             x:Class="Ben.Views.SettingsPage"
+             x:DataType="viewmodels:SettingsViewModel"
+             Title="Settings">
+
+    <Grid Style="{StaticResource PaperRootGrid}">
+        <ScrollView>
+            <Grid Padding="16"
+                  RowDefinitions="Auto,Auto,*"
+                  RowSpacing="12">
+            
+                <!-- Header -->
+                <VerticalStackLayout Spacing="0"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Start">
+                    <Label Text="Settings"
+                           Style="{StaticResource DateNumber}"
+                           HorizontalTextAlignment="Center"
+                           FontSize="36"/>
+                </VerticalStackLayout>
+
+                <!-- Sync Section Title -->
+                <Grid Grid.Row="1"
+                      Padding="0,8,0,0">
+                    <Label Text="Sync"
+                           Style="{StaticResource SectionTitle}"
+                           HorizontalTextAlignment="Center"/>
+                </Grid>
+
+                <!-- Sync Content -->
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <BoxView Grid.ColumnSpan="2"
+                             HeightRequest="3"
+                             BackgroundColor="{StaticResource Ink}"/>
+                    <BoxView Grid.RowSpan="2"
+                             WidthRequest="1"
+                             BackgroundColor="{StaticResource Ink}"/>
+
+                    <Grid Grid.Row="1"
+                          Grid.Column="1"
+                          BackgroundColor="{StaticResource WritingPaper}"
+                          Padding="16"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,*"
+                          RowSpacing="12">
+                        
+                        <!-- Info Message -->
+                        <Label Grid.Row="0"
+                               Text="Sign in with your Microsoft Account to sync your data across devices."
+                               Style="{StaticResource DateText}"
+                               LineBreakMode="WordWrap"
+                               Margin="0,0,0,8"/>
+
+                        <!-- Sign In Button -->
+                        <Button Grid.Row="1"
+                                x:Name="SignInButton"
+                                Command="{Binding SignInCommand}"
+                                BackgroundColor="{StaticResource Ink}"
+                                TextColor="{StaticResource WritingPaper}"
+                                CornerRadius="4"
+                                HeightRequest="44"
+                                Margin="0,8,0,0">
+                            <Button.ImageSource>
+                                <FontImageSource 
+                                    Glyph="&#xE8FA;"
+                                    FontFamily="SegoeMDL2Assets"
+                                    Size="16"
+                                    Color="{StaticResource WritingPaper}"/>
+                            </Button.ImageSource>
+                            <Button.Text>Sign in with Microsoft</Button.Text>
+                        </Button>
+
+                        <!-- Sign Out Button -->
+                        <Button Grid.Row="2"
+                                Command="{Binding SignOutCommand}"
+                                Text="Sign Out"
+                                BackgroundColor="{StaticResource Accent}"
+                                TextColor="{StaticResource WritingPaper}"
+                                CornerRadius="4"
+                                HeightRequest="44"
+                                Margin="0,8,0,0"/>
+
+                        <!-- Divider -->
+                        <BoxView Grid.Row="3"
+                                 HeightRequest="1"
+                                 BackgroundColor="{StaticResource Line}"
+                                 Margin="0,16,0,16"/>
+
+                        <!-- Sync Toggle -->
+                        <HorizontalStackLayout Grid.Row="4" Spacing="12">
+                            <Label Text="Enable Sync"
+                                   VerticalOptions="Center"
+                                   Style="{StaticResource DateText}"/>
+                            <Switch IsToggled="{Binding IsSyncEnabled}"
+                                    VerticalOptions="Center"
+                                    OnColor="{StaticResource Accent}"/>
+                        </HorizontalStackLayout>
+
+                        <!-- About Section -->
+                        <BoxView Grid.Row="5"
+                                 HeightRequest="1"
+                                 BackgroundColor="{StaticResource Line}"
+                                 Margin="0,16,0,16"/>
+
+                        <VerticalStackLayout Grid.Row="6" Spacing="4">
+                            <Label Text="About"
+                                   Style="{StaticResource SectionTitle}"
+                                   HorizontalTextAlignment="Start"
+                                   Margin="0,0,0,8"/>
+                            <Label Text="Ben - Your Daily Planner"
+                                   Style="{StaticResource DateText}"/>
+                            <Label Text="Version 1.0.0"
+                                   Style="{StaticResource DateText}"
+                                   Opacity="0.7"/>
+                        </VerticalStackLayout>
+
+                    </Grid>
+                </Grid>
+
+            </Grid>
+        </ScrollView>
+
+        <!-- Back Button -->
+        <Button Text="←"
+                Clicked="OnBackClicked"
+                BackgroundColor="Transparent"
+                TextColor="{StaticResource Ink}"
+                FontSize="32"
+                WidthRequest="44"
+                HeightRequest="44"
+                CornerRadius="22"
+                Padding="0"
+                Margin="10"
+                VerticalOptions="Start"
+                HorizontalOptions="Start"/>
+    </Grid>
+
+</ContentPage>
