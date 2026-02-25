@@ -75,7 +75,8 @@
       <Label Grid.Column="0"
              Text="{Binding LoginStatusText}"
              FontSize="12"
-             TextColor="{StaticResource Ink}"
+             TextColor="{StaticResource Link}"
+             TextDecorations="Underline"
              VerticalOptions="Center"
              HorizontalOptions="Start">
         <Label.GestureRecognizers>
@@ -85,7 +86,8 @@
       <Label Grid.Column="1"
              Text="{Binding SyncStatusText}"
              FontSize="12"
-             TextColor="{StaticResource Ink}"
+             TextColor="{Binding IsSyncClickable, Converter={StaticResource LinkColorConverter}}"
+             TextDecorations="{Binding IsSyncClickable, Converter={StaticResource LinkDecorationConverter}}"
              VerticalOptions="Center"
              HorizontalOptions="End">
         <Label.GestureRecognizers>

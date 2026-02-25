@@ -10,9 +10,8 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        // // Register the planner page route
-        Routing.RegisterRoute(nameof(DailyHostPage), typeof(DailyHostPage));
- 
+        // Register page routes for modal navigation
+        Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
     }
 
 }

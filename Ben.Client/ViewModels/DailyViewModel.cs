@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Networking;
 using Ben.Models;
 using Ben.Services;
+using Ben.Views;
 
 namespace Ben.ViewModels;
 
@@ -66,7 +67,7 @@ public class DailyViewModel : INotifyPropertyChanged
         _ = UpdateStatus();
     }
 
-    private string _loginStatusText = "Offline";
+    private string _loginStatusText = "Sign in";
     public string LoginStatusText
     {
         get => _loginStatusText;
@@ -80,8 +81,28 @@ public class DailyViewModel : INotifyPropertyChanged
         set { _syncStatusText = value; OnPropertyChanged(); }
     }
 
+    private bool _isOnline = false;
+    public bool IsOnline
+    {
+        get => _isOnline;
+        set { _isOnline = value; OnPropertyChanged(); }
+    }
+
+    private bool _isSyncClickable = false;
+    public bool IsSyncClickable
+    {
+        get => _isSyncClickable;
+        set { _isSyncClickable = value; OnPropertyChanged(); }
+    }
+
     private async Task UpdateStatus()
     {
+        // Update online status
+        IsOnline = _connectivity.NetworkAccess == NetworkAccess.Internet;
+
+        // Update sync clickable state (only clickable when authenticated AND online)
+        IsSyncClickable = _authService.IsAuthenticated && IsOnline;
+
         // Update login status
         if (_authService.IsAuthenticated)
         {
@@ -89,7 +110,7 @@ public class DailyViewModel : INotifyPropertyChanged
         }
         else
         {
-            LoginStatusText = "Offline";
+            LoginStatusText = "Sign in";
         }
 
         // Update sync status
@@ -360,7 +381,7 @@ public class DailyViewModel : INotifyPropertyChanged
     {
         try
         {
-            await Shell.Current.GoToAsync("//SettingsPage");
+            await Shell.Current.GoToAsync(nameof(SettingsPage));
         }
         catch (Exception ex)
         {

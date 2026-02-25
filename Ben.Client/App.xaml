@@ -12,6 +12,8 @@
             </ResourceDictionary.MergedDictionaries>
             
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:LinkColorConverter x:Key="LinkColorConverter" />
+            <converters:LinkDecorationConverter x:Key="LinkDecorationConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

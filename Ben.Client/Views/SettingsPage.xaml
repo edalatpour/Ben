@@ -146,20 +146,6 @@
 
             </Grid>
         </ScrollView>
-
-        <!-- Back Button -->
-        <Button Text="←"
-                Clicked="OnBackClicked"
-                BackgroundColor="Transparent"
-                TextColor="{StaticResource Ink}"
-                FontSize="32"
-                WidthRequest="44"
-                HeightRequest="44"
-                CornerRadius="22"
-                Padding="0"
-                Margin="10"
-                VerticalOptions="Start"
-                HorizontalOptions="Start"/>
     </Grid>
 
 </ContentPage>

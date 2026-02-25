@@ -10,6 +10,7 @@
     <Color x:Key="Ink">#1F4E4B</Color>
     <Color x:Key="Line">#B9D4CF</Color>
     <Color x:Key="Accent">#2F7D78</Color>
+    <Color x:Key="Link">#2F7D78</Color>
 
 
     <Color x:Key="Primary">#512BD4</Color>
