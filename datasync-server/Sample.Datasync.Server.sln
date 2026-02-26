@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4B8E4DD5-C2CA-4729-A10B-8A3C993018EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ben.Datasync.Server", "src\Ben.Datasync.Server\Ben.Datasync.Server.csproj", "{67A76156-0033-4085-86BE-558DC28688A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{67A76156-0033-4085-86BE-558DC28688A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67A76156-0033-4085-86BE-558DC28688A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67A76156-0033-4085-86BE-558DC28688A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67A76156-0033-4085-86BE-558DC28688A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{67A76156-0033-4085-86BE-558DC28688A6} = {4B8E4DD5-C2CA-4729-A10B-8A3C993018EC}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B0373E78-5E78-44A4-A907-798EAC85F597}
+	EndGlobalSection
+EndGlobal
