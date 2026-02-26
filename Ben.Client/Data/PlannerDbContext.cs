@@ -10,13 +10,16 @@ namespace Ben.Data;
 public class PlannerDbContext : OfflineDbContext
 {
     private readonly DatasyncOptions _options;
+    private readonly AuthenticatedHttpHandler _authHandler;
 
     public PlannerDbContext(
         DbContextOptions<PlannerDbContext> options,
-        DatasyncOptions datasyncOptions)
+        DatasyncOptions datasyncOptions,
+        AuthenticatedHttpHandler authHandler)
         : base(options)
     {
         _options = datasyncOptions;
+        _authHandler = authHandler;
     }
 
     public DbSet<TaskItem> Tasks { get; set; }
@@ -33,6 +36,7 @@ public class PlannerDbContext : OfflineDbContext
             .HasIndex(n => n.Key);
     }
 
+
     protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
     {
         if (_options.Endpoint == null)
@@ -40,12 +44,12 @@ public class PlannerDbContext : OfflineDbContext
             return;
         }
 
+        // AuthenticatedHttpHandler (injected via DI) adds the Bearer token to outgoing requests
         HttpClientOptions clientOptions = new()
         {
             Endpoint = _options.Endpoint,
             Timeout = TimeSpan.FromSeconds(30)
         };
-
         optionsBuilder.UseHttpClientOptions(clientOptions);
 
         optionsBuilder.Entity<TaskItem>(cfg =>

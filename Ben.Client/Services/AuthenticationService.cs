@@ -6,7 +6,7 @@ public class AuthenticationService
 {
     private readonly IPublicClientApplication _pca;
     private const string ClientId = "d5a4dd1f-e90b-4c48-8031-15041bd3c02c"; // TODO: Replace with actual client ID
-    private readonly string[] _scopes = new[] { "User.Read" };
+    private readonly string[] _scopes = new[] { "User.Read", "api://d5a4dd1f-e90b-4c48-8031-15041bd3c02c/access_as_user" };
     
     public event EventHandler? AuthenticationStateChanged;
     

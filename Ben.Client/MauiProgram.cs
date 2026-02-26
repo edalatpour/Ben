@@ -33,8 +33,16 @@ public static class MauiProgram
         });
 
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
+
         builder.Services.AddSingleton<AuthenticationService>();
         builder.Services.AddSingleton<DatasyncSyncService>();
+
+        // Register AuthenticatedHttpHandler as a singleton
+        builder.Services.AddSingleton<AuthenticatedHttpHandler>(provider =>
+        {
+            var authService = provider.GetRequiredService<AuthenticationService>();
+            return new AuthenticatedHttpHandler(authService);
+        });
 
         builder.Services.AddDbContext<PlannerDbContext>(options =>
             options.UseSqlite($"Filename={dbPath}"));
