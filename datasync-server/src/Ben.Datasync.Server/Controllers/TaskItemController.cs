@@ -4,11 +4,13 @@
 
 using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sample.Datasync.Server.Db;
 
 namespace Sample.Datasync.Server.Controllers;
 
+[Authorize]
 [Route("tables/[controller]")]
 [ApiExplorerSettings(IgnoreApi = false)]
 public class TaskItemController : TableController<TaskItem>

@@ -1,4 +1,5 @@
 using System;
+using CommunityToolkit.Datasync.Client.Authentication;
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +11,16 @@ namespace Ben.Data;
 public class PlannerDbContext : OfflineDbContext
 {
     private readonly DatasyncOptions _options;
+    private readonly AuthenticationService _authService;
 
     public PlannerDbContext(
         DbContextOptions<PlannerDbContext> options,
-        DatasyncOptions datasyncOptions)
+        DatasyncOptions datasyncOptions,
+        AuthenticationService authService)
         : base(options)
     {
         _options = datasyncOptions;
+        _authService = authService;
     }
 
     public DbSet<TaskItem> Tasks { get; set; }
@@ -43,7 +47,9 @@ public class PlannerDbContext : OfflineDbContext
         HttpClientOptions clientOptions = new()
         {
             Endpoint = _options.Endpoint,
-            Timeout = TimeSpan.FromSeconds(30)
+            Timeout = TimeSpan.FromSeconds(30),
+            HttpPipeline = new[] { new GenericAuthenticationProvider(_authService.GetAuthenticationTokenAsync) }
+            // HttpPipeline = new[] { new GenericAuthenticationProvider(_authService.GetAuthenticationTokenAsync, "X-ZUMO-AUTH") }
         };
 
         optionsBuilder.UseHttpClientOptions(clientOptions);

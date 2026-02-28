@@ -29,15 +29,17 @@ public static class MauiProgram
 
         builder.Services.AddSingleton(new DatasyncOptions
         {
-            Endpoint = new Uri("https://app-qg762nqxq5bva.azurewebsites.net/")
+            Endpoint = new Uri(Constants.ServiceUri)
         });
 
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
         builder.Services.AddSingleton<AuthenticationService>();
         builder.Services.AddSingleton<DatasyncSyncService>();
 
-        builder.Services.AddDbContext<PlannerDbContext>(options =>
-            options.UseSqlite($"Filename={dbPath}"));
+        builder.Services.AddDbContext<PlannerDbContext>((serviceProvider, options) =>
+        {
+            options.UseSqlite($"Filename={dbPath}");
+        });
 
         // Register your data service (repository)
         builder.Services.AddSingleton<PlannerRepository>();
