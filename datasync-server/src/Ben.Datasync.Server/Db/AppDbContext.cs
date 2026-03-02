@@ -6,20 +6,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sample.Datasync.Server.Db;
+namespace Ben.Datasync.Server
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public DbSet<TaskItem> TaskItems => Set<TaskItem>();
-    public DbSet<NoteItem> NoteItems => Set<NoteItem>();
 
-    // public DbSet<TodoList> TodoLists => Set<TodoList>();
-
-    public async Task InitializeDatabaseAsync() 
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-        _ = await Database.EnsureCreatedAsync();
+        public DbSet<TaskItem> TaskItems => Set<TaskItem>();
+        public DbSet<NoteItem> NoteItems => Set<NoteItem>();
 
-        const string datasyncTrigger = @"
+        // public DbSet<TodoList> TodoLists => Set<TodoList>();
+
+        public async Task InitializeDatabaseAsync()
+        {
+            _ = await Database.EnsureCreatedAsync();
+
+            const string datasyncTrigger = @"
             CREATE OR ALTER TRIGGER [dbo].[{0}_datasync] ON [dbo].[{0}] AFTER INSERT, UPDATE AS
             BEGIN
                 SET NOCOUNT ON;
@@ -31,27 +33,30 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                     [Id] IN (SELECT [Id] FROM INSERTED);
             END
         "
-        ;
+            ;
 
-        // Install the above trigger to set the UpdatedAt field automatically on insert or update.
-        foreach (IEntityType table in Model.GetEntityTypes())
+            // Install the above trigger to set the UpdatedAt field automatically on insert or update.
+            foreach (IEntityType table in Model.GetEntityTypes())
+            {
+                string sql = string.Format(datasyncTrigger, table.GetTableName());
+                _ = await Database.ExecuteSqlRawAsync(sql);
+            }
+        }
+
+        [SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "Model builder ignores return value.")]
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            string sql = string.Format(datasyncTrigger, table.GetTableName());
-            _ = await Database.ExecuteSqlRawAsync(sql);
+            // Tells EF Core that the TodoItem entity has a trigger.
+            modelBuilder.Entity<TaskItem>()
+                .ToTable(tb => tb.HasTrigger("TaskItem_datasync"));
+
+            // Tells EF Core that the TodoList entity has a trigger.
+            modelBuilder.Entity<NoteItem>()
+                .ToTable(tb => tb.HasTrigger("NoteItem_datasync"));
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 
-    [SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "Model builder ignores return value.")]
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        // Tells EF Core that the TodoItem entity has a trigger.
-        modelBuilder.Entity<TaskItem>()
-            .ToTable(tb => tb.HasTrigger("TaskItem_datasync"));
-
-        // Tells EF Core that the TodoList entity has a trigger.
-        modelBuilder.Entity<NoteItem>()
-            .ToTable(tb => tb.HasTrigger("NoteItem_datasync"));
-
-        base.OnModelCreating(modelBuilder);
-    }
 }
+

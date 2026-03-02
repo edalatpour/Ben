@@ -6,17 +6,27 @@ using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sample.Datasync.Server.Db;
 
-namespace Sample.Datasync.Server.Controllers;
-
-[Authorize]
-[Route("tables/[controller]")]
-[ApiExplorerSettings(IgnoreApi = false)]
-public class NoteItemController : TableController<NoteItem>
+namespace Ben.Datasync.Server
 {
-    public NoteItemController(AppDbContext context) 
-        : base(new EntityTableRepository<NoteItem>(context))
+
+    [Authorize]
+    [Route("tables/[controller]")]
+    [ApiExplorerSettings(IgnoreApi = false)]
+    public class NoteItemController : TableController<NoteItem>
     {
+
+        // public NoteItemController(AppDbContext context) 
+        //     : base(new EntityTableRepository<NoteItem>(context))
+        // {
+        // }
+
+        public NoteItemController(AppDbContext context, IHttpContextAccessor contextAccessor, ILogger<PersonalAccessControlProvider<NoteItem>> logger) : base()
+        {
+            Repository = new EntityTableRepository<NoteItem>(context);
+            AccessControlProvider = new PersonalAccessControlProvider<NoteItem>(contextAccessor, logger);
+        }
+
     }
+
 }
