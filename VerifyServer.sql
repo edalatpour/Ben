@@ -1,1 +1,2 @@
-select * from NoteItems;
+select *
+from NoteItems;

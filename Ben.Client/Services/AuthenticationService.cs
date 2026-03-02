@@ -8,9 +8,9 @@ public class AuthenticationService
     private readonly IPublicClientApplication _pca;
     private string ClientId = Constants.ApplicationId; // "d5a4dd1f-e90b-4c48-8031-15041bd3c02c"; // TODO: Replace with actual client ID
     private readonly string[] _scopes = Constants.Scopes; // new[] { "User.Read" };
-    
+
     public event EventHandler? AuthenticationStateChanged;
-    
+
     private const string AuthStateKey = "IsAuthenticated";
     private const string UserEmailKey = "UserEmail";
     private const string UserNameKey = "UserName";
@@ -38,7 +38,7 @@ public class AuthenticationService
 #endif
 
         _pca = builder.Build();
-        
+
         // Enable token cache serialization for persistence
         TokenCacheHelper.EnableSerialization(_pca.UserTokenCache);
     }
@@ -103,14 +103,14 @@ public class AuthenticationService
             // Try to acquire token silently first
             var accounts = await _pca.GetAccountsAsync();
             var firstAccount = accounts.FirstOrDefault();
-            
+
             if (firstAccount != null)
             {
                 try
                 {
                     var result = await _pca.AcquireTokenSilent(_scopes, firstAccount)
                         .ExecuteAsync();
-                    
+
                     UpdateAuthState(result);
                     return result;
                 }
@@ -140,7 +140,7 @@ public class AuthenticationService
         try
         {
             var accounts = await _pca.GetAccountsAsync();
-            
+
             // Remove all accounts
             foreach (var account in accounts)
             {
