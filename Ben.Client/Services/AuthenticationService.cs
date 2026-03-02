@@ -1,12 +1,13 @@
 using Microsoft.Identity.Client;
+using CommunityToolkit.Datasync.Client.Authentication;
 
 namespace Ben.Services;
 
 public class AuthenticationService
 {
     private readonly IPublicClientApplication _pca;
-    private const string ClientId = "d5a4dd1f-e90b-4c48-8031-15041bd3c02c"; // TODO: Replace with actual client ID
-    private readonly string[] _scopes = new[] { "User.Read", "api://d5a4dd1f-e90b-4c48-8031-15041bd3c02c/access_as_user" };
+    private string ClientId = Constants.ApplicationId; // "d5a4dd1f-e90b-4c48-8031-15041bd3c02c"; // TODO: Replace with actual client ID
+    private readonly string[] _scopes = Constants.Scopes; // new[] { "User.Read" };
     
     public event EventHandler? AuthenticationStateChanged;
     
@@ -19,7 +20,7 @@ public class AuthenticationService
         // Build the public client application
         var builder = PublicClientApplicationBuilder
             .Create(ClientId)
-            .WithAuthority(AzureCloudInstance.AzurePublic, "common");
+            .WithAuthority(AzureCloudInstance.AzurePublic, Constants.TenantId);
 
 #if WINDOWS
         // Windows: Use OS browser (system default) with loopback redirect URI
@@ -70,6 +71,29 @@ public class AuthenticationService
             else
                 Preferences.Default.Remove(UserNameKey);
         }
+    }
+
+    public async Task<AuthenticationToken> GetAuthenticationTokenAsync(CancellationToken cancellationToken = default)
+    {
+        var accounts = await _pca.GetAccountsAsync();
+        AuthenticationResult? result = null;
+        try
+        {
+            result = await _pca.AcquireTokenSilent(_scopes, accounts.FirstOrDefault()).ExecuteAsync(cancellationToken);
+            UpdateAuthState(result);
+        }
+        catch (MsalUiRequiredException)
+        {
+            result = await _pca.AcquireTokenInteractive(_scopes).ExecuteAsync(cancellationToken);
+            UpdateAuthState(result);
+        }
+        return new AuthenticationToken
+        {
+            DisplayName = result?.Account?.Username ?? "",
+            ExpiresOn = result?.ExpiresOn ?? DateTimeOffset.MinValue,
+            Token = result?.AccessToken ?? "",
+            UserId = result?.Account?.Username ?? ""
+        };
     }
 
     public async Task<AuthenticationResult?> SignInAsync()

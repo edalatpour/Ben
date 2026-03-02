@@ -29,7 +29,7 @@ public static class MauiProgram
 
         builder.Services.AddSingleton(new DatasyncOptions
         {
-            Endpoint = new Uri("https://app-qg762nqxq5bva.azurewebsites.net/")
+            Endpoint = new Uri(Constants.ServiceUri)
         });
 
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
@@ -37,15 +37,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<AuthenticationService>();
         builder.Services.AddSingleton<DatasyncSyncService>();
 
-        // Register AuthenticatedHttpHandler as a singleton
-        builder.Services.AddSingleton<AuthenticatedHttpHandler>(provider =>
+        builder.Services.AddDbContext<PlannerDbContext>((serviceProvider, options) =>
         {
-            var authService = provider.GetRequiredService<AuthenticationService>();
-            return new AuthenticatedHttpHandler(authService);
+            options.UseSqlite($"Filename={dbPath}");
         });
-
-        builder.Services.AddDbContext<PlannerDbContext>(options =>
-            options.UseSqlite($"Filename={dbPath}"));
 
         // Register your data service (repository)
         builder.Services.AddSingleton<PlannerRepository>();

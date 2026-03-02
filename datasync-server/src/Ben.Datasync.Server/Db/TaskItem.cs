@@ -3,21 +3,29 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
-namespace Sample.Datasync.Server.Db;
-
-public class TaskItem : EntityTableData
+namespace Ben.Datasync.Server
 {
-    public DateTime Key { get; set; }
 
-    public string Status { get; set; }
+    public class TaskItem : EntityTableData, IPersonalEntity
+    {
+        [JsonIgnore]
+        public string UserId { get; set; } = string.Empty;
 
-    public string Priority { get; set; }
+        public DateTime Key { get; set; }
 
-    public int Order { get; set; }
+        public string Status { get; set; }
 
-    [Required, MinLength(1)]
-    public string Title { get; set; } = string.Empty;
+        public string Priority { get; set; }
+
+        public int Order { get; set; }
+
+        [Required, MinLength(1)]
+        public string Title { get; set; } = string.Empty;
+
+    }
 
 }
+
