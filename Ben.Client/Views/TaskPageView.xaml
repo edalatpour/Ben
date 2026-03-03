@@ -79,30 +79,27 @@
                                     <TapGestureRecognizer Tapped="OnTaskTapped"/>
                                 </Grid.GestureRecognizers>
 
-                                <Label Grid.Column="0"
-                                       Text="{Binding StatusGlyph}"
-                                       Padding="8,0,0,0"
-                                       HorizontalOptions="Fill"
-                                       VerticalOptions="Fill"
-                                       VerticalTextAlignment="Center"
-                                       HorizontalTextAlignment="Center"
-                                       FontSize="24"
-                                       TextColor="{StaticResource Ink}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
+                                <Image Grid.Column="0"
+                                       Source="{Binding StatusIcon}"
+                                       HeightRequest="24"
+                                       WidthRequest="24"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center">
+                                    <Image.Triggers>
+                                        <DataTrigger TargetType="Image"
                                                      Binding="{Binding IsPlaceholder}"
                                                      Value="True">
                                             <Setter Property="IsVisible"
                                                     Value="False"/>
                                         </DataTrigger>
-                                        <DataTrigger TargetType="Label"
+                                        <DataTrigger TargetType="Image"
                                                      Binding="{Binding IsPriorityBucket}"
                                                      Value="True">
                                             <Setter Property="IsVisible"
                                                     Value="False"/>
                                         </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                    </Image.Triggers>
+                                </Image>
 
                                 <BoxView Grid.Column="1"
                                          WidthRequest="1"

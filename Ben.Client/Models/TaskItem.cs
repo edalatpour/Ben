@@ -64,6 +64,7 @@ public class TaskItem : INotifyPropertyChanged
             if (SetField(ref _status, value))
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusGlyph)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusIcon)));
             }
         }
     }
@@ -74,21 +75,30 @@ public class TaskItem : INotifyPropertyChanged
     {
         get
         {
-            // return _status switch
-            // {
-            //     StatusEnum.InProgress => "●",
-            //     StatusEnum.Completed => "✅",
-            //     StatusEnum.Forwarded => "➡️",
-            //     StatusEnum.Deleted => "❌",
-            //     StatusEnum.NotStarted => string.Empty
-            // };
             return _status switch
             {
                 "InProgress" => "⏺️",
                 "Completed" => "✅",
                 "Forwarded" => "➡️",
                 "Deleted" => "❌",
-                "NotStarted" => string.Empty
+                _ => string.Empty
+            };
+        }
+    }
+
+    [NotMapped]
+    [JsonIgnore]
+    public string StatusIcon
+    {
+        get
+        {
+            return _status switch
+            {
+                "InProgress" => "InProgress.webp",
+                "Completed" => "Completed.webp",
+                "Forwarded" => "Forwarded.webp",
+                "Deleted" => "Cancelled.webp",
+                _ => string.Empty
             };
         }
     }
