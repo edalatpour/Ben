@@ -84,7 +84,7 @@ public class TaskItem : INotifyPropertyChanged
             // };
             return _status switch
             {
-                "InProgress" => "●",
+                "InProgress" => "⏺️",
                 "Completed" => "✅",
                 "Forwarded" => "➡️",
                 "Deleted" => "❌",

@@ -74,12 +74,6 @@
                                             <Setter Property="IsVisible"
                                                     Value="False"/>
                                         </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsEditing}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
                                 <BoxView Grid.Column="1"
@@ -100,36 +94,24 @@
                                             <Setter Property="IsVisible"
                                                     Value="False"/>
                                         </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsEditing}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
                                     </Label.Triggers>
                                     <Label.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnNoteTapped"/>
                                     </Label.GestureRecognizers>
                                 </Label>
-                                <Entry Grid.Column="2"
-                                       Text="{Binding Text}"
-                                       Completed="OnNewNoteCompleted"
-                                       ReturnType="Done"
-                                       Placeholder="Add a note..."
+                                <Label Grid.Column="2"
+                                       Text="Tap to add a note..."
                                        IsVisible="{Binding IsPlaceholder}"
-                                       VerticalOptions="Start"
-                                       Style="{StaticResource Handwriting}"
-                                       BackgroundColor="Transparent"/>
-                                <Entry Grid.Column="2"
-                                       Text="{Binding Text}"
-                                       Completed="OnEditNoteCompleted"
-                                       Unfocused="OnEditNoteUnfocused"
-                                       ReturnType="Done"
-                                       IsVisible="{Binding IsEditing}"
-                                       VerticalOptions="Start"
-                                       Style="{StaticResource Handwriting}"
-                                       BackgroundColor="Transparent"
-                                       StyleClass="NoteEditEntry"/>
+                                       VerticalOptions="Center"
+                                       FontFamily="Bradley Hand"
+                                       FontSize="24"
+                                       FontAttributes="Italic"
+                                       TextColor="{StaticResource Line}"
+                                       BackgroundColor="Transparent">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnAddNoteTapped"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <BoxView Grid.ColumnSpan="3"
                                          HeightRequest="1"
                                          BackgroundColor="{StaticResource Line}"

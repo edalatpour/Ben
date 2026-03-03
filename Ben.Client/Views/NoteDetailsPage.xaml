@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ben.Views.NoteDetailsPage"
+             Title="Note Details">
+
+    <Grid Style="{StaticResource PaperRootGrid}"
+          IsTabStop="False">
+        <ScrollView IsTabStop="False">
+            <Grid Padding="16"
+                  RowDefinitions="Auto,Auto,*"
+                  RowSpacing="12"
+                  IsTabStop="False">
+
+                <!-- Header -->
+                <Label Text="Note Details"
+                       Style="{StaticResource DateNumber}"
+                       HorizontalTextAlignment="Center"
+                       FontSize="36"
+                       IsTabStop="False"/>
+
+                <!-- Divider -->
+                <BoxView Grid.Row="1"
+                         HeightRequest="3"
+                         BackgroundColor="{StaticResource Ink}"
+                         IsTabStop="False"/>
+
+                <!-- Form -->
+                <Grid Grid.Row="2"
+                      IsTabStop="False">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <BoxView Grid.ColumnSpan="2"
+                             HeightRequest="1"
+                             BackgroundColor="{StaticResource Ink}"
+                             IsTabStop="False"/>
+                    <BoxView Grid.RowSpan="2"
+                             WidthRequest="1"
+                             BackgroundColor="{StaticResource Ink}"
+                             IsTabStop="False"/>
+
+                    <Grid Grid.Row="1"
+                          Grid.Column="1"
+                          BackgroundColor="{StaticResource WritingPaper}"
+                          Padding="16"
+                          RowDefinitions="*,Auto"
+                          RowSpacing="8"
+                          IsTabStop="False">
+
+                        <!-- Note text editor -->
+                        <Editor x:Name="NoteEditor"
+                                Grid.Row="0"
+                                Placeholder="Enter note text..."
+                                FontFamily="Bradley Hand"
+                                FontSize="24"
+                                TextColor="{StaticResource Ink}"
+                                BackgroundColor="Transparent"
+                                AutoSize="TextChanges"
+                                MinimumHeightRequest="200"
+                                IsTabStop="True"
+                                TabIndex="0"/>
+
+                        <!-- Action buttons -->
+                        <Grid Grid.Row="1"
+                              ColumnDefinitions="*,*"
+                              ColumnSpacing="12"
+                              Margin="0,16,0,0"
+                              IsTabStop="False">
+                            <Button Grid.Column="0"
+                                    Text="Cancel"
+                                    Clicked="OnCancelClicked"
+                                    BackgroundColor="{StaticResource Ink}"
+                                    TextColor="{StaticResource WritingPaper}"
+                                    CornerRadius="4"
+                                    HeightRequest="44"
+                                    IsTabStop="True"
+                                    TabIndex="2"/>
+                            <Button Grid.Column="1"
+                                    Text="Save"
+                                    Clicked="OnSaveClicked"
+                                    BackgroundColor="{StaticResource Accent}"
+                                    TextColor="{StaticResource WritingPaper}"
+                                    CornerRadius="4"
+                                    HeightRequest="44"
+                                    IsTabStop="True"
+                                    TabIndex="1"/>
+                        </Grid>
+
+                    </Grid>
+                </Grid>
+
+            </Grid>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>
