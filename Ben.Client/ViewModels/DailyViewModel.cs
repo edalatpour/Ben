@@ -223,6 +223,25 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
+    public async Task AddTaskItemAsync(TaskItem task)
+    {
+        if (string.IsNullOrWhiteSpace(task.Title))
+        {
+            return;
+        }
+
+        task.Key = CurrentDay.Key;
+        if (task.Order <= 0)
+        {
+            task.Order = GetNextTaskOrder();
+        }
+
+        await _repo.AddTaskAsync(task);
+        InsertTaskBeforePlaceholder(task);
+        EnsurePriorityBuckets(CurrentDay);
+        await UpdateStatus();
+    }
+
     static string NormalizeTaskTitle(string text)
     {
         if (string.IsNullOrEmpty(text))
