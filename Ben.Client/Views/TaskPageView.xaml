@@ -60,6 +60,9 @@
             <Grid Grid.Row="1"
                   Grid.Column="1"
                   BackgroundColor="{StaticResource WritingPaper}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnEmptyAreaTapped"/>
+                </Grid.GestureRecognizers>
                 <CollectionView x:Name="TaskList"
                                 ItemsSource="{Binding CurrentDay.Tasks}"
                                 ItemsLayout="VerticalList"
@@ -73,11 +76,9 @@
                                 <Grid.GestureRecognizers>
                                     <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
                                     <DropGestureRecognizer Drop="OnTaskDrop"/>
+                                    <TapGestureRecognizer Tapped="OnTaskTapped"/>
                                 </Grid.GestureRecognizers>
 
-                                <!-- <Grid.GestureRecognizers>
-                                                           <TapGestureRecognizer Tapped="OnTaskStatusTapped" />
-                                                       </Grid.GestureRecognizers> -->
                                 <Label Grid.Column="0"
                                        Text="{Binding StatusGlyph}"
                                        Padding="8,0,0,0"
@@ -87,9 +88,6 @@
                                        HorizontalTextAlignment="Center"
                                        FontSize="24"
                                        TextColor="{StaticResource Ink}">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnTaskStatusTapped"/>
-                                    </Label.GestureRecognizers>
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label"
                                                      Binding="{Binding IsPlaceholder}"
@@ -167,16 +165,7 @@
                                             <Setter Property="IsVisible"
                                                     Value="False"/>
                                         </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsEditing}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
                                     </Label.Triggers>
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnTaskTitleTapped"/>
-                                    </Label.GestureRecognizers>
                                 </Label>
                                 <Label Grid.Column="2"
                                        Text="{Binding Priority}"
@@ -186,31 +175,19 @@
                                        FontAttributes="Italic"
                                        TextColor="{StaticResource Accent}"
                                        IsVisible="{Binding IsPriorityBucket}"/>
-                                <Entry Grid.Column="5"
-                                       Text="{Binding Title}"
-                                       Completed="OnNewTaskCompleted"
-                                       ReturnType="Done"
-                                       Placeholder="Add a task..."
+                                <Label Grid.Column="5"
+                                       Text="Tap to add a task..."
                                        IsVisible="{Binding IsAddPlaceholder}"
                                        VerticalOptions="Center"
                                        FontFamily="Bradley Hand"
                                        FontSize="24"
-                                       FontAttributes="Bold"
-                                       TextColor="{StaticResource Ink}"
-                                       BackgroundColor="Transparent"/>
-                                <Entry Grid.Column="5"
-                                       Text="{Binding Title}"
-                                       Completed="OnEditTaskCompleted"
-                                       Unfocused="OnEditTaskUnfocused"
-                                       ReturnType="Done"
-                                       IsVisible="{Binding IsEditing}"
-                                       VerticalOptions="Center"
-                                       FontFamily="Bradley Hand"
-                                       FontSize="24"
-                                       FontAttributes="Bold"
-                                       TextColor="{StaticResource Ink}"
-                                       BackgroundColor="Transparent"
-                                       StyleClass="TaskTitleEditEntry"/>
+                                       FontAttributes="Italic"
+                                       TextColor="{StaticResource Line}"
+                                       BackgroundColor="Transparent">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnAddTaskTapped"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <BoxView Grid.ColumnSpan="6"
                                          HeightRequest="1"
                                          BackgroundColor="{StaticResource Line}"

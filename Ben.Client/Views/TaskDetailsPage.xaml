@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ben.Views.TaskDetailsPage"
+             Title="Task Details">
+
+    <Grid Style="{StaticResource PaperRootGrid}">
+        <ScrollView>
+            <Grid Padding="16"
+                  RowDefinitions="Auto,Auto,*"
+                  RowSpacing="12">
+
+                <!-- Header -->
+                <Label Text="Task Details"
+                       Style="{StaticResource DateNumber}"
+                       HorizontalTextAlignment="Center"
+                       FontSize="36"/>
+
+                <!-- Divider -->
+                <BoxView Grid.Row="1"
+                         HeightRequest="3"
+                         BackgroundColor="{StaticResource Ink}"/>
+
+                <!-- Form -->
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <BoxView Grid.ColumnSpan="2"
+                             HeightRequest="1"
+                             BackgroundColor="{StaticResource Ink}"/>
+                    <BoxView Grid.RowSpan="2"
+                             WidthRequest="1"
+                             BackgroundColor="{StaticResource Ink}"/>
+
+                    <Grid Grid.Row="1"
+                          Grid.Column="1"
+                          BackgroundColor="{StaticResource WritingPaper}"
+                          Padding="16"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                          RowSpacing="8">
+
+                        <!-- Title label -->
+                        <Label Grid.Row="0"
+                               Text="Title"
+                               Style="{StaticResource SectionTitle}"
+                               HorizontalTextAlignment="Start"/>
+
+                        <!-- Title entry -->
+                        <Entry x:Name="TitleEntry"
+                               Grid.Row="1"
+                               Placeholder="Enter task title..."
+                               FontFamily="Bradley Hand"
+                               FontSize="24"
+                               TextColor="{StaticResource Ink}"
+                               BackgroundColor="Transparent"/>
+
+                        <!-- Status label -->
+                        <Label Grid.Row="2"
+                               Text="Status"
+                               Style="{StaticResource SectionTitle}"
+                               HorizontalTextAlignment="Start"
+                               Margin="0,8,0,0"/>
+
+                        <!-- Status picker -->
+                        <Picker x:Name="StatusPicker"
+                                Grid.Row="3"
+                                TextColor="{StaticResource Ink}"
+                                FontFamily="Bradley Hand"
+                                FontSize="24"/>
+
+                        <!-- Priority label -->
+                        <Label Grid.Row="4"
+                               Text="Priority"
+                               Style="{StaticResource SectionTitle}"
+                               HorizontalTextAlignment="Start"
+                               Margin="0,8,0,0"/>
+
+                        <!-- Priority picker -->
+                        <Picker x:Name="PriorityPicker"
+                                Grid.Row="5"
+                                TextColor="{StaticResource Ink}"
+                                FontFamily="Bradley Hand"
+                                FontSize="24"/>
+
+                        <!-- Order label -->
+                        <Label Grid.Row="6"
+                               Text="Order"
+                               Style="{StaticResource SectionTitle}"
+                               HorizontalTextAlignment="Start"
+                               Margin="0,8,0,0"/>
+
+                        <!-- Order up/down picker -->
+                        <HorizontalStackLayout Grid.Row="7"
+                                               Spacing="12"
+                                               VerticalOptions="Center">
+                            <Button Text="▼"
+                                    Clicked="OnOrderDown"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Ink}"
+                                    BorderColor="{StaticResource Line}"
+                                    BorderWidth="1"
+                                    CornerRadius="4"
+                                    FontSize="20"
+                                    WidthRequest="44"
+                                    HeightRequest="44"
+                                    Padding="0"/>
+                            <Label x:Name="OrderLabel"
+                                   Text="1"
+                                   VerticalOptions="Center"
+                                   FontFamily="Bradley Hand"
+                                   FontSize="24"
+                                   TextColor="{StaticResource Ink}"
+                                   MinimumWidthRequest="40"
+                                   HorizontalTextAlignment="Center"/>
+                            <Button Text="▲"
+                                    Clicked="OnOrderUp"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Ink}"
+                                    BorderColor="{StaticResource Line}"
+                                    BorderWidth="1"
+                                    CornerRadius="4"
+                                    FontSize="20"
+                                    WidthRequest="44"
+                                    HeightRequest="44"
+                                    Padding="0"/>
+                        </HorizontalStackLayout>
+
+                        <!-- Action buttons -->
+                        <Grid Grid.Row="8"
+                              ColumnDefinitions="*,*"
+                              ColumnSpacing="12"
+                              Margin="0,16,0,0">
+                            <Button Grid.Column="0"
+                                    Text="Cancel"
+                                    Clicked="OnCancelClicked"
+                                    BackgroundColor="{StaticResource Ink}"
+                                    TextColor="{StaticResource WritingPaper}"
+                                    CornerRadius="4"
+                                    HeightRequest="44"/>
+                            <Button Grid.Column="1"
+                                    Text="Save"
+                                    Clicked="OnSaveClicked"
+                                    BackgroundColor="{StaticResource Accent}"
+                                    TextColor="{StaticResource WritingPaper}"
+                                    CornerRadius="4"
+                                    HeightRequest="44"/>
+                        </Grid>
+
+                    </Grid>
+                </Grid>
+
+            </Grid>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>
