@@ -34,7 +34,7 @@ public partial class NoteDetailsPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        Dispatcher.Dispatch(() =>
+        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), () =>
         {
             NoteEditor.Focus();
             int length = NoteEditor.Text?.Length ?? 0;

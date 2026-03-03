@@ -4,25 +4,30 @@
              x:Class="Ben.Views.NoteDetailsPage"
              Title="Note Details">
 
-    <Grid Style="{StaticResource PaperRootGrid}">
-        <ScrollView>
+    <Grid Style="{StaticResource PaperRootGrid}"
+          IsTabStop="False">
+        <ScrollView IsTabStop="False">
             <Grid Padding="16"
                   RowDefinitions="Auto,Auto,*"
-                  RowSpacing="12">
+                  RowSpacing="12"
+                  IsTabStop="False">
 
                 <!-- Header -->
                 <Label Text="Note Details"
                        Style="{StaticResource DateNumber}"
                        HorizontalTextAlignment="Center"
-                       FontSize="36"/>
+                       FontSize="36"
+                       IsTabStop="False"/>
 
                 <!-- Divider -->
                 <BoxView Grid.Row="1"
                          HeightRequest="3"
-                         BackgroundColor="{StaticResource Ink}"/>
+                         BackgroundColor="{StaticResource Ink}"
+                         IsTabStop="False"/>
 
                 <!-- Form -->
-                <Grid Grid.Row="2">
+                <Grid Grid.Row="2"
+                      IsTabStop="False">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -34,17 +39,20 @@
 
                     <BoxView Grid.ColumnSpan="2"
                              HeightRequest="1"
-                             BackgroundColor="{StaticResource Ink}"/>
+                             BackgroundColor="{StaticResource Ink}"
+                             IsTabStop="False"/>
                     <BoxView Grid.RowSpan="2"
                              WidthRequest="1"
-                             BackgroundColor="{StaticResource Ink}"/>
+                             BackgroundColor="{StaticResource Ink}"
+                             IsTabStop="False"/>
 
                     <Grid Grid.Row="1"
                           Grid.Column="1"
                           BackgroundColor="{StaticResource WritingPaper}"
                           Padding="16"
                           RowDefinitions="*,Auto"
-                          RowSpacing="8">
+                          RowSpacing="8"
+                          IsTabStop="False">
 
                         <!-- Note text editor -->
                         <Editor x:Name="NoteEditor"
@@ -56,13 +64,15 @@
                                 BackgroundColor="Transparent"
                                 AutoSize="TextChanges"
                                 MinimumHeightRequest="200"
+                                IsTabStop="True"
                                 TabIndex="0"/>
 
                         <!-- Action buttons -->
                         <Grid Grid.Row="1"
                               ColumnDefinitions="*,*"
                               ColumnSpacing="12"
-                              Margin="0,16,0,0">
+                              Margin="0,16,0,0"
+                              IsTabStop="False">
                             <Button Grid.Column="0"
                                     Text="Cancel"
                                     Clicked="OnCancelClicked"
@@ -70,6 +80,7 @@
                                     TextColor="{StaticResource WritingPaper}"
                                     CornerRadius="4"
                                     HeightRequest="44"
+                                    IsTabStop="True"
                                     TabIndex="2"/>
                             <Button Grid.Column="1"
                                     Text="Save"
@@ -78,6 +89,7 @@
                                     TextColor="{StaticResource WritingPaper}"
                                     CornerRadius="4"
                                     HeightRequest="44"
+                                    IsTabStop="True"
                                     TabIndex="1"/>
                         </Grid>
 

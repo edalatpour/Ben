@@ -6,7 +6,7 @@ using Ben.ViewModels;
 public partial class TaskDetailsPage : ContentPage
 {
     static readonly string[] StatusValues = { "NotStarted", "InProgress", "Completed", "Forwarded", "Deleted" };
-    static readonly string[] StatusLabels = { "(Not Started)", "● (In Progress)", "✅ (Completed)", "➡️ (Forwarded)", "❌ (Deleted)" };
+    static readonly string[] StatusLabels = { "(Not Started)", "⏺️ (In Progress)", "✅ (Completed)", "➡️ (Forwarded)", "❌ (Deleted)" };
     static readonly string[] PriorityValues = { "A", "B", "C" };
 
     private readonly DailyViewModel _viewModel;
