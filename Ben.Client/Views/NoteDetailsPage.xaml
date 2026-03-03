@@ -55,7 +55,8 @@
                                 TextColor="{StaticResource Ink}"
                                 BackgroundColor="Transparent"
                                 AutoSize="TextChanges"
-                                MinimumHeightRequest="200"/>
+                                MinimumHeightRequest="200"
+                                TabIndex="0"/>
 
                         <!-- Action buttons -->
                         <Grid Grid.Row="1"
@@ -68,14 +69,16 @@
                                     BackgroundColor="{StaticResource Ink}"
                                     TextColor="{StaticResource WritingPaper}"
                                     CornerRadius="4"
-                                    HeightRequest="44"/>
+                                    HeightRequest="44"
+                                    TabIndex="2"/>
                             <Button Grid.Column="1"
                                     Text="Save"
                                     Clicked="OnSaveClicked"
                                     BackgroundColor="{StaticResource Accent}"
                                     TextColor="{StaticResource WritingPaper}"
                                     CornerRadius="4"
-                                    HeightRequest="44"/>
+                                    HeightRequest="44"
+                                    TabIndex="1"/>
                         </Grid>
 
                     </Grid>

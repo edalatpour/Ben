@@ -31,6 +31,18 @@ public partial class NoteDetailsPage : ContentPage
         NoteEditor.Text = _note.Text;
     }
 
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        Dispatcher.Dispatch(() =>
+        {
+            NoteEditor.Focus();
+            int length = NoteEditor.Text?.Length ?? 0;
+            NoteEditor.CursorPosition = length;
+            NoteEditor.SelectionLength = 0;
+        });
+    }
+
     async void OnSaveClicked(object sender, EventArgs e)
     {
         string text = NormalizeText(NoteEditor.Text);
