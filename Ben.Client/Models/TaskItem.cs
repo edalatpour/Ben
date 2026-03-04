@@ -94,10 +94,10 @@ public class TaskItem : INotifyPropertyChanged
         {
             return _status switch
             {
-                "InProgress" => "InProgress.webp",
-                "Completed" => "Completed.webp",
-                "Forwarded" => "Forwarded.webp",
-                "Deleted" => "Cancelled.webp",
+                "InProgress" => "in_progress.webp",
+                "Completed" => "completed.webp",
+                "Forwarded" => "forwarded.webp",
+                "Deleted" => "cancelled.webp",
                 _ => string.Empty
             };
         }
