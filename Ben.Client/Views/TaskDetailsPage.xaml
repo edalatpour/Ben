@@ -69,11 +69,116 @@
                                Margin="0,8,0,0"/>
 
                         <!-- Status picker -->
-                        <Picker x:Name="StatusPicker"
-                                Grid.Row="3"
-                                TextColor="{StaticResource Ink}"
-                                FontFamily="Bradley Hand"
-                                FontSize="24"/>
+                        <Grid Grid.Row="3"
+                              ColumnDefinitions="*,*,*,*,*"
+                              ColumnSpacing="4"
+                              Margin="0,4,0,0">
+                            <Border x:Name="StatusBorderNotStarted"
+                                    Grid.Column="0"
+                                    BackgroundColor="Transparent"
+                                    Stroke="{StaticResource Line}"
+                                    StrokeShape="RoundRectangle 4"
+                                    Padding="4">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="—"
+                                           FontSize="20"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource Ink}"/>
+                                    <Label Text="Not Started"
+                                           FontSize="9"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource Ink}"/>
+                                </VerticalStackLayout>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                          CommandParameter="NotStarted"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border x:Name="StatusBorderInProgress"
+                                    Grid.Column="1"
+                                    BackgroundColor="Transparent"
+                                    Stroke="{StaticResource Line}"
+                                    StrokeShape="RoundRectangle 4"
+                                    Padding="4">
+                                <VerticalStackLayout Spacing="2">
+                                    <Image Source="in_progress.webp"
+                                           HeightRequest="24"
+                                           WidthRequest="24"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="In Progress"
+                                           FontSize="9"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource Ink}"/>
+                                </VerticalStackLayout>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                          CommandParameter="InProgress"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border x:Name="StatusBorderCompleted"
+                                    Grid.Column="2"
+                                    BackgroundColor="Transparent"
+                                    Stroke="{StaticResource Line}"
+                                    StrokeShape="RoundRectangle 4"
+                                    Padding="4">
+                                <VerticalStackLayout Spacing="2">
+                                    <Image Source="completed.webp"
+                                           HeightRequest="24"
+                                           WidthRequest="24"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="Completed"
+                                           FontSize="9"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource Ink}"/>
+                                </VerticalStackLayout>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                          CommandParameter="Completed"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border x:Name="StatusBorderForwarded"
+                                    Grid.Column="3"
+                                    BackgroundColor="Transparent"
+                                    Stroke="{StaticResource Line}"
+                                    StrokeShape="RoundRectangle 4"
+                                    Padding="4">
+                                <VerticalStackLayout Spacing="2">
+                                    <Image Source="forwarded.webp"
+                                           HeightRequest="24"
+                                           WidthRequest="24"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="Forwarded"
+                                           FontSize="9"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource Ink}"/>
+                                </VerticalStackLayout>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                          CommandParameter="Forwarded"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border x:Name="StatusBorderDeleted"
+                                    Grid.Column="4"
+                                    BackgroundColor="Transparent"
+                                    Stroke="{StaticResource Line}"
+                                    StrokeShape="RoundRectangle 4"
+                                    Padding="4">
+                                <VerticalStackLayout Spacing="2">
+                                    <Image Source="cancelled.webp"
+                                           HeightRequest="24"
+                                           WidthRequest="24"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="Deleted"
+                                           FontSize="9"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource Ink}"/>
+                                </VerticalStackLayout>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                          CommandParameter="Deleted"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
 
                         <!-- Priority label -->
                         <Label Grid.Row="4"

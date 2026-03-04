@@ -6,23 +6,18 @@ using Ben.ViewModels;
 public partial class TaskDetailsPage : ContentPage
 {
     static readonly string[] StatusValues = { "NotStarted", "InProgress", "Completed", "Forwarded", "Deleted" };
-    static readonly string[] StatusLabels = { "(Not Started)", "⏺️ (In Progress)", "✅ (Completed)", "➡️ (Forwarded)", "❌ (Deleted)" };
     static readonly string[] PriorityValues = { "A", "B", "C" };
 
     private readonly DailyViewModel _viewModel;
     private readonly TaskItem _task;
     private readonly bool _isNewTask;
     private int _order;
+    private string _selectedStatus = "NotStarted";
 
     public TaskDetailsPage(DailyViewModel viewModel, TaskItem task = null)
     {
         InitializeComponent();
         _viewModel = viewModel;
-
-        foreach (string label in StatusLabels)
-        {
-            StatusPicker.Items.Add(label);
-        }
 
         foreach (string p in PriorityValues)
         {
@@ -49,14 +44,32 @@ public partial class TaskDetailsPage : ContentPage
         // Populate form fields
         TitleEntry.Text = _task.Title;
 
-        int statusIndex = Array.IndexOf(StatusValues, _task.Status);
-        StatusPicker.SelectedIndex = statusIndex >= 0 ? statusIndex : 0;
+        _selectedStatus = Array.IndexOf(StatusValues, _task.Status) >= 0 ? _task.Status : "NotStarted";
+        UpdateStatusSelection();
 
         int priorityIndex = Array.IndexOf(PriorityValues, _task.Priority);
         PriorityPicker.SelectedIndex = priorityIndex >= 0 ? priorityIndex : 0;
 
         _order = _task.Order > 0 ? _task.Order : 1;
         OrderLabel.Text = _order.ToString();
+    }
+
+    void OnStatusSelected(object sender, TappedEventArgs e)
+    {
+        _selectedStatus = e.Parameter?.ToString() ?? "NotStarted";
+        UpdateStatusSelection();
+    }
+
+    void UpdateStatusSelection()
+    {
+        var accent = (Color)Application.Current.Resources["Accent"];
+        var line = (Color)Application.Current.Resources["Line"];
+
+        StatusBorderNotStarted.Stroke = _selectedStatus == "NotStarted" ? accent : line;
+        StatusBorderInProgress.Stroke = _selectedStatus == "InProgress" ? accent : line;
+        StatusBorderCompleted.Stroke = _selectedStatus == "Completed" ? accent : line;
+        StatusBorderForwarded.Stroke = _selectedStatus == "Forwarded" ? accent : line;
+        StatusBorderDeleted.Stroke = _selectedStatus == "Deleted" ? accent : line;
     }
 
     void OnOrderDown(object sender, EventArgs e)
@@ -84,7 +97,7 @@ public partial class TaskDetailsPage : ContentPage
         }
 
         _task.Title = title;
-        _task.Status = StatusPicker.SelectedIndex >= 0 ? StatusValues[StatusPicker.SelectedIndex] : "NotStarted";
+        _task.Status = _selectedStatus;
         _task.Priority = PriorityPicker.SelectedIndex >= 0 ? PriorityValues[PriorityPicker.SelectedIndex] : "A";
         _task.Order = _order;
 
