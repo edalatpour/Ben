@@ -48,7 +48,7 @@ public partial class NoteDetailsPage : ContentPage
         string text = NormalizeText(NoteEditor.Text);
         if (string.IsNullOrEmpty(text))
         {
-            await DisplayAlert("Validation", "Please enter note text.", "OK");
+            await DisplayAlertAsync("Validation", "Please enter note text.", "OK");
             return;
         }
 

@@ -27,7 +27,7 @@ public partial class TaskPageView : ContentView
             return;
         }
 
-        var page = Application.Current?.MainPage;
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
         if (page == null)
         {
             return;
@@ -53,7 +53,7 @@ public partial class TaskPageView : ContentView
             return;
         }
 
-        var page = Application.Current?.MainPage;
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
         if (page == null)
         {
             return;

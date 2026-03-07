@@ -33,10 +33,10 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>msauth.com.edalatpour.ben</string>
+				<string>msauth.com.edalatpour.Ben</string>
 			</array>
 			<key>CFBundleURLName</key>
-			<string>com.edalatpour.ben</string>
+			<string>com.edalatpour.Ben</string>
 		</dict>
 	</array>
 </dict>

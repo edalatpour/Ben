@@ -1,6 +1,4 @@
-﻿using Ben.Views;
-
-namespace Ben;
+﻿namespace Ben;
 
 public partial class AppShell : Shell
 {
@@ -9,9 +7,6 @@ public partial class AppShell : Shell
     public AppShell()
     {
         InitializeComponent();
-
-        // Register page routes for modal navigation
-        Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
     }
 
 }

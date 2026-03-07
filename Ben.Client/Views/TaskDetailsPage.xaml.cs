@@ -92,7 +92,7 @@ public partial class TaskDetailsPage : ContentPage
         string title = TitleEntry.Text?.Trim() ?? string.Empty;
         if (string.IsNullOrEmpty(title))
         {
-            await DisplayAlert("Validation", "Please enter a task title.", "OK");
+            await DisplayAlertAsync("Validation", "Please enter a task title.", "OK");
             return;
         }
 

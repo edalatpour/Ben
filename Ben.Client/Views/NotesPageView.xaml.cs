@@ -27,7 +27,7 @@ public partial class NotesPageView : ContentView
             return;
         }
 
-        var page = Application.Current?.MainPage;
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
         if (page == null)
         {
             return;
@@ -43,7 +43,7 @@ public partial class NotesPageView : ContentView
             return;
         }
 
-        var page = Application.Current?.MainPage;
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
         if (page == null)
         {
             return;

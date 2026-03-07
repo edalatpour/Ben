@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net10.0-ios</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
 
 		<!-- Note for MacCatalyst:
@@ -23,7 +23,7 @@
 		<ApplicationTitle>Ben</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.edalatpour.ben</ApplicationId>
+		<ApplicationId>com.edalatpour.Ben</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -37,6 +37,9 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<EnableCodeSigning Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(RuntimeIdentifier)' == 'iossimulator-x64'">false</EnableCodeSigning>
+		<EnableCodeSigning Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(RuntimeIdentifier)' == 'iossimulator-arm64'">false</EnableCodeSigning>
+		<CodesignEntitlements Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and !$(RuntimeIdentifier.Contains('simulator'))">Platforms/iOS/Entitlements.plist</CodesignEntitlements>
 	</PropertyGroup>
 
 	<ItemGroup>

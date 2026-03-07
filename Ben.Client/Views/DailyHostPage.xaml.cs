@@ -132,7 +132,7 @@ public partial class DailyHostPage : ContentPage
 
     async void OnLoginStatusTapped(object sender, EventArgs e)
     {
-        await ViewModel.OpenSettingsAsync();
+        await ViewModel.ToggleAuthenticationAsync();
     }
 
     async void OnSyncStatusTapped(object sender, EventArgs e)

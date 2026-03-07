@@ -29,8 +29,8 @@ public class AuthenticationService
 #elif IOS || MACCATALYST
         // iOS/macOS: Use custom redirect URI
         builder = builder
-            .WithRedirectUri("msauth.com.edalatpour.ben://auth")
-            .WithIosKeychainSecurityGroup("com.microsoft.adalcache");
+            .WithRedirectUri("msauth.com.edalatpour.Ben://auth")
+            .WithIosKeychainSecurityGroup("com.edalatpour.Ben");
 #elif ANDROID
         // Android: Use custom redirect URI
         builder = builder
@@ -174,7 +174,7 @@ public class AuthenticationService
             if (hasUnsyncedChanges)
             {
                 // Warn user that unsynced changes will remain locally
-                await Application.Current!.MainPage!.DisplayAlert(
+                await ShowAlertAsync(
                     "Unsynced Changes",
                     "You have changes that haven't been synced to the cloud yet. They will remain on this device and will be synced when you sign in again.",
                     "OK");
@@ -188,7 +188,7 @@ public class AuthenticationService
         catch (Exception ex)
         {
             Console.WriteLine($"Sign out error: {ex.Message}");
-            await Application.Current!.MainPage!.DisplayAlert(
+            await ShowAlertAsync(
                 "Error",
                 $"Sign out failed: {ex.Message}",
                 "OK");
@@ -203,6 +203,17 @@ public class AuthenticationService
         UserName = result.Account?.Username?.Split('@')[0];
         AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
     }
+
+    private static Task ShowAlertAsync(string title, string message, string cancel)
+    {
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page == null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return page.DisplayAlertAsync(title, message, cancel);
+    }
 }
 
 // Token cache helper for persistence
@@ -213,6 +224,11 @@ internal static class TokenCacheHelper
 
     public static void EnableSerialization(ITokenCache tokenCache)
     {
+        if (OperatingSystem.IsIOS() || OperatingSystem.IsMacCatalyst() || OperatingSystem.IsAndroid())
+        {
+            return;
+        }
+
         tokenCache.SetBeforeAccess(BeforeAccessNotification);
         tokenCache.SetAfterAccess(AfterAccessNotification);
     }

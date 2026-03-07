@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Networking;
 using Ben.Models;
 using Ben.Services;
-using Ben.Views;
 
 namespace Ben.ViewModels;
 
@@ -396,17 +395,22 @@ public class DailyViewModel : INotifyPropertyChanged
     void OnPropertyChanged([CallerMemberName] string name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-    public async Task OpenSettingsAsync()
+    public async Task ToggleAuthenticationAsync()
     {
-        try
+        if (_authService.IsAuthenticated)
         {
-            await Shell.Current.GoToAsync(nameof(SettingsPage));
+            await _authService.SignOutWithCleanupAsync(_syncService);
+            await UpdateStatus();
+            return;
         }
-        catch (Exception ex)
+
+        var result = await _authService.SignInAsync();
+        if (result != null)
         {
-            // Log error
-            Console.WriteLine($"Navigation error: {ex.Message}");
+            _ = _syncService.TrySyncNowAsync();
         }
+
+        await UpdateStatus();
     }
 
     public async Task ForceSyncAsync()
