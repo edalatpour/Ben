@@ -235,32 +235,32 @@
 
                     </Grid>
 
-                        <BoxView Grid.Row="2"
+                    <BoxView Grid.Row="2"
                              Grid.ColumnSpan="2"
                              HeightRequest="1"
                              BackgroundColor="{StaticResource Ink}"/>
                 </Grid>
 
-                    <!-- Action buttons -->
-                    <Grid Grid.Row="2"
-                          ColumnDefinitions="*,*"
-                          ColumnSpacing="12"
-                          Margin="0,16,0,0">
-                        <Button Grid.Column="0"
+                <!-- Action buttons -->
+                <Grid Grid.Row="2"
+                      ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      Margin="0,16,0,0">
+                    <Button Grid.Column="0"
                             Text="Cancel"
                             Clicked="OnCancelClicked"
                             BackgroundColor="{StaticResource Ink}"
                             TextColor="{StaticResource WritingPaper}"
                             CornerRadius="4"
                             HeightRequest="44"/>
-                        <Button Grid.Column="1"
+                    <Button Grid.Column="1"
                             Text="Save"
                             Clicked="OnSaveClicked"
                             BackgroundColor="{StaticResource Accent}"
                             TextColor="{StaticResource WritingPaper}"
                             CornerRadius="4"
                             HeightRequest="44"/>
-                    </Grid>
+                </Grid>
 
             </Grid>
         </ScrollView>
