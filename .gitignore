@@ -2,3 +2,4 @@
 **/obj/
 *.csproj.user
 Ben/Ben.csproj.user
+Ben.Client/Ben.Client.csproj.user
