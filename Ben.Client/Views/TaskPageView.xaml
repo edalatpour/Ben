@@ -23,7 +23,7 @@
         </VerticalStackLayout>
 
         <Grid Grid.Row="1"
-              ColumnDefinitions="38,38,*"
+              ColumnDefinitions="32,36,*"
               ColumnSpacing="10"
               Padding="0,4,0,0">
             <Label Text="▼"
@@ -60,9 +60,6 @@
             <Grid Grid.Row="1"
                   Grid.Column="1"
                   BackgroundColor="{StaticResource WritingPaper}">
-                <Grid.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnEmptyAreaTapped"/>
-                </Grid.GestureRecognizers>
                 <CollectionView x:Name="TaskList"
                                 ItemsSource="{Binding CurrentDay.Tasks}"
                                 ItemsLayout="VerticalList"
@@ -70,7 +67,7 @@
                                 Margin="0,0,0,8">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="32,1,16,16,1,*"
+                            <Grid ColumnDefinitions="24,1,12,12,1,*"
                                   ColumnSpacing="8"
                                   Padding="0,0,0,0">
                                 <Grid.GestureRecognizers>
@@ -87,12 +84,6 @@
                                        VerticalOptions="Center">
                                     <Image.Triggers>
                                         <DataTrigger TargetType="Image"
-                                                     Binding="{Binding IsPlaceholder}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Image"
                                                      Binding="{Binding IsPriorityBucket}"
                                                      Value="True">
                                             <Setter Property="IsVisible"
@@ -106,14 +97,8 @@
                                          BackgroundColor="{StaticResource Line}"/>
                                 <Label Grid.Column="2"
                                        Text="{Binding Priority}"
-                                       Style="{StaticResource Handwriting}">
+                                        Style="{StaticResource Handwriting}">
                                     <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsPlaceholder}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
                                         <DataTrigger TargetType="Label"
                                                      Binding="{Binding IsPriorityBucket}"
                                                      Value="True">
@@ -126,12 +111,6 @@
                                        Text="{Binding Order}"
                                        Style="{StaticResource Handwriting}">
                                     <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsPlaceholder}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
                                         <DataTrigger TargetType="Label"
                                                      Binding="{Binding IsPriorityBucket}"
                                                      Value="True">
@@ -151,12 +130,6 @@
                                        Style="{StaticResource Handwriting}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsPlaceholder}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label"
                                                      Binding="{Binding IsPriorityBucket}"
                                                      Value="True">
                                             <Setter Property="IsVisible"
@@ -167,24 +140,10 @@
                                 <Label Grid.Column="2"
                                        Text="{Binding Priority}"
                                        VerticalOptions="Center"
-                                       FontFamily="Bradley Hand"
-                                       FontSize="24"
+                                       Style="{StaticResource Handwriting}"
                                        FontAttributes="Italic"
                                        TextColor="{StaticResource Accent}"
                                        IsVisible="{Binding IsPriorityBucket}"/>
-                                <Label Grid.Column="5"
-                                       Text="Tap to add a task..."
-                                       IsVisible="{Binding IsAddPlaceholder}"
-                                       VerticalOptions="Center"
-                                       FontFamily="Bradley Hand"
-                                       FontSize="24"
-                                       FontAttributes="Italic"
-                                       TextColor="{StaticResource Line}"
-                                       BackgroundColor="Transparent">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnAddTaskTapped"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
                                 <BoxView Grid.ColumnSpan="6"
                                          HeightRequest="1"
                                          BackgroundColor="{StaticResource Line}"
@@ -192,6 +151,37 @@
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
+                    <CollectionView.Footer>
+                        <Grid ColumnDefinitions="24,1,12,12,1,*"
+                              ColumnSpacing="8"
+                              Padding="0,0,0,0">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAddTaskTapped"/>
+                            </Grid.GestureRecognizers>
+                            <Image Grid.Column="0"
+                                   Source="plus.webp"
+                                   HeightRequest="20"
+                                   WidthRequest="20"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                            <BoxView Grid.Column="1"
+                                     WidthRequest="1"
+                                     BackgroundColor="{StaticResource Line}"/>
+                            <BoxView Grid.Column="4"
+                                     WidthRequest="1"
+                                     BackgroundColor="{StaticResource Line}"/>
+                            <Label Grid.Column="5"
+                                   Text="Tap to add a new task..."
+                                   VerticalTextAlignment="Center"
+                                   Style="{StaticResource Handwriting}"
+                                   FontAttributes="Italic"
+                                   TextColor="{StaticResource Line}"/>
+                            <BoxView Grid.ColumnSpan="6"
+                                     HeightRequest="1"
+                                     BackgroundColor="{StaticResource Line}"
+                                     VerticalOptions="End"/>
+                        </Grid>
+                    </CollectionView.Footer>
                 </CollectionView>
             </Grid>
 

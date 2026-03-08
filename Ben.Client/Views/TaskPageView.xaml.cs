@@ -22,7 +22,7 @@ public partial class TaskPageView : ContentView
             return;
         }
 
-        if (bindable.BindingContext is not TaskItem task || task.IsPlaceholder || task.IsPriorityBucket)
+        if (bindable.BindingContext is not TaskItem task || task.IsPriorityBucket)
         {
             return;
         }
@@ -37,16 +37,6 @@ public partial class TaskPageView : ContentView
     }
 
     async void OnAddTaskTapped(object sender, EventArgs e)
-    {
-        await OpenNewTaskDetailsAsync();
-    }
-
-    async void OnEmptyAreaTapped(object sender, EventArgs e)
-    {
-        await OpenNewTaskDetailsAsync();
-    }
-
-    async Task OpenNewTaskDetailsAsync()
     {
         if (BindingContext is not DailyViewModel viewModel)
         {
@@ -69,7 +59,7 @@ public partial class TaskPageView : ContentView
             return;
         }
 
-        if (bindable.BindingContext is not TaskItem task || task.IsPlaceholder || task.IsPriorityBucket)
+        if (bindable.BindingContext is not TaskItem task || task.IsPriorityBucket)
         {
             e.Cancel = true;
             return;

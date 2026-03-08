@@ -7,25 +7,21 @@
     <Grid Style="{StaticResource PaperRootGrid}">
         <ScrollView>
             <Grid Padding="16"
-                  RowDefinitions="Auto,Auto,*"
+                  RowDefinitions="Auto,*,Auto"
                   RowSpacing="12">
 
                 <!-- Header -->
-                <Label Text="Task Details"
-                       Style="{StaticResource DateNumber}"
-                       HorizontalTextAlignment="Center"
-                       FontSize="36"/>
-
-                <!-- Divider -->
-                <BoxView Grid.Row="1"
-                         HeightRequest="3"
-                         BackgroundColor="{StaticResource Ink}"/>
+                <Label Grid.Row="0"
+                       Text="Task Details"
+                       Style="{StaticResource SectionTitle}"
+                       HorizontalTextAlignment="Center"/>
 
                 <!-- Form -->
-                <Grid Grid.Row="2">
+                <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -33,7 +29,7 @@
                     </Grid.ColumnDefinitions>
 
                     <BoxView Grid.ColumnSpan="2"
-                             HeightRequest="1"
+                             HeightRequest="3"
                              BackgroundColor="{StaticResource Ink}"/>
                     <BoxView Grid.RowSpan="2"
                              WidthRequest="1"
@@ -43,7 +39,7 @@
                           Grid.Column="1"
                           BackgroundColor="{StaticResource WritingPaper}"
                           Padding="16"
-                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                           RowSpacing="8">
 
                         <!-- Title label -->
@@ -56,9 +52,9 @@
                         <Entry x:Name="TitleEntry"
                                Grid.Row="1"
                                Placeholder="Enter task title..."
-                               FontFamily="Bradley Hand"
+                               Style="{StaticResource Handwriting}"
                                FontSize="24"
-                               TextColor="{StaticResource Ink}"
+                               TextColor="Black"
                                BackgroundColor="Transparent"/>
 
                         <!-- Status label -->
@@ -191,7 +187,7 @@
                         <Picker x:Name="PriorityPicker"
                                 Grid.Row="5"
                                 TextColor="{StaticResource Ink}"
-                                FontFamily="Bradley Hand"
+                                Style="{StaticResource Handwriting}"
                                 FontSize="24"/>
 
                         <!-- Order label -->
@@ -219,7 +215,7 @@
                             <Label x:Name="OrderLabel"
                                    Text="1"
                                    VerticalOptions="Center"
-                                   FontFamily="Bradley Hand"
+                                   Style="{StaticResource Handwriting}"
                                    FontSize="24"
                                    TextColor="{StaticResource Ink}"
                                    MinimumWidthRequest="40"
@@ -237,29 +233,34 @@
                                     Padding="0"/>
                         </HorizontalStackLayout>
 
-                        <!-- Action buttons -->
-                        <Grid Grid.Row="8"
-                              ColumnDefinitions="*,*"
-                              ColumnSpacing="12"
-                              Margin="0,16,0,0">
-                            <Button Grid.Column="0"
-                                    Text="Cancel"
-                                    Clicked="OnCancelClicked"
-                                    BackgroundColor="{StaticResource Ink}"
-                                    TextColor="{StaticResource WritingPaper}"
-                                    CornerRadius="4"
-                                    HeightRequest="44"/>
-                            <Button Grid.Column="1"
-                                    Text="Save"
-                                    Clicked="OnSaveClicked"
-                                    BackgroundColor="{StaticResource Accent}"
-                                    TextColor="{StaticResource WritingPaper}"
-                                    CornerRadius="4"
-                                    HeightRequest="44"/>
-                        </Grid>
-
                     </Grid>
+
+                        <BoxView Grid.Row="2"
+                             Grid.ColumnSpan="2"
+                             HeightRequest="1"
+                             BackgroundColor="{StaticResource Ink}"/>
                 </Grid>
+
+                    <!-- Action buttons -->
+                    <Grid Grid.Row="2"
+                          ColumnDefinitions="*,*"
+                          ColumnSpacing="12"
+                          Margin="0,16,0,0">
+                        <Button Grid.Column="0"
+                            Text="Cancel"
+                            Clicked="OnCancelClicked"
+                            BackgroundColor="{StaticResource Ink}"
+                            TextColor="{StaticResource WritingPaper}"
+                            CornerRadius="4"
+                            HeightRequest="44"/>
+                        <Button Grid.Column="1"
+                            Text="Save"
+                            Clicked="OnSaveClicked"
+                            BackgroundColor="{StaticResource Accent}"
+                            TextColor="{StaticResource WritingPaper}"
+                            CornerRadius="4"
+                            HeightRequest="44"/>
+                    </Grid>
 
             </Grid>
         </ScrollView>

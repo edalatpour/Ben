@@ -4,33 +4,25 @@
              x:Class="Ben.Views.NoteDetailsPage"
              Title="Note Details">
 
-    <Grid Style="{StaticResource PaperRootGrid}"
-          IsTabStop="False">
-        <ScrollView IsTabStop="False">
+    <Grid Style="{StaticResource PaperRootGrid}">
+
+        <ScrollView>
             <Grid Padding="16"
-                  RowDefinitions="Auto,Auto,*"
-                  RowSpacing="12"
-                  IsTabStop="False">
+                  RowDefinitions="Auto,*,Auto"
+                  RowSpacing="12">
 
                 <!-- Header -->
-                <Label Text="Note Details"
-                       Style="{StaticResource DateNumber}"
-                       HorizontalTextAlignment="Center"
-                       FontSize="36"
-                       IsTabStop="False"/>
-
-                <!-- Divider -->
-                <BoxView Grid.Row="1"
-                         HeightRequest="3"
-                         BackgroundColor="{StaticResource Ink}"
-                         IsTabStop="False"/>
+                <Label Grid.Row="0"
+                       Text="Note Details"
+                       Style="{StaticResource SectionTitle}"
+                       HorizontalTextAlignment="Center"/>
 
                 <!-- Form -->
-                <Grid Grid.Row="2"
-                      IsTabStop="False">
+                <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -38,66 +30,66 @@
                     </Grid.ColumnDefinitions>
 
                     <BoxView Grid.ColumnSpan="2"
-                             HeightRequest="1"
-                             BackgroundColor="{StaticResource Ink}"
-                             IsTabStop="False"/>
+                             HeightRequest="3"
+                             BackgroundColor="{StaticResource Ink}"/>
                     <BoxView Grid.RowSpan="2"
                              WidthRequest="1"
-                             BackgroundColor="{StaticResource Ink}"
-                             IsTabStop="False"/>
+                             BackgroundColor="{StaticResource Ink}"/>
 
                     <Grid Grid.Row="1"
                           Grid.Column="1"
                           BackgroundColor="{StaticResource WritingPaper}"
                           Padding="16"
                           RowDefinitions="*,Auto"
-                          RowSpacing="8"
-                          IsTabStop="False">
+                          RowSpacing="8">
 
                         <!-- Note text editor -->
                         <Editor x:Name="NoteEditor"
                                 Grid.Row="0"
                                 Placeholder="Enter note text..."
-                                FontFamily="Bradley Hand"
+                                Style="{StaticResource Handwriting}"
                                 FontSize="24"
-                                TextColor="{StaticResource Ink}"
+                                TextColor="Black"
                                 BackgroundColor="Transparent"
                                 AutoSize="TextChanges"
-                                MinimumHeightRequest="200"
-                                IsTabStop="True"
-                                TabIndex="0"/>
-
-                        <!-- Action buttons -->
-                        <Grid Grid.Row="1"
-                              ColumnDefinitions="*,*"
-                              ColumnSpacing="12"
-                              Margin="0,16,0,0"
-                              IsTabStop="False">
-                            <Button Grid.Column="0"
-                                    Text="Cancel"
-                                    Clicked="OnCancelClicked"
-                                    BackgroundColor="{StaticResource Ink}"
-                                    TextColor="{StaticResource WritingPaper}"
-                                    CornerRadius="4"
-                                    HeightRequest="44"
-                                    IsTabStop="True"
-                                    TabIndex="2"/>
-                            <Button Grid.Column="1"
-                                    Text="Save"
-                                    Clicked="OnSaveClicked"
-                                    BackgroundColor="{StaticResource Accent}"
-                                    TextColor="{StaticResource WritingPaper}"
-                                    CornerRadius="4"
-                                    HeightRequest="44"
-                                    IsTabStop="True"
-                                    TabIndex="1"/>
-                        </Grid>
+                                MinimumHeightRequest="160"/>
 
                     </Grid>
+
+                    <BoxView Grid.Row="2"
+                             Grid.ColumnSpan="2"
+                             HeightRequest="1"
+                             BackgroundColor="{StaticResource Ink}"/>
+
+                </Grid>
+
+                <!-- Action buttons -->
+                <Grid Grid.Row="2"
+                      ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      Margin="0,16,0,0">
+
+                    <Button Grid.Column="0"
+                            Text="Cancel"
+                            Clicked="OnCancelClicked"
+                            BackgroundColor="{StaticResource Ink}"
+                            TextColor="{StaticResource WritingPaper}"
+                            CornerRadius="4"
+                            HeightRequest="44"/>
+                    <Button Grid.Column="1"
+                            Text="Save"
+                            Clicked="OnSaveClicked"
+                            BackgroundColor="{StaticResource Accent}"
+                            TextColor="{StaticResource WritingPaper}"
+                            CornerRadius="4"
+                            HeightRequest="44"/>
+
                 </Grid>
 
             </Grid>
+
         </ScrollView>
+
     </Grid>
 
 </ContentPage>

@@ -66,16 +66,7 @@
                                        Text="{Binding Order}"
                                        HorizontalTextAlignment="End"
                                        VerticalTextAlignment="Start"
-                                       Style="{StaticResource Handwriting}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsPlaceholder}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                       Style="{StaticResource Handwriting}"/>
                                 <BoxView Grid.Column="1"
                                          WidthRequest="1"
                                          BackgroundColor="{StaticResource Line}"
@@ -87,29 +78,8 @@
                                        HorizontalTextAlignment="Start"
                                        VerticalTextAlignment="Start"
                                        Style="{StaticResource Handwriting}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsPlaceholder}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
                                     <Label.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnNoteTapped"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <Label Grid.Column="2"
-                                       Text="Tap to add a note..."
-                                       IsVisible="{Binding IsPlaceholder}"
-                                       VerticalOptions="Center"
-                                       FontFamily="Bradley Hand"
-                                       FontSize="24"
-                                       FontAttributes="Italic"
-                                       TextColor="{StaticResource Line}"
-                                       BackgroundColor="Transparent">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnAddNoteTapped"/>
                                     </Label.GestureRecognizers>
                                 </Label>
                                 <BoxView Grid.ColumnSpan="3"
@@ -119,6 +89,36 @@
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
+                    <CollectionView.Footer>
+                        <Grid ColumnDefinitions="36,1,*"
+                              ColumnSpacing="8"
+                              Padding="0,0,0,0">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAddNoteTapped"/>
+                            </Grid.GestureRecognizers>
+                            <Image Grid.Column="0"
+                                   Source="plus.webp"
+                                   HeightRequest="20"
+                                   WidthRequest="20"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Center"/>
+                            <BoxView Grid.Column="1"
+                                     WidthRequest="1"
+                                     BackgroundColor="{StaticResource Line}"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Fill"/>
+                            <Label Grid.Column="2"
+                                   Text="Tap to add a new note..."
+                                   VerticalTextAlignment="Center"
+                                   Style="{StaticResource Handwriting}"
+                                   FontAttributes="Italic"
+                                   TextColor="{StaticResource Line}"/>
+                            <BoxView Grid.ColumnSpan="3"
+                                     HeightRequest="1"
+                                     BackgroundColor="{StaticResource Line}"
+                                     VerticalOptions="End"/>
+                        </Grid>
+                    </CollectionView.Footer>
                 </CollectionView>
             </Grid>
 

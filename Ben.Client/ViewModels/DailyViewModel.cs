@@ -177,7 +177,6 @@ public class DailyViewModel : INotifyPropertyChanged
         // day.Tasks.Add(new TaskItem { Status = "I", Priority = "A", Order = 1, Title = "The most important thing" });
         // day.Notes.Add(new NoteItem { Text = "I like this!"});
         EnsurePriorityBuckets(day);
-        EnsurePlaceholderNote(day);
         CurrentDay = day;
         // CurrentDay = new DailyData
         // {
@@ -217,7 +216,7 @@ public class DailyViewModel : INotifyPropertyChanged
         };
 
         await _repo.AddTaskAsync(task);
-        InsertTaskBeforePlaceholder(task);
+        CurrentDay.Tasks.Add(task);
         EnsurePriorityBuckets(CurrentDay);
         await UpdateStatus();
     }
@@ -236,7 +235,7 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         await _repo.AddTaskAsync(task);
-        InsertTaskBeforePlaceholder(task);
+        CurrentDay.Tasks.Add(task);
         EnsurePriorityBuckets(CurrentDay);
         await UpdateStatus();
     }
@@ -263,7 +262,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task ReorderTaskAsync(TaskItem source, TaskItem target)
     {
-        if (source == null || target == null || source.IsPlaceholder || source.IsPriorityBucket || target.IsAddPlaceholder)
+        if (source == null || target == null || source.IsPriorityBucket || target.IsPriorityBucket)
         {
             return;
         }
@@ -308,7 +307,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task DeleteNoteAsync(TaskItem task)
     {
-        if (task.IsPlaceholder || task.IsPriorityBucket)
+        if (task.IsPriorityBucket)
         {
             return;
         }
@@ -334,8 +333,7 @@ public class DailyViewModel : INotifyPropertyChanged
         };
 
         await _repo.AddNoteAsync(note);
-        InsertNoteBeforePlaceholder(note);
-        EnsurePlaceholderNote(CurrentDay);
+        CurrentDay.Notes.Add(note);
         await UpdateStatus();
     }
 
@@ -347,14 +345,8 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task DeleteNoteAsync(NoteItem note)
     {
-        if (note.IsPlaceholder)
-        {
-            return;
-        }
-
         await _repo.DeleteNoteAsync(note);
         CurrentDay.Notes.Remove(note);
-        EnsurePlaceholderNote(CurrentDay);
         await UpdateStatus();
     }
 
@@ -445,94 +437,21 @@ public class DailyViewModel : INotifyPropertyChanged
         }
     }
 
-    void EnsurePlaceholderNote(DailyData day)
-    {
-        if (day?.Notes == null)
-        {
-            return;
-        }
-
-        if (day.Notes.Count == 0 || !day.Notes[^1].IsPlaceholder)
-        {
-            day.Notes.Add(new NoteItem
-            {
-                Key = day.Key,
-                Text = string.Empty,
-                Order = int.MaxValue,
-                IsPlaceholder = true
-            });
-        }
-    }
-
     int GetNextNoteOrder()
     {
         int order = 1;
         foreach (NoteItem note in CurrentDay.Notes)
         {
-            if (!note.IsPlaceholder)
-            {
-                order++;
-            }
+            order++;
         }
 
         return order;
     }
 
-    void EnsurePlaceholderTask(DailyData day)
-    {
-        if (day?.Tasks == null)
-        {
-            return;
-        }
-
-        var tasks = day.Tasks;
-        for (int i = tasks.Count - 1; i >= 0; i--)
-        {
-            if (tasks[i].IsAddPlaceholder)
-            {
-                tasks.RemoveAt(i);
-            }
-        }
-
-        tasks.Add(new TaskItem
-        {
-            Key = day.Key,
-            Status = "NotStarted",
-            Priority = "A",
-            Order = int.MaxValue,
-            Title = string.Empty,
-            IsPlaceholder = true,
-            IsAddPlaceholder = true
-        });
-    }
-
-    void InsertTaskBeforePlaceholder(TaskItem task)
-    {
-        var tasks = CurrentDay.Tasks;
-        int placeholderIndex = -1;
-        for (int i = 0; i < tasks.Count; i++)
-        {
-            if (tasks[i].IsPlaceholder)
-            {
-                placeholderIndex = i;
-                break;
-            }
-        }
-
-        if (placeholderIndex >= 0)
-        {
-            tasks.Insert(placeholderIndex, task);
-        }
-        else
-        {
-            tasks.Add(task);
-        }
-    }
-
     int GetLastTaskIndex(IList<TaskItem> tasks)
     {
         int lastIndex = tasks.Count - 1;
-        while (lastIndex >= 0 && (tasks[lastIndex].IsPlaceholder || tasks[lastIndex].IsPriorityBucket))
+        while (lastIndex >= 0 && tasks[lastIndex].IsPriorityBucket)
         {
             lastIndex--;
         }
@@ -545,7 +464,7 @@ public class DailyViewModel : INotifyPropertyChanged
         int order = 1;
         foreach (TaskItem task in CurrentDay.Tasks)
         {
-            if (!task.IsPlaceholder)
+            if (!task.IsPriorityBucket)
             {
                 order++;
             }
@@ -559,7 +478,7 @@ public class DailyViewModel : INotifyPropertyChanged
         var orderByPriority = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         foreach (TaskItem task in CurrentDay.Tasks)
         {
-            if (task.IsPlaceholder || task.IsPriorityBucket)
+            if (task.IsPriorityBucket)
             {
                 continue;
             }
@@ -585,9 +504,8 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         var tasks = day.Tasks;
-        var addPlaceholder = tasks.FirstOrDefault(task => task.IsAddPlaceholder);
         var realTasks = tasks
-            .Where(task => !task.IsAddPlaceholder && !task.IsPriorityBucket)
+            .Where(task => !task.IsPriorityBucket)
             .ToList();
 
         var rebuilt = new List<TaskItem>();
@@ -631,38 +549,6 @@ public class DailyViewModel : INotifyPropertyChanged
         foreach (TaskItem task in rebuilt)
         {
             tasks.Add(task);
-        }
-
-        if (addPlaceholder == null)
-        {
-            EnsurePlaceholderTask(day);
-        }
-        else
-        {
-            tasks.Add(addPlaceholder);
-        }
-    }
-
-    void InsertNoteBeforePlaceholder(NoteItem note)
-    {
-        var notes = CurrentDay.Notes;
-        int placeholderIndex = -1;
-        for (int i = 0; i < notes.Count; i++)
-        {
-            if (notes[i].IsPlaceholder)
-            {
-                placeholderIndex = i;
-                break;
-            }
-        }
-
-        if (placeholderIndex >= 0)
-        {
-            notes.Insert(placeholderIndex, note);
-        }
-        else
-        {
-            notes.Add(note);
         }
     }
 }

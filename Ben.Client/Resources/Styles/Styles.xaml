@@ -22,7 +22,7 @@
                 <Setter Property="VerticalTextAlignment"
                         Value="Center"/>
                 <Setter Property="TextColor"
-                        Value="{StaticResource Ink}"/>
+                        Value="Black"/>
         </Style>
 
         <Style x:Key="DateText"

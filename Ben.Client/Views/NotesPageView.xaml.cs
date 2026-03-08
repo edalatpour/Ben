@@ -22,7 +22,7 @@ public partial class NotesPageView : ContentView
             return;
         }
 
-        if (label.BindingContext is not NoteItem note || note.IsPlaceholder)
+        if (label.BindingContext is not NoteItem note)
         {
             return;
         }
