@@ -57,6 +57,24 @@ public class PlannerRepository
         _ = _syncService.TriggerSyncAsync();
     }
 
+    public async Task UpdateTasksAsync(IEnumerable<TaskItem> tasks)
+    {
+        List<TaskItem> uniqueTasks = tasks
+            .Where(task => task != null)
+            .GroupBy(task => task.Id)
+            .Select(group => group.First())
+            .ToList();
+
+        if (uniqueTasks.Count == 0)
+        {
+            return;
+        }
+
+        _db.Tasks.UpdateRange(uniqueTasks);
+        await _db.SaveChangesAsync();
+        _ = _syncService.TriggerSyncAsync();
+    }
+
     public async Task DeleteTaskAsync(TaskItem task)
     {
         _db.Tasks.Remove(task);

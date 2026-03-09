@@ -281,13 +281,14 @@ public class DailyViewModel : INotifyPropertyChanged
 
         tasks.Move(sourceIndex, targetIndex);
 
+        TaskItem[]? additionallyChanged = null;
         if (!string.Equals(source.Priority, target.Priority, StringComparison.Ordinal))
         {
             source.Priority = target.Priority;
-            await _repo.UpdateTaskAsync(source);
+            additionallyChanged = new[] { source };
         }
 
-        await UpdateTaskOrderAsync();
+        await UpdateTaskOrderAsync(additionallyChanged);
         SortTasksInMemory();
         await UpdateStatus();
     }
@@ -435,8 +436,27 @@ public class DailyViewModel : INotifyPropertyChanged
         return CurrentDay.Tasks.Count + 1;
     }
 
-    async Task UpdateTaskOrderAsync()
+    async Task UpdateTaskOrderAsync(IEnumerable<TaskItem>? additionallyChanged = null)
     {
+        List<TaskItem> changedTasks = new();
+        HashSet<string> changedIds = new(StringComparer.Ordinal);
+
+        if (additionallyChanged != null)
+        {
+            foreach (TaskItem task in additionallyChanged)
+            {
+                if (task == null)
+                {
+                    continue;
+                }
+
+                if (changedIds.Add(task.Id))
+                {
+                    changedTasks.Add(task);
+                }
+            }
+        }
+
         var orderByPriority = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         foreach (TaskItem task in CurrentDay.Tasks)
         {
@@ -448,9 +468,14 @@ public class DailyViewModel : INotifyPropertyChanged
             if (task.Order != nextOrder)
             {
                 task.Order = nextOrder;
-                await _repo.UpdateTaskAsync(task);
+                if (changedIds.Add(task.Id))
+                {
+                    changedTasks.Add(task);
+                }
             }
         }
+
+        await _repo.UpdateTasksAsync(changedTasks);
     }
 
     static int GetPriorityRank(string? priority)
