@@ -54,7 +54,6 @@
                                Placeholder="Enter task title..."
                                Style="{StaticResource Handwriting}"
                                FontSize="24"
-                               TextColor="Black"
                                BackgroundColor="Transparent"/>
 
                         <!-- Status label -->

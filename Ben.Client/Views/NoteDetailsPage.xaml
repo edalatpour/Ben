@@ -49,7 +49,6 @@
                                 Placeholder="Enter note text..."
                                 Style="{StaticResource Handwriting}"
                                 FontSize="24"
-                                TextColor="Black"
                                 BackgroundColor="Transparent"
                                 AutoSize="TextChanges"
                                 MinimumHeightRequest="160"/>

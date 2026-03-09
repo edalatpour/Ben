@@ -23,11 +23,12 @@
               </VerticalStackLayout>
 
               <Grid Grid.Row="1"
-                    ColumnDefinitions="32,36,*"
+                    ColumnDefinitions="28,36,*"
                     ColumnSpacing="10"
                     Padding="0,4,0,0">
                      <Label Text="▼"
                             Grid.Column="0"
+                            Margin="7,0,0,0"
                             Style="{StaticResource SectionTitle}"
                             HorizontalTextAlignment="Center"/>
                      <Label Text="ABC"
