@@ -96,18 +96,19 @@ public partial class TaskDetailsPage : ContentPage
             return;
         }
 
-        _task.Title = title;
-        _task.Status = _selectedStatus;
-        _task.Priority = PriorityPicker.SelectedIndex >= 0 ? PriorityValues[PriorityPicker.SelectedIndex] : "A";
-        _task.Order = _order;
+        string selectedPriority = PriorityPicker.SelectedIndex >= 0 ? PriorityValues[PriorityPicker.SelectedIndex] : "A";
 
         if (_isNewTask)
         {
+            _task.Title = title;
+            _task.Status = _selectedStatus;
+            _task.Priority = selectedPriority;
+            _task.Order = _order;
             await _viewModel.AddTaskItemAsync(_task);
         }
         else
         {
-            await _viewModel.UpdateTaskAsync(_task);
+            await _viewModel.UpdateTaskFromDetailsAsync(_task, title, _selectedStatus, selectedPriority, _order);
         }
 
         await Navigation.PopModalAsync();

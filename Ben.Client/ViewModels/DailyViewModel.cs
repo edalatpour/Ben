@@ -227,6 +227,7 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         task.Key = CurrentDay.Key;
+        task.Priority = string.IsNullOrWhiteSpace(task.Priority) ? "A" : task.Priority;
         if (task.Order <= 0)
         {
             task.Order = GetNextTaskOrder();
@@ -234,7 +235,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         await _repo.AddTaskAsync(task);
         CurrentDay.Tasks.Add(task);
-        SortTasksInMemory();
+        await ApplyTaskPlacementAsync(task, task.Priority, task.Order);
         await UpdateStatus();
     }
 
@@ -259,6 +260,38 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
+    public async Task UpdateTaskFromDetailsAsync(TaskItem task, string title, string status, string priority, int order)
+    {
+        if (task == null)
+        {
+            return;
+        }
+
+        string normalizedTitle = NormalizeTaskTitle(title);
+        if (string.IsNullOrEmpty(normalizedTitle))
+        {
+            return;
+        }
+
+        string requestedStatus = string.IsNullOrWhiteSpace(status) ? "NotStarted" : status;
+        string requestedPriority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
+        int requestedOrder = Math.Max(1, order);
+
+        task.Title = normalizedTitle;
+        task.Status = requestedStatus;
+
+        if (CurrentDay?.Tasks == null || CurrentDay.Tasks.Count == 0 || CurrentDay.Tasks.IndexOf(task) < 0)
+        {
+            await SaveTaskDirectAsync(task, requestedPriority, requestedOrder);
+        }
+        else
+        {
+            await ApplyTaskPlacementAsync(task, requestedPriority, requestedOrder);
+        }
+
+        await UpdateStatus();
+    }
+
     public async Task ReorderTaskAsync(TaskItem source, TaskItem target)
     {
         if (source == null || target == null)
@@ -279,18 +312,77 @@ public class DailyViewModel : INotifyPropertyChanged
             return;
         }
 
-        tasks.Move(sourceIndex, targetIndex);
+        int requestedOrder = sourceIndex < targetIndex ? target.Order + 1 : target.Order;
+        string requestedPriority = string.IsNullOrWhiteSpace(target.Priority) ? "A" : target.Priority;
+        await ApplyTaskPlacementAsync(source, requestedPriority, requestedOrder);
+        await UpdateStatus();
+    }
 
-        TaskItem[]? additionallyChanged = null;
-        if (!string.Equals(source.Priority, target.Priority, StringComparison.Ordinal))
+    async Task ApplyTaskPlacementAsync(TaskItem task, string priority, int order)
+    {
+        if (task == null || CurrentDay?.Tasks == null)
         {
-            source.Priority = target.Priority;
-            additionallyChanged = new[] { source };
+            return;
         }
 
-        await UpdateTaskOrderAsync(additionallyChanged);
+        string requestedPriority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
+        int requestedOrder = Math.Max(1, order);
+
+        PlaceTaskInMemory(task, requestedPriority, requestedOrder);
+        await UpdateTaskOrderAsync(new[] { task });
         SortTasksInMemory();
-        await UpdateStatus();
+    }
+
+    async Task SaveTaskDirectAsync(TaskItem task, string priority, int order)
+    {
+        task.Priority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
+        task.Order = Math.Max(1, order);
+        await _repo.UpdateTaskAsync(task);
+        SortTasksInMemory();
+    }
+
+    void PlaceTaskInMemory(TaskItem task, string requestedPriority, int requestedOrder)
+    {
+        task.Priority = requestedPriority;
+
+        List<TaskItem> orderedWithoutTask = CurrentDay.Tasks
+            .Where(candidate => !ReferenceEquals(candidate, task))
+            .OrderBy(candidate => GetPriorityRank(candidate.Priority))
+            .ThenBy(candidate => candidate.Order)
+            .ThenBy(candidate => candidate.Id)
+            .ToList();
+
+        List<int> targetPriorityIndexes = orderedWithoutTask
+            .Select((candidate, index) => (candidate, index))
+            .Where(tuple => string.Equals(tuple.candidate.Priority, requestedPriority, StringComparison.Ordinal))
+            .Select(tuple => tuple.index)
+            .ToList();
+
+        int insertionIndex;
+        if (targetPriorityIndexes.Count > 0)
+        {
+            int insertionPositionInPriority = Math.Min(requestedOrder, targetPriorityIndexes.Count + 1) - 1;
+            insertionIndex = insertionPositionInPriority >= targetPriorityIndexes.Count
+                ? targetPriorityIndexes[^1] + 1
+                : targetPriorityIndexes[insertionPositionInPriority];
+        }
+        else
+        {
+            int targetRank = GetPriorityRank(requestedPriority);
+            insertionIndex = orderedWithoutTask.FindIndex(candidate => GetPriorityRank(candidate.Priority) > targetRank);
+            if (insertionIndex < 0)
+            {
+                insertionIndex = orderedWithoutTask.Count;
+            }
+        }
+
+        orderedWithoutTask.Insert(insertionIndex, task);
+
+        CurrentDay.Tasks.Clear();
+        foreach (TaskItem item in orderedWithoutTask)
+        {
+            CurrentDay.Tasks.Add(item);
+        }
     }
 
     public async Task DeleteNoteAsync(TaskItem task)
