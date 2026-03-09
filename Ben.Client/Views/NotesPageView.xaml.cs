@@ -17,6 +17,8 @@ public partial class NotesPageView : ContentView
 
     private void OnRequestRefresh()
     {
+        NotesList.Handler?.DisconnectHandler();
+        NotesList.Handler = null;
         NotesList.InvalidateMeasure();
         NotesList.ItemsSource = null;
         NotesList.ItemsSource = _viewModel.CurrentDay?.Notes;

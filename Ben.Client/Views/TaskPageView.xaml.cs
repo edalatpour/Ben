@@ -17,6 +17,8 @@ public partial class TaskPageView : ContentView
 
     private void OnRequestRefresh()
     {
+        TaskList.Handler?.DisconnectHandler();
+        TaskList.Handler = null;
         TaskList.InvalidateMeasure();
         TaskList.ItemsSource = null;
         TaskList.ItemsSource = _viewModel.CurrentDay?.Tasks;

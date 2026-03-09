@@ -63,39 +63,42 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="36,1,*"
-                                  RowDefinitions="Auto"
-                                  RowSpacing="0"
-                                  ColumnSpacing="8"
-                                  Padding="0,0,0,0"
-                                  VerticalOptions="Start">
-                                <Label Grid.Column="0"
-                                       Text="{Binding Order}"
-                                       HorizontalTextAlignment="Center"
-                                       VerticalTextAlignment="Start"
-                                       LineHeight="1"
-                                       Style="{StaticResource Handwriting}"/>
-                                <BoxView Grid.Column="1"
-                                         WidthRequest="1"
-                                         BackgroundColor="{StaticResource Line}"
-                                         HorizontalOptions="Center"
-                                         VerticalOptions="Fill"/>
-                                <Label Grid.Column="2"
-                                       Text="{Binding Text}"
-                                       LineBreakMode="WordWrap"
-                                       HorizontalTextAlignment="Start"
-                                       VerticalTextAlignment="Start"
-                                       LineHeight="1"
-                                       Style="{StaticResource Handwriting}">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnNoteTapped"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <BoxView Grid.ColumnSpan="3"
-                                         HeightRequest="1"
-                                         BackgroundColor="{StaticResource Line}"
-                                         VerticalOptions="End"/>
-                            </Grid>
+                            <ContentView MaximumHeightRequest="80"
+                                         BackgroundColor="{StaticResource WritingPaper}">
+                                <Grid ColumnDefinitions="36,1,*"
+                                      RowDefinitions="Auto"
+                                      RowSpacing="0"
+                                      ColumnSpacing="8"
+                                      Padding="0,0,0,0"
+                                      VerticalOptions="Start">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Order}"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Start"
+                                           LineHeight="1"
+                                           Style="{StaticResource Handwriting}"/>
+                                    <BoxView Grid.Column="1"
+                                             WidthRequest="1"
+                                             BackgroundColor="{StaticResource Line}"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Fill"/>
+                                    <Label Grid.Column="2"
+                                           Text="{Binding Text}"
+                                           LineBreakMode="WordWrap"
+                                           HorizontalTextAlignment="Start"
+                                           VerticalTextAlignment="Start"
+                                           LineHeight="1"
+                                           Style="{StaticResource Handwriting}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnNoteTapped"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <BoxView Grid.ColumnSpan="3"
+                                             HeightRequest="1"
+                                             BackgroundColor="{StaticResource Line}"
+                                             VerticalOptions="End"/>
+                                </Grid>
+                            </ContentView>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.Footer>
