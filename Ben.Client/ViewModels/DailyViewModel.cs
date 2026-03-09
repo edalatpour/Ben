@@ -10,12 +10,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Networking;
 using Ben.Models;
 using Ben.Services;
+using Ben.Views;
 
 namespace Ben.ViewModels;
 
 public class DailyViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler PropertyChanged;
+
+    public event Action? RequestRefresh;
 
     private readonly PlannerRepository _repo;
     private readonly AuthenticationService _authService;
@@ -507,6 +510,7 @@ public class DailyViewModel : INotifyPropertyChanged
         }
         finally
         {
+            RequestRefresh?.Invoke();
             _isSyncing = false;
             await UpdateStatus();
         }

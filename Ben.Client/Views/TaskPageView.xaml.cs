@@ -5,9 +5,21 @@ using Ben.ViewModels;
 
 public partial class TaskPageView : ContentView
 {
-    public TaskPageView()
+    private readonly DailyViewModel _viewModel;
+
+    public TaskPageView(DailyViewModel vm)
     {
         InitializeComponent();
+        _viewModel = vm;
+        BindingContext = _viewModel;
+        _viewModel.RequestRefresh += OnRequestRefresh;
+    }
+
+    private void OnRequestRefresh()
+    {
+        TaskList.InvalidateMeasure();
+        TaskList.ItemsSource = null;
+        TaskList.ItemsSource = _viewModel.CurrentDay?.Tasks;
     }
 
     async void OnTaskTapped(object sender, EventArgs e)

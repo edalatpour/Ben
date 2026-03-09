@@ -9,6 +9,8 @@ public partial class DailyHostPage : ContentPage
     private readonly DailyViewModel _viewModel;
     readonly TaskPageView _portraitTasks;
     readonly NotesPageView _portraitNotes;
+    readonly TaskPageView _landscapeTasks;
+    readonly NotesPageView _landscapeNotes;
     bool _isNavigating;
     bool _isLandscape;
 
@@ -17,8 +19,12 @@ public partial class DailyHostPage : ContentPage
         InitializeComponent();
         _viewModel = vm;
         BindingContext = vm;
-        _portraitTasks = new TaskPageView { BindingContext = ViewModel };
-        _portraitNotes = new NotesPageView { BindingContext = ViewModel };
+        _portraitTasks = new TaskPageView(_viewModel);
+        _portraitNotes = new NotesPageView(_viewModel);
+        _landscapeTasks = new TaskPageView(_viewModel);
+        _landscapeNotes = new NotesPageView(_viewModel);
+        LandscapeTasksHost.Content = _landscapeTasks;
+        LandscapeNotesHost.Content = _landscapeNotes;
         UpdatePortraitPage();
     }
 

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:Ben.Views"
              x:Class="Ben.Views.DailyHostPage"
              x:Name="HostPage">
   <!-- SafeAreaEdges="None" -->
@@ -21,9 +20,9 @@
     <Grid x:Name="LandscapeGrid"
           ColumnDefinitions="*,*"
           IsVisible="False">
-      <views:TaskPageView x:Name="LandscapeTasks"/>
-      <views:NotesPageView x:Name="LandscapeNotes"
-                           Grid.Column="1"/>
+      <ContentView x:Name="LandscapeTasksHost"/>
+      <ContentView x:Name="LandscapeNotesHost"
+                   Grid.Column="1"/>
     </Grid>
 
     <!-- Portrait: show one page at a time -->

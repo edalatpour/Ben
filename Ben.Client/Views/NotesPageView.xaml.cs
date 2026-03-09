@@ -5,9 +5,21 @@ using Ben.ViewModels;
 
 public partial class NotesPageView : ContentView
 {
-    public NotesPageView()
+    private readonly DailyViewModel _viewModel;
+
+    public NotesPageView(DailyViewModel vm)
     {
         InitializeComponent();
+        _viewModel = vm;
+        BindingContext = _viewModel;
+        _viewModel.RequestRefresh += OnRequestRefresh;
+    }
+
+    private void OnRequestRefresh()
+    {
+        NotesList.InvalidateMeasure();
+        NotesList.ItemsSource = null;
+        NotesList.ItemsSource = _viewModel.CurrentDay?.Notes;
     }
 
     async void OnNoteTapped(object sender, EventArgs e)
