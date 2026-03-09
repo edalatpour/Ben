@@ -54,18 +54,26 @@
                   BackgroundColor="{StaticResource WritingPaper}">
                 <CollectionView x:Name="NotesList"
                                 ItemsSource="{Binding CurrentDay.Notes}"
-                                ItemsLayout="VerticalList"
+                                ItemSizingStrategy="MeasureAllItems"
                                 BackgroundColor="Transparent"
                                 Margin="0,0,0,8">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical"
+                                           ItemSpacing="0"/>
+                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="36,1,*"
+                                  RowDefinitions="Auto"
+                                  RowSpacing="0"
                                   ColumnSpacing="8"
-                                  Padding="0,0,0,0">
+                                  Padding="0,0,0,0"
+                                  VerticalOptions="Start">
                                 <Label Grid.Column="0"
                                        Text="{Binding Order}"
                                        HorizontalTextAlignment="End"
                                        VerticalTextAlignment="Start"
+                                       LineHeight="1"
                                        Style="{StaticResource Handwriting}"/>
                                 <BoxView Grid.Column="1"
                                          WidthRequest="1"
@@ -77,6 +85,7 @@
                                        LineBreakMode="WordWrap"
                                        HorizontalTextAlignment="Start"
                                        VerticalTextAlignment="Start"
+                                       LineHeight="1"
                                        Style="{StaticResource Handwriting}">
                                     <Label.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnNoteTapped"/>

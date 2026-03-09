@@ -30,16 +30,16 @@ public class DailyViewModel : INotifyPropertyChanged
         _authService = authService;
         _syncService = syncService;
         _connectivity = connectivity;
-        
+
         DateTime key = DateTime.Today;
         LoadDay(key);
-        
+
         // Subscribe to events
         _connectivity.ConnectivityChanged += OnConnectivityChanged;
         _authService.AuthenticationStateChanged += OnAuthenticationStateChanged;
         _syncService.SyncStarted += OnSyncStarted;
         _syncService.SyncCompleted += OnSyncCompleted;
-        
+
         // Initial update
         _ = UpdateStatus();
     }
@@ -421,9 +421,9 @@ public class DailyViewModel : INotifyPropertyChanged
         {
             _isSyncing = true;
             await UpdateStatus();
-            
+
             var success = await _syncService.TrySyncNowAsync();
-            
+
             if (success)
             {
                 // Reload current day to show synced data

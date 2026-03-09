@@ -49,7 +49,8 @@
 
 		<!-- Splash Screen -->
 		<!-- <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" /> -->
-		<MauiSplashScreen Include="Resources\AppIcon\b.png" Color="#1F4E4B" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\signature.png" Color="#2F7D78" BaseSize="256,256" />
+		<!-- <MauiSplashScreen Include="Resources\AppIcon\b.png" Color="#1F4E4B" /> -->
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />

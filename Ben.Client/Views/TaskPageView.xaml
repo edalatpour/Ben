@@ -62,14 +62,21 @@
                   BackgroundColor="{StaticResource WritingPaper}">
                 <CollectionView x:Name="TaskList"
                                 ItemsSource="{Binding CurrentDay.Tasks}"
-                                ItemsLayout="VerticalList"
+                                ItemSizingStrategy="MeasureAllItems"
                                 BackgroundColor="Transparent"
                                 Margin="0,0,0,8">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical"
+                                           ItemSpacing="0"/>
+                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="24,1,12,12,1,*"
+                                  RowDefinitions="Auto"
+                                  RowSpacing="0"
                                   ColumnSpacing="8"
-                                  Padding="0,0,0,0">
+                                  Padding="0,0,0,0"
+                                  VerticalOptions="Start">
                                 <Grid.GestureRecognizers>
                                     <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
                                     <DropGestureRecognizer Drop="OnTaskDrop"/>
@@ -80,8 +87,9 @@
                                        Source="{Binding StatusIcon}"
                                        HeightRequest="24"
                                        WidthRequest="24"
+                                       Margin="10,6,0,0"
                                        HorizontalOptions="Center"
-                                       VerticalOptions="Center">
+                                       VerticalOptions="Start">
                                     <Image.Triggers>
                                         <DataTrigger TargetType="Image"
                                                      Binding="{Binding IsPriorityBucket}"
@@ -97,7 +105,10 @@
                                          BackgroundColor="{StaticResource Line}"/>
                                 <Label Grid.Column="2"
                                        Text="{Binding Priority}"
-                                        Style="{StaticResource Handwriting}">
+                                       HorizontalTextAlignment="Start"
+                                       VerticalTextAlignment="Start"
+                                       LineHeight="1"
+                                       Style="{StaticResource Handwriting}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label"
                                                      Binding="{Binding IsPriorityBucket}"
@@ -109,6 +120,9 @@
                                 </Label>
                                 <Label Grid.Column="3"
                                        Text="{Binding Order}"
+                                       HorizontalTextAlignment="Start"
+                                       VerticalTextAlignment="Start"
+                                       LineHeight="1"
                                        Style="{StaticResource Handwriting}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label"
@@ -127,6 +141,7 @@
                                        LineBreakMode="WordWrap"
                                        HorizontalTextAlignment="Start"
                                        VerticalTextAlignment="Start"
+                                       LineHeight="1"
                                        Style="{StaticResource Handwriting}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label"
@@ -140,6 +155,7 @@
                                 <Label Grid.Column="2"
                                        Text="{Binding Priority}"
                                        VerticalOptions="Center"
+                                       LineHeight="1"
                                        Style="{StaticResource Handwriting}"
                                        FontAttributes="Italic"
                                        TextColor="{StaticResource Accent}"
