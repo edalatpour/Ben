@@ -87,7 +87,7 @@
                                        Source="{Binding StatusIcon}"
                                        HeightRequest="24"
                                        WidthRequest="24"
-                                       Margin="10,6,0,0"
+                                       Margin="8,6,0,0"
                                        HorizontalOptions="Center"
                                        VerticalOptions="Start"/>
 

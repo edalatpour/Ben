@@ -98,7 +98,7 @@ public class TaskItem : INotifyPropertyChanged
                 "Completed" => "completed.webp",
                 "Forwarded" => "forwarded.webp",
                 "Deleted" => "cancelled.webp",
-                _ => string.Empty
+                "NotStarted" => "not_started.webp"
             };
         }
     }

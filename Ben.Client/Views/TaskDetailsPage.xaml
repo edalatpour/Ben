@@ -76,10 +76,10 @@
                                     StrokeShape="RoundRectangle 4"
                                     Padding="4">
                                 <VerticalStackLayout Spacing="2">
-                                    <Label Text="—"
-                                           FontSize="20"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{StaticResource Ink}"/>
+                                    <Image Source="not_started.webp"
+                                           HeightRequest="24"
+                                           WidthRequest="24"
+                                           HorizontalOptions="Center"/>
                                     <Label Text="Not Started"
                                            FontSize="9"
                                            HorizontalTextAlignment="Center"
