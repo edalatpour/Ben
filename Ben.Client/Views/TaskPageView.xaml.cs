@@ -1,6 +1,5 @@
 namespace Ben.Views;
 
-using System.ComponentModel;
 using Ben.Models;
 using Ben.ViewModels;
 
@@ -13,28 +12,6 @@ public partial class TaskPageView : ContentView
         InitializeComponent();
         _viewModel = vm;
         BindingContext = _viewModel;
-        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
-        RebindTaskItems();
-    }
-
-    void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (!string.Equals(e.PropertyName, nameof(DailyViewModel.CurrentDay), StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        RebindTaskItems();
-    }
-
-    void RebindTaskItems()
-    {
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            TaskList.ItemsSource = null;
-            TaskList.InvalidateMeasure();
-            TaskList.ItemsSource = _viewModel.CurrentDay?.Tasks;
-        });
     }
 
     async void OnTaskTapped(object sender, EventArgs e)

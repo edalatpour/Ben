@@ -51,86 +51,90 @@
 
             <Grid Grid.Row="1"
                   Grid.Column="1"
-                  BackgroundColor="{StaticResource WritingPaper}">
-                <CollectionView x:Name="NotesList"
-                                ItemSizingStrategy="MeasureAllItems"
-                                BackgroundColor="Transparent"
-                                Margin="0,0,0,8">
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Vertical"
-                                           ItemSpacing="0"/>
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <ContentView BackgroundColor="{StaticResource WritingPaper}">
-                                <Grid ColumnDefinitions="36,1,*"
-                                      RowDefinitions="Auto"
-                                      RowSpacing="0"
-                                      ColumnSpacing="8"
-                                      Padding="0,0,0,0"
-                                      VerticalOptions="Start">
-                                    <Label Grid.Column="0"
-                                           Text="{Binding Order}"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Start"
-                                           LineHeight="1"
-                                           Style="{StaticResource Handwriting}"/>
-                                    <BoxView Grid.Column="1"
-                                             WidthRequest="1"
-                                             BackgroundColor="{StaticResource Line}"
-                                             HorizontalOptions="Center"
-                                             VerticalOptions="Fill"/>
-                                    <Label Grid.Column="2"
-                                           Text="{Binding Text}"
-                                           LineBreakMode="WordWrap"
-                                           HorizontalTextAlignment="Start"
-                                           VerticalTextAlignment="Start"
-                                           LineHeight="1"
-                                           Style="{StaticResource Handwriting}">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Tapped="OnNoteTapped"/>
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                    <BoxView Grid.ColumnSpan="3"
-                                             HeightRequest="1"
-                                             BackgroundColor="{StaticResource Line}"
-                                             VerticalOptions="End"/>
-                                </Grid>
-                            </ContentView>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                    <CollectionView.Footer>
-                        <Grid ColumnDefinitions="36,1,*"
-                              ColumnSpacing="8"
-                              Padding="0,0,0,0">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnAddNoteTapped"/>
-                            </Grid.GestureRecognizers>
-                            <Image Grid.Column="0"
-                                   Source="plus.webp"
-                                   HeightRequest="20"
-                                   WidthRequest="20"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                            <BoxView Grid.Column="1"
-                                     WidthRequest="1"
-                                     BackgroundColor="{StaticResource Line}"
-                                     HorizontalOptions="Center"
-                                     VerticalOptions="Fill"/>
-                            <Label Grid.Column="2"
-                                   Text="Tap to add a new note..."
-                                   VerticalTextAlignment="Center"
-                                   HorizontalTextAlignment="Start"
-                                   Style="{StaticResource Handwriting}"
-                                   FontAttributes="Italic"
-                                   TextColor="{StaticResource Line}"/>
-                            <BoxView Grid.ColumnSpan="3"
-                                     HeightRequest="1"
-                                     BackgroundColor="{StaticResource Line}"
-                                     VerticalOptions="End"/>
-                        </Grid>
-                    </CollectionView.Footer>
-                </CollectionView>
+                  BackgroundColor="{StaticResource WritingPaper}"
+                  RowDefinitions="*,Auto">
+                <ScrollView Grid.Row="0"
+                            Margin="0,0,0,8"
+                            BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="0"
+                                         BindableLayout.ItemsSource="{Binding CurrentDay.Notes}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <ContentView BackgroundColor="{StaticResource WritingPaper}">
+                                    <Grid ColumnDefinitions="36,1,*"
+                                          RowDefinitions="Auto"
+                                          RowSpacing="0"
+                                          ColumnSpacing="8"
+                                          Padding="0,0,0,0"
+                                          VerticalOptions="Start">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding Order}"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Start"
+                                               LineHeight="1"
+                                               Style="{StaticResource Handwriting}"/>
+                                        <BoxView Grid.Column="1"
+                                                 WidthRequest="1"
+                                                 BackgroundColor="{StaticResource Line}"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Fill"/>
+                                        <Label Grid.Column="2"
+                                               Text="{Binding Text}"
+                                               LineBreakMode="WordWrap"
+                                               HorizontalTextAlignment="Start"
+                                               VerticalTextAlignment="Start"
+                                               LineHeight="1"
+                                               Style="{StaticResource Handwriting}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnNoteTapped"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <BoxView Grid.ColumnSpan="3"
+                                                 HeightRequest="1"
+                                                 BackgroundColor="{StaticResource Line}"
+                                                 VerticalOptions="End"/>
+                                    </Grid>
+                                </ContentView>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <Grid Grid.Row="1"
+                      RowDefinitions="1,Auto"
+                      ColumnDefinitions="36,1,*"
+                      ColumnSpacing="8"
+                      Padding="0,0,0,0">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAddNoteTapped"/>
+                    </Grid.GestureRecognizers>
+                    <BoxView Grid.Row="0"
+                             Grid.ColumnSpan="3"
+                             HeightRequest="1"
+                             BackgroundColor="{StaticResource Line}"/>
+                    <Image Grid.Row="1"
+                           Grid.Column="0"
+                           Source="plus.webp"
+                           HeightRequest="20"
+                           WidthRequest="20"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                    <BoxView Grid.Row="1"
+                             Grid.Column="1"
+                             WidthRequest="1"
+                             BackgroundColor="{StaticResource Line}"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Fill"/>
+                    <Label Grid.Row="1"
+                           Grid.Column="2"
+                           Text="Tap to add a new note..."
+                           VerticalTextAlignment="Center"
+                           HorizontalTextAlignment="Start"
+                           Style="{StaticResource Handwriting}"
+                           FontAttributes="Italic"
+                           TextColor="{StaticResource Line}"/>
+                </Grid>
             </Grid>
 
             <BoxView Grid.Row="1"
