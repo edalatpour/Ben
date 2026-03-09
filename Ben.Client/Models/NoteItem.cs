@@ -1,9 +1,6 @@
 using System;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 
 namespace Ben.Models;
 
@@ -52,30 +49,6 @@ public class NoteItem : INotifyPropertyChanged
         set => SetField(ref _order, value);
     }
 
-    [NotMapped]
-    [JsonIgnore]
-    public bool IsPlaceholder
-    {
-        get => _isPlaceholder;
-        set => SetField(ref _isPlaceholder, value);
-    }
-
-    [NotMapped]
-    [JsonIgnore]
-    public bool IsEditing
-    {
-        get => _isEditing;
-        set => SetField(ref _isEditing, value);
-    }
-
-    [NotMapped]
-    [JsonIgnore]
-    public string EditSnapshot
-    {
-        get => _editSnapshot;
-        set => SetField(ref _editSnapshot, value);
-    }
-
     string _id = Guid.NewGuid().ToString("N");
     DateTimeOffset? _updatedAt;
     string? _version;
@@ -83,10 +56,6 @@ public class NoteItem : INotifyPropertyChanged
     DateTime _key;
     string _text;
     int _order;
-    bool _isPlaceholder;
-    bool _isEditing;
-    string _editSnapshot;
-
     public event PropertyChangedEventHandler PropertyChanged;
 
     void SetField<T>(ref T field, T value, [CallerMemberName] string name = null)

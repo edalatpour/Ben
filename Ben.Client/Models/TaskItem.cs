@@ -121,38 +121,6 @@ public class TaskItem : INotifyPropertyChanged
         set => SetField(ref _title, value);
     }
 
-    [NotMapped]
-    [JsonIgnore]
-    public bool IsPlaceholder
-    {
-        get => _isPlaceholder;
-        set => SetField(ref _isPlaceholder, value);
-    }
-
-    [NotMapped]
-    [JsonIgnore]
-    public bool IsAddPlaceholder
-    {
-        get => _isAddPlaceholder;
-        set => SetField(ref _isAddPlaceholder, value);
-    }
-
-    [NotMapped]
-    [JsonIgnore]
-    public bool IsEditing
-    {
-        get => _isEditing;
-        set => SetField(ref _isEditing, value);
-    }
-
-    [NotMapped]
-    [JsonIgnore]
-    public string EditSnapshot
-    {
-        get => _editSnapshot;
-        set => SetField(ref _editSnapshot, value);
-    }
-
     string _id = Guid.NewGuid().ToString("N");
     DateTimeOffset? _updatedAt;
     string? _version;
@@ -163,11 +131,6 @@ public class TaskItem : INotifyPropertyChanged
     string _priority;
     int _order;
     string _title;
-    bool _isPlaceholder;
-    bool _isAddPlaceholder;
-    bool _isEditing;
-    string _editSnapshot;
-
     public event PropertyChangedEventHandler PropertyChanged;
 
     bool SetField<T>(ref T field, T value, [CallerMemberName] string name = null)
