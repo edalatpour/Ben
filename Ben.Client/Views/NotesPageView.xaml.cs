@@ -1,5 +1,6 @@
 namespace Ben.Views;
 
+using System.ComponentModel;
 using Ben.Models;
 using Ben.ViewModels;
 
@@ -12,16 +13,28 @@ public partial class NotesPageView : ContentView
         InitializeComponent();
         _viewModel = vm;
         BindingContext = _viewModel;
-        _viewModel.RequestRefresh += OnRequestRefresh;
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        RebindNoteItems();
     }
 
-    private void OnRequestRefresh()
+    void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        NotesList.Handler?.DisconnectHandler();
-        NotesList.Handler = null;
-        NotesList.InvalidateMeasure();
-        NotesList.ItemsSource = null;
-        NotesList.ItemsSource = _viewModel.CurrentDay?.Notes;
+        if (!string.Equals(e.PropertyName, nameof(DailyViewModel.CurrentDay), StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        RebindNoteItems();
+    }
+
+    void RebindNoteItems()
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            NotesList.ItemsSource = null;
+            NotesList.InvalidateMeasure();
+            NotesList.ItemsSource = _viewModel.CurrentDay?.Notes;
+        });
     }
 
     async void OnNoteTapped(object sender, EventArgs e)

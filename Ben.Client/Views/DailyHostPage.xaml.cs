@@ -7,10 +7,8 @@ using Microsoft.Maui.Devices;
 public partial class DailyHostPage : ContentPage
 {
     private readonly DailyViewModel _viewModel;
-    readonly TaskPageView _portraitTasks;
-    readonly NotesPageView _portraitNotes;
-    readonly TaskPageView _landscapeTasks;
-    readonly NotesPageView _landscapeNotes;
+    readonly TaskPageView _tasksView;
+    readonly NotesPageView _notesView;
     bool _isNavigating;
     bool _isLandscape;
 
@@ -19,13 +17,9 @@ public partial class DailyHostPage : ContentPage
         InitializeComponent();
         _viewModel = vm;
         BindingContext = vm;
-        _portraitTasks = new TaskPageView(_viewModel);
-        _portraitNotes = new NotesPageView(_viewModel);
-        _landscapeTasks = new TaskPageView(_viewModel);
-        _landscapeNotes = new NotesPageView(_viewModel);
-        LandscapeTasksHost.Content = _landscapeTasks;
-        LandscapeNotesHost.Content = _landscapeNotes;
-        UpdatePortraitPage();
+        _tasksView = new TaskPageView(_viewModel);
+        _notesView = new NotesPageView(_viewModel);
+        ApplyLayout();
     }
 
     DailyViewModel ViewModel => _viewModel;
@@ -37,25 +31,53 @@ public partial class DailyHostPage : ContentPage
         base.OnSizeAllocated(width, height);
 
         bool isLandscape = width > height;
+        if (_isLandscape == isLandscape)
+        {
+            return;
+        }
+
         _isLandscape = isLandscape;
-
-        LandscapeGrid.IsVisible = isLandscape;
-        PortraitGrid.IsVisible = !isLandscape;
-
-        if (!isLandscape)
-            UpdatePortraitPage();
+        ApplyLayout();
     }
 
     void UpdatePortraitPage()
     {
         if (ViewModel.SubPage == 0)
         {
-            SinglePageHost.Content = _portraitTasks;
+            AttachView(SinglePageHost, _tasksView);
         }
         else
         {
-            SinglePageHost.Content = _portraitNotes;
+            AttachView(SinglePageHost, _notesView);
         }
+    }
+
+    void ApplyLayout()
+    {
+        LandscapeGrid.IsVisible = _isLandscape;
+        PortraitGrid.IsVisible = !_isLandscape;
+
+        if (_isLandscape)
+        {
+            SinglePageHost.Content = null;
+            AttachView(LandscapeTasksHost, _tasksView);
+            AttachView(LandscapeNotesHost, _notesView);
+            return;
+        }
+
+        LandscapeTasksHost.Content = null;
+        LandscapeNotesHost.Content = null;
+        UpdatePortraitPage();
+    }
+
+    static void AttachView(ContentView host, View view)
+    {
+        if (view.Parent is ContentView parentHost && !ReferenceEquals(parentHost, host))
+        {
+            parentHost.Content = null;
+        }
+
+        host.Content = view;
     }
 
     async Task PreviousPage()

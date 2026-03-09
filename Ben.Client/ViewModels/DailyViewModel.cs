@@ -18,8 +18,6 @@ public class DailyViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public event Action? RequestRefresh;
-
     private readonly PlannerRepository _repo;
     private readonly AuthenticationService _authService;
     private readonly DatasyncSyncService _syncService;
@@ -33,8 +31,8 @@ public class DailyViewModel : INotifyPropertyChanged
         _syncService = syncService;
         _connectivity = connectivity;
 
-        DateTime key = DateTime.Today;
-        LoadDay(key);
+        CurrentDate = DateTime.Today;
+        _ = LoadDay(CurrentDate);
 
         // Subscribe to events
         _connectivity.ConnectivityChanged += OnConnectivityChanged;
@@ -164,6 +162,23 @@ public class DailyViewModel : INotifyPropertyChanged
         set { _currentDay = value; OnPropertyChanged(); }
     }
 
+    DateTime _currentDate;
+    public DateTime CurrentDate
+    {
+        get => _currentDate;
+        private set
+        {
+            DateTime normalized = value.Date;
+            if (_currentDate == normalized)
+            {
+                return;
+            }
+
+            _currentDate = normalized;
+            OnPropertyChanged();
+        }
+    }
+
     int _subPage = 0; // 0 = tasks, 1 = notes
     public int SubPage
     {
@@ -173,6 +188,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task LoadDay(DateTime key)
     {
+        CurrentDate = key;
         DailyData day = await _repo.LoadDayAsync(key);
         // day.Tasks.Add(new TaskItem { Status = "I", Priority = "A", Order = 1, Title = "The most important thing" });
         // day.Tasks.Add(new TaskItem { Status = "C", Priority = "A", Order = 2, Title = "Also important" });
@@ -430,11 +446,6 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task GoForwardAsync()
     {
-        if (CurrentDay == null)
-        {
-            return;
-        }
-
         if (SubPage == 0)
         {
             SubPage = 1;
@@ -442,16 +453,11 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         SubPage = 0;
-        await LoadDay(CurrentDay.Key.AddDays(1));
+        await LoadDay(CurrentDate.AddDays(1));
     }
 
     public async Task GoBackwardAsync()
     {
-        if (CurrentDay == null)
-        {
-            return;
-        }
-
         if (SubPage == 1)
         {
             SubPage = 0;
@@ -459,7 +465,7 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         SubPage = 1;
-        await LoadDay(CurrentDay.Key.AddDays(-1));
+        await LoadDay(CurrentDate.AddDays(-1));
     }
 
     void OnPropertyChanged([CallerMemberName] string name = null)
@@ -505,12 +511,11 @@ public class DailyViewModel : INotifyPropertyChanged
             if (success)
             {
                 // Reload current day to show synced data
-                await LoadDay(CurrentDay.Key);
+                await LoadDay(CurrentDate);
             }
         }
         finally
         {
-            RequestRefresh?.Invoke();
             _isSyncing = false;
             await UpdateStatus();
         }

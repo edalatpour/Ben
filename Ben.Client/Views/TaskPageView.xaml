@@ -62,7 +62,6 @@
                            Grid.Column="1"
                            BackgroundColor="{StaticResource WritingPaper}">
                             <CollectionView x:Name="TaskList"
-                                            ItemsSource="{Binding CurrentDay.Tasks}"
                                             ItemSizingStrategy="MeasureAllItems"
                                             BackgroundColor="Transparent"
                                             Margin="0,0,0,8">
@@ -72,8 +71,7 @@
                                    </CollectionView.ItemsLayout>
                                    <CollectionView.ItemTemplate>
                                           <DataTemplate>
-                                                 <ContentView MaximumHeightRequest="80"
-                                                              BackgroundColor="{StaticResource WritingPaper}">
+                                                 <ContentView BackgroundColor="{StaticResource WritingPaper}">
 
                                                         <Grid ColumnDefinitions="24,1,28,1,*"
                                                               RowDefinitions="Auto"

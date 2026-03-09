@@ -45,9 +45,9 @@ public static class MauiProgram
         // Register your data service (repository)
         builder.Services.AddSingleton<PlannerRepository>();
 
-        // Register ViewModels + Pages
-        builder.Services.AddTransient<DailyViewModel>();
-        builder.Services.AddTransient<DailyHostPage>();
+        // Keep one host page and one view model alive so date navigation reuses existing views.
+        builder.Services.AddSingleton<DailyViewModel>();
+        builder.Services.AddSingleton<DailyHostPage>();
 
         var app = builder.Build();
 
