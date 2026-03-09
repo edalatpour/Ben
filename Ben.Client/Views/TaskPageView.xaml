@@ -4,166 +4,160 @@
              xmlns:views="clr-namespace:Ben.Views"
              x:Class="Ben.Views.TaskPageView">
 
-    <Grid Padding="16"
-          RowDefinitions="Auto,Auto,*"
-          RowSpacing="8">
+       <Grid Padding="16"
+             RowDefinitions="Auto,Auto,*"
+             RowSpacing="8">
 
-        <VerticalStackLayout Spacing="0"
-                             HorizontalOptions="Start"
-                             VerticalOptions="Start">
-            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dd}'}"
-                   Style="{StaticResource DateNumber}"
-                   HorizontalTextAlignment="Start"/>
-            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dddd}'}"
-                   Style="{StaticResource DateText}"
-                   HorizontalTextAlignment="Start"/>
-            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:MMMM yyyy}'}"
-                   Style="{StaticResource DateText}"
-                   HorizontalTextAlignment="Start"/>
-        </VerticalStackLayout>
+              <VerticalStackLayout Spacing="0"
+                                   HorizontalOptions="Start"
+                                   VerticalOptions="Start">
+                     <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dd}'}"
+                            Style="{StaticResource DateNumber}"
+                            HorizontalTextAlignment="Start"/>
+                     <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dddd}'}"
+                            Style="{StaticResource DateText}"
+                            HorizontalTextAlignment="Start"/>
+                     <Label Text="{Binding CurrentDay.Key, StringFormat='{0:MMMM yyyy}'}"
+                            Style="{StaticResource DateText}"
+                            HorizontalTextAlignment="Start"/>
+              </VerticalStackLayout>
 
-        <Grid Grid.Row="1"
-              ColumnDefinitions="32,36,*"
-              ColumnSpacing="10"
-              Padding="0,4,0,0">
-            <Label Text="▼"
-                   Grid.Column="0"
-                   Style="{StaticResource SectionTitle}"
-                   HorizontalTextAlignment="Center"/>
-            <Label Text="ABC"
-                   Grid.Column="1"
-                   Style="{StaticResource SectionTitle}"
-                   HorizontalTextAlignment="Center"/>
-            <Label Text="Prioritized Daily Task List"
-                   Grid.Column="2"
-                   Style="{StaticResource SectionTitle}"
-                   HorizontalTextAlignment="Center"/>
-        </Grid>
+              <Grid Grid.Row="1"
+                    ColumnDefinitions="32,36,*"
+                    ColumnSpacing="10"
+                    Padding="0,4,0,0">
+                     <Label Text="▼"
+                            Grid.Column="0"
+                            Style="{StaticResource SectionTitle}"
+                            HorizontalTextAlignment="Center"/>
+                     <Label Text="ABC"
+                            Grid.Column="1"
+                            Style="{StaticResource SectionTitle}"
+                            HorizontalTextAlignment="Center"/>
+                     <Label Text="Prioritized Daily Task List"
+                            Grid.Column="2"
+                            Style="{StaticResource SectionTitle}"
+                            HorizontalTextAlignment="Center"/>
+              </Grid>
 
-        <Grid Grid.Row="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+              <Grid Grid.Row="2">
+                     <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                     </Grid.RowDefinitions>
+                     <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                     </Grid.ColumnDefinitions>
 
-            <BoxView Grid.ColumnSpan="2"
-                     HeightRequest="3"
-                     BackgroundColor="{StaticResource Ink}"/>
-            <BoxView Grid.RowSpan="2"
-                     WidthRequest="1"
-                     BackgroundColor="{StaticResource Ink}"/>
+                     <BoxView Grid.ColumnSpan="2"
+                              HeightRequest="3"
+                              BackgroundColor="{StaticResource Ink}"/>
+                     <BoxView Grid.RowSpan="2"
+                              WidthRequest="1"
+                              BackgroundColor="{StaticResource Ink}"/>
 
-            <Grid Grid.Row="1"
-                  Grid.Column="1"
-                  BackgroundColor="{StaticResource WritingPaper}">
-                <CollectionView x:Name="TaskList"
-                                ItemsSource="{Binding CurrentDay.Tasks}"
-                                ItemSizingStrategy="MeasureAllItems"
-                                BackgroundColor="Transparent"
-                                Margin="0,0,0,8">
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Vertical"
-                                           ItemSpacing="0"/>
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="24,1,12,12,1,*"
-                                  RowDefinitions="Auto"
-                                  RowSpacing="0"
-                                  ColumnSpacing="8"
-                                  Padding="0,0,0,0"
-                                  VerticalOptions="Start">
-                                <Grid.GestureRecognizers>
-                                    <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
-                                    <DropGestureRecognizer Drop="OnTaskDrop"/>
-                                    <TapGestureRecognizer Tapped="OnTaskTapped"/>
-                                </Grid.GestureRecognizers>
+                     <Grid Grid.Row="1"
+                           Grid.Column="1"
+                           BackgroundColor="{StaticResource WritingPaper}">
+                            <CollectionView x:Name="TaskList"
+                                            ItemsSource="{Binding CurrentDay.Tasks}"
+                                            ItemSizingStrategy="MeasureAllItems"
+                                            BackgroundColor="Transparent"
+                                            Margin="0,0,0,8">
+                                   <CollectionView.ItemsLayout>
+                                          <LinearItemsLayout Orientation="Vertical"
+                                                             ItemSpacing="0"/>
+                                   </CollectionView.ItemsLayout>
+                                   <CollectionView.ItemTemplate>
+                                          <DataTemplate>
+                                                 <Grid ColumnDefinitions="24,1,26,1,*"
+                                                       RowDefinitions="Auto"
+                                                       RowSpacing="0"
+                                                       ColumnSpacing="8"
+                                                       Padding="0,0,0,0"
+                                                       VerticalOptions="Start">
+                                                        <Grid.GestureRecognizers>
+                                                               <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
+                                                               <DropGestureRecognizer Drop="OnTaskDrop"/>
+                                                               <TapGestureRecognizer Tapped="OnTaskTapped"/>
+                                                        </Grid.GestureRecognizers>
 
-                                <Image Grid.Column="0"
-                                       Source="{Binding StatusIcon}"
-                                       HeightRequest="24"
-                                       WidthRequest="24"
-                                       Margin="8,6,0,0"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Start"/>
+                                                        <Image Grid.Column="0"
+                                                               Source="{Binding StatusIcon}"
+                                                               HeightRequest="24"
+                                                               WidthRequest="24"
+                                                               Margin="8,6,0,0"
+                                                               HorizontalOptions="Center"
+                                                               VerticalOptions="Start"/>
 
-                                <BoxView Grid.Column="1"
-                                         WidthRequest="1"
-                                         BackgroundColor="{StaticResource Line}"/>
-                                <Label Grid.Column="2"
-                                       Text="{Binding Priority}"
-                                       HorizontalTextAlignment="Start"
-                                       VerticalTextAlignment="Start"
-                                       LineHeight="1"
-                                       Style="{StaticResource Handwriting}"/>
-                                <Label Grid.Column="3"
-                                       Text="{Binding Order}"
-                                       HorizontalTextAlignment="Start"
-                                       VerticalTextAlignment="Start"
-                                       LineHeight="1"
-                                       Style="{StaticResource Handwriting}"/>
-                                <BoxView Grid.Column="4"
-                                         WidthRequest="1"
-                                         BackgroundColor="{StaticResource Line}"/>
-                                <Label Grid.Column="5"
-                                       Text="{Binding Title}"
-                                       LineBreakMode="WordWrap"
-                                       HorizontalTextAlignment="Start"
-                                       VerticalTextAlignment="Start"
-                                       LineHeight="1"
-                                       Style="{StaticResource Handwriting}"/>
-                                <BoxView Grid.ColumnSpan="6"
-                                         HeightRequest="1"
-                                         BackgroundColor="{StaticResource Line}"
-                                         VerticalOptions="End"/>
-                            </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                    <CollectionView.Footer>
-                        <Grid ColumnDefinitions="24,1,12,12,1,*"
-                              ColumnSpacing="8"
-                              Padding="0,0,0,0">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnAddTaskTapped"/>
-                            </Grid.GestureRecognizers>
-                            <Image Grid.Column="0"
-                                   Source="plus.webp"
-                                   HeightRequest="20"
-                                   WidthRequest="20"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                            <BoxView Grid.Column="1"
-                                     WidthRequest="1"
-                                     BackgroundColor="{StaticResource Line}"/>
-                            <BoxView Grid.Column="4"
-                                     WidthRequest="1"
-                                     BackgroundColor="{StaticResource Line}"/>
-                            <Label Grid.Column="5"
-                                   Text="Tap to add a new task..."
-                                   VerticalTextAlignment="Center"
-                                   Style="{StaticResource Handwriting}"
-                                   FontAttributes="Italic"
-                                   TextColor="{StaticResource Line}"/>
-                            <BoxView Grid.ColumnSpan="6"
-                                     HeightRequest="1"
-                                     BackgroundColor="{StaticResource Line}"
-                                     VerticalOptions="End"/>
-                        </Grid>
-                    </CollectionView.Footer>
-                </CollectionView>
-            </Grid>
+                                                        <BoxView Grid.Column="1"
+                                                                 WidthRequest="1"
+                                                                 BackgroundColor="{StaticResource Line}"/>
+                                                        <Label Grid.Column="2"
+                                                               Text="{Binding PriorityOrder}"
+                                                               HorizontalTextAlignment="Start"
+                                                               VerticalTextAlignment="Start"
+                                                               LineHeight="1"
+                                                               Style="{StaticResource Handwriting}"/>
+                                                        <BoxView Grid.Column="3"
+                                                                 WidthRequest="1"
+                                                                 BackgroundColor="{StaticResource Line}"/>
+                                                        <Label Grid.Column="4"
+                                                               Text="{Binding Title}"
+                                                               LineBreakMode="WordWrap"
+                                                               HorizontalTextAlignment="Start"
+                                                               VerticalTextAlignment="Start"
+                                                               LineHeight="1"
+                                                               Style="{StaticResource Handwriting}"/>
+                                                        <BoxView Grid.ColumnSpan="5"
+                                                                 HeightRequest="1"
+                                                                 BackgroundColor="{StaticResource Line}"
+                                                                 VerticalOptions="End"/>
+                                                 </Grid>
+                                          </DataTemplate>
+                                   </CollectionView.ItemTemplate>
+                                   <CollectionView.Footer>
+                                          <Grid ColumnDefinitions="24,1,26,1,*"
+                                                ColumnSpacing="8"
+                                                Padding="0,0,0,0">
+                                                 <Grid.GestureRecognizers>
+                                                        <TapGestureRecognizer Tapped="OnAddTaskTapped"/>
+                                                 </Grid.GestureRecognizers>
+                                                 <Image Grid.Column="0"
+                                                        Source="plus.webp"
+                                                        HeightRequest="20"
+                                                        WidthRequest="20"
+                                                        HorizontalOptions="Center"
+                                                        VerticalOptions="Center"/>
+                                                 <BoxView Grid.Column="1"
+                                                          WidthRequest="1"
+                                                          BackgroundColor="{StaticResource Line}"/>
+                                                 <BoxView Grid.Column="3"
+                                                          WidthRequest="1"
+                                                          BackgroundColor="{StaticResource Line}"/>
+                                                 <Label Grid.Column="4"
+                                                        Text="Tap to add a new task..."
+                                                        VerticalTextAlignment="Center"
+                                                        Style="{StaticResource Handwriting}"
+                                                        FontAttributes="Italic"
+                                                        TextColor="{StaticResource Line}"/>
+                                                 <BoxView Grid.ColumnSpan="5"
+                                                          HeightRequest="1"
+                                                          BackgroundColor="{StaticResource Line}"
+                                                          VerticalOptions="End"/>
+                                          </Grid>
+                                   </CollectionView.Footer>
+                            </CollectionView>
+                     </Grid>
 
-            <BoxView Grid.Row="1"
-                     Grid.ColumnSpan="2"
-                     HeightRequest="1"
-                     BackgroundColor="{StaticResource Ink}"
-                     VerticalOptions="End"/>
-        </Grid>
+                     <BoxView Grid.Row="1"
+                              Grid.ColumnSpan="2"
+                              HeightRequest="1"
+                              BackgroundColor="{StaticResource Ink}"
+                              VerticalOptions="End"/>
+              </Grid>
 
-    </Grid>
+       </Grid>
 
 </ContentView>

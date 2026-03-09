@@ -115,6 +115,8 @@ public class TaskItem : INotifyPropertyChanged
         set => SetField(ref _order, value);
     }
 
+    public string PriorityOrder => string.Concat(_priority, _order.ToString());
+
     public string Title
     {
         get => _title;
