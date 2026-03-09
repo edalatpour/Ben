@@ -71,7 +71,7 @@
                                   VerticalOptions="Start">
                                 <Label Grid.Column="0"
                                        Text="{Binding Order}"
-                                       HorizontalTextAlignment="End"
+                                       HorizontalTextAlignment="Center"
                                        VerticalTextAlignment="Start"
                                        LineHeight="1"
                                        Style="{StaticResource Handwriting}"/>
@@ -109,7 +109,7 @@
                                    Source="plus.webp"
                                    HeightRequest="20"
                                    WidthRequest="20"
-                                   HorizontalOptions="End"
+                                   HorizontalOptions="Center"
                                    VerticalOptions="Center"/>
                             <BoxView Grid.Column="1"
                                      WidthRequest="1"
@@ -119,6 +119,7 @@
                             <Label Grid.Column="2"
                                    Text="Tap to add a new note..."
                                    VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="Start"
                                    Style="{StaticResource Handwriting}"
                                    FontAttributes="Italic"
                                    TextColor="{StaticResource Line}"/>

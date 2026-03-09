@@ -208,8 +208,8 @@ public class DailyViewModel : INotifyPropertyChanged
             Key = CurrentDay.Key,
             // Status = StatusEnum.NotStarted,
             Status = "NotStarted",
-            Priority = "",
-            Order = GetNextTaskOrder(),
+            Priority = "A",
+            Order = GetSuggestedTaskOrder(CurrentDay.Key, "A"),
             Title = text
         };
 
@@ -230,7 +230,7 @@ public class DailyViewModel : INotifyPropertyChanged
         task.Priority = string.IsNullOrWhiteSpace(task.Priority) ? "A" : task.Priority;
         if (task.Order <= 0)
         {
-            task.Order = GetNextTaskOrder();
+            task.Order = GetSuggestedTaskOrder(task.Key, task.Priority, task);
         }
 
         await _repo.AddTaskAsync(task);
@@ -523,9 +523,25 @@ public class DailyViewModel : INotifyPropertyChanged
         return order;
     }
 
-    int GetNextTaskOrder()
+    public (int Min, int Max) GetTaskOrderRange(DateTime key, string priority, TaskItem? excludeTask = null)
     {
-        return CurrentDay.Tasks.Count + 1;
+        if (CurrentDay?.Tasks == null)
+        {
+            return (1, 1);
+        }
+
+        string normalizedPriority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
+        int samePriorityCount = CurrentDay.Tasks.Count(task =>
+            !ReferenceEquals(task, excludeTask)
+            && task.Key.Date == key.Date
+            && string.Equals(task.Priority, normalizedPriority, StringComparison.OrdinalIgnoreCase));
+
+        return (1, Math.Max(1, samePriorityCount + 1));
+    }
+
+    public int GetSuggestedTaskOrder(DateTime key, string priority, TaskItem? excludeTask = null)
+    {
+        return GetTaskOrderRange(key, priority, excludeTask).Max;
     }
 
     async Task UpdateTaskOrderAsync(IEnumerable<TaskItem>? additionallyChanged = null)

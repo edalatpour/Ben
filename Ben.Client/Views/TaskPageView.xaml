@@ -71,7 +71,7 @@
                                    </CollectionView.ItemsLayout>
                                    <CollectionView.ItemTemplate>
                                           <DataTemplate>
-                                                 <Grid ColumnDefinitions="24,1,26,1,*"
+                                                 <Grid ColumnDefinitions="24,1,28,1,*"
                                                        RowDefinitions="Auto"
                                                        RowSpacing="0"
                                                        ColumnSpacing="8"
@@ -96,7 +96,7 @@
                                                                  BackgroundColor="{StaticResource Line}"/>
                                                         <Label Grid.Column="2"
                                                                Text="{Binding PriorityOrder}"
-                                                               HorizontalTextAlignment="Start"
+                                                               HorizontalTextAlignment="Center"
                                                                VerticalTextAlignment="Start"
                                                                LineHeight="1"
                                                                Style="{StaticResource Handwriting}"/>
@@ -118,7 +118,7 @@
                                           </DataTemplate>
                                    </CollectionView.ItemTemplate>
                                    <CollectionView.Footer>
-                                          <Grid ColumnDefinitions="24,1,26,1,*"
+                                          <Grid ColumnDefinitions="24,1,28,1,*"
                                                 ColumnSpacing="8"
                                                 Padding="0,0,0,0">
                                                  <Grid.GestureRecognizers>
@@ -128,6 +128,7 @@
                                                         Source="plus.webp"
                                                         HeightRequest="20"
                                                         WidthRequest="20"
+                                                        Margin="8,6,0,0"
                                                         HorizontalOptions="Center"
                                                         VerticalOptions="Center"/>
                                                  <BoxView Grid.Column="1"

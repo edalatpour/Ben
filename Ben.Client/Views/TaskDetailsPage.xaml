@@ -188,7 +188,8 @@
                                 Grid.Row="5"
                                 TextColor="{StaticResource Ink}"
                                 Style="{StaticResource Handwriting}"
-                                FontSize="24"/>
+                                FontSize="24"
+                                SelectedIndexChanged="OnPriorityChanged"/>
 
                         <!-- Order label -->
                         <Label Grid.Row="6"
@@ -202,6 +203,7 @@
                                                Spacing="12"
                                                VerticalOptions="Center">
                             <Button Text="▼"
+                                    x:Name="OrderDownButton"
                                     Clicked="OnOrderDown"
                                     BackgroundColor="Transparent"
                                     TextColor="{StaticResource Ink}"
@@ -221,6 +223,7 @@
                                    MinimumWidthRequest="40"
                                    HorizontalTextAlignment="Center"/>
                             <Button Text="▲"
+                                    x:Name="OrderUpButton"
                                     Clicked="OnOrderUp"
                                     BackgroundColor="Transparent"
                                     TextColor="{StaticResource Ink}"
