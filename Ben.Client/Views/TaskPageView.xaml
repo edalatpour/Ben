@@ -89,16 +89,7 @@
                                        WidthRequest="24"
                                        Margin="10,6,0,0"
                                        HorizontalOptions="Center"
-                                       VerticalOptions="Start">
-                                    <Image.Triggers>
-                                        <DataTrigger TargetType="Image"
-                                                     Binding="{Binding IsPriorityBucket}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
-                                    </Image.Triggers>
-                                </Image>
+                                       VerticalOptions="Start"/>
 
                                 <BoxView Grid.Column="1"
                                          WidthRequest="1"
@@ -108,31 +99,13 @@
                                        HorizontalTextAlignment="Start"
                                        VerticalTextAlignment="Start"
                                        LineHeight="1"
-                                       Style="{StaticResource Handwriting}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsPriorityBucket}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                       Style="{StaticResource Handwriting}"/>
                                 <Label Grid.Column="3"
                                        Text="{Binding Order}"
                                        HorizontalTextAlignment="Start"
                                        VerticalTextAlignment="Start"
                                        LineHeight="1"
-                                       Style="{StaticResource Handwriting}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsPriorityBucket}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                       Style="{StaticResource Handwriting}"/>
                                 <BoxView Grid.Column="4"
                                          WidthRequest="1"
                                          BackgroundColor="{StaticResource Line}"/>
@@ -142,24 +115,7 @@
                                        HorizontalTextAlignment="Start"
                                        VerticalTextAlignment="Start"
                                        LineHeight="1"
-                                       Style="{StaticResource Handwriting}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsPriorityBucket}"
-                                                     Value="True">
-                                            <Setter Property="IsVisible"
-                                                    Value="False"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                                <Label Grid.Column="2"
-                                       Text="{Binding Priority}"
-                                       VerticalOptions="Center"
-                                       LineHeight="1"
-                                       Style="{StaticResource Handwriting}"
-                                       FontAttributes="Italic"
-                                       TextColor="{StaticResource Accent}"
-                                       IsVisible="{Binding IsPriorityBucket}"/>
+                                       Style="{StaticResource Handwriting}"/>
                                 <BoxView Grid.ColumnSpan="6"
                                          HeightRequest="1"
                                          BackgroundColor="{StaticResource Line}"

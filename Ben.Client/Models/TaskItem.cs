@@ -139,14 +139,6 @@ public class TaskItem : INotifyPropertyChanged
 
     [NotMapped]
     [JsonIgnore]
-    public bool IsPriorityBucket
-    {
-        get => _isPriorityBucket;
-        set => SetField(ref _isPriorityBucket, value);
-    }
-
-    [NotMapped]
-    [JsonIgnore]
     public bool IsEditing
     {
         get => _isEditing;
@@ -173,7 +165,6 @@ public class TaskItem : INotifyPropertyChanged
     string _title;
     bool _isPlaceholder;
     bool _isAddPlaceholder;
-    bool _isPriorityBucket;
     bool _isEditing;
     string _editSnapshot;
 

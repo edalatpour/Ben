@@ -15,7 +15,6 @@ namespace Ben.ViewModels;
 
 public class DailyViewModel : INotifyPropertyChanged
 {
-    static readonly string[] PriorityOrder = new[] { "A", "B", "C" };
     public event PropertyChangedEventHandler PropertyChanged;
 
     private readonly PlannerRepository _repo;
@@ -176,7 +175,6 @@ public class DailyViewModel : INotifyPropertyChanged
         // day.Tasks.Add(new TaskItem { Status = "C", Priority = "A", Order = 2, Title = "Also important" });
         // day.Tasks.Add(new TaskItem { Status = "I", Priority = "A", Order = 1, Title = "The most important thing" });
         // day.Notes.Add(new NoteItem { Text = "I like this!"});
-        EnsurePriorityBuckets(day);
         CurrentDay = day;
         // CurrentDay = new DailyData
         // {
@@ -217,7 +215,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         await _repo.AddTaskAsync(task);
         CurrentDay.Tasks.Add(task);
-        EnsurePriorityBuckets(CurrentDay);
+        SortTasksInMemory();
         await UpdateStatus();
     }
 
@@ -236,7 +234,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         await _repo.AddTaskAsync(task);
         CurrentDay.Tasks.Add(task);
-        EnsurePriorityBuckets(CurrentDay);
+        SortTasksInMemory();
         await UpdateStatus();
     }
 
@@ -257,12 +255,13 @@ public class DailyViewModel : INotifyPropertyChanged
     public async Task UpdateTaskAsync(TaskItem task)
     {
         await _repo.UpdateTaskAsync(task);
+        SortTasksInMemory();
         await UpdateStatus();
     }
 
     public async Task ReorderTaskAsync(TaskItem source, TaskItem target)
     {
-        if (source == null || target == null || source.IsPriorityBucket || target.IsPriorityBucket)
+        if (source == null || target == null)
         {
             return;
         }
@@ -275,21 +274,9 @@ public class DailyViewModel : INotifyPropertyChanged
 
         int sourceIndex = tasks.IndexOf(source);
         int targetIndex = tasks.IndexOf(target);
-        int lastIndex = GetLastTaskIndex(tasks);
-
         if (sourceIndex < 0 || targetIndex < 0 || sourceIndex == targetIndex)
         {
             return;
-        }
-
-        if (sourceIndex > lastIndex)
-        {
-            return;
-        }
-
-        if (targetIndex > lastIndex)
-        {
-            targetIndex = lastIndex;
         }
 
         tasks.Move(sourceIndex, targetIndex);
@@ -301,20 +288,15 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         await UpdateTaskOrderAsync();
-        EnsurePriorityBuckets(CurrentDay);
+        SortTasksInMemory();
         await UpdateStatus();
     }
 
     public async Task DeleteNoteAsync(TaskItem task)
     {
-        if (task.IsPriorityBucket)
-        {
-            return;
-        }
-
         await _repo.DeleteTaskAsync(task);
         CurrentDay.Tasks.Remove(task);
-        EnsurePriorityBuckets(CurrentDay);
+        SortTasksInMemory();
         await UpdateStatus();
     }
 
@@ -448,29 +430,9 @@ public class DailyViewModel : INotifyPropertyChanged
         return order;
     }
 
-    int GetLastTaskIndex(IList<TaskItem> tasks)
-    {
-        int lastIndex = tasks.Count - 1;
-        while (lastIndex >= 0 && tasks[lastIndex].IsPriorityBucket)
-        {
-            lastIndex--;
-        }
-
-        return lastIndex;
-    }
-
     int GetNextTaskOrder()
     {
-        int order = 1;
-        foreach (TaskItem task in CurrentDay.Tasks)
-        {
-            if (!task.IsPriorityBucket)
-            {
-                order++;
-            }
-        }
-
-        return order;
+        return CurrentDay.Tasks.Count + 1;
     }
 
     async Task UpdateTaskOrderAsync()
@@ -478,11 +440,6 @@ public class DailyViewModel : INotifyPropertyChanged
         var orderByPriority = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         foreach (TaskItem task in CurrentDay.Tasks)
         {
-            if (task.IsPriorityBucket)
-            {
-                continue;
-            }
-
             string priorityKey = task.Priority ?? string.Empty;
             orderByPriority.TryGetValue(priorityKey, out int current);
             int nextOrder = current + 1;
@@ -496,59 +453,34 @@ public class DailyViewModel : INotifyPropertyChanged
         }
     }
 
-    void EnsurePriorityBuckets(DailyData day)
+    static int GetPriorityRank(string? priority)
     {
-        if (day?.Tasks == null)
+        return priority?.ToUpperInvariant() switch
+        {
+            "A" => 0,
+            "B" => 1,
+            "C" => 2,
+            _ => 3
+        };
+    }
+
+    void SortTasksInMemory()
+    {
+        if (CurrentDay?.Tasks == null || CurrentDay.Tasks.Count < 2)
         {
             return;
         }
 
-        var tasks = day.Tasks;
-        var realTasks = tasks
-            .Where(task => !task.IsPriorityBucket)
+        var sorted = CurrentDay.Tasks
+            .OrderBy(task => GetPriorityRank(task.Priority))
+            .ThenBy(task => task.Order)
+            .ThenBy(task => task.Id)
             .ToList();
 
-        var rebuilt = new List<TaskItem>();
-
-        foreach (string priority in PriorityOrder)
+        CurrentDay.Tasks.Clear();
+        foreach (TaskItem task in sorted)
         {
-            bool hasTasksForPriority = realTasks.Any(task =>
-                string.Equals(task.Priority, priority, StringComparison.OrdinalIgnoreCase));
-
-            if (!hasTasksForPriority)
-            {
-                rebuilt.Add(new TaskItem
-                {
-                    Key = day.Key,
-                    Status = "NotStarted",
-                    Priority = priority,
-                    Order = int.MaxValue,
-                    Title = string.Empty,
-                    IsPriorityBucket = true
-                });
-            }
-
-            foreach (TaskItem task in realTasks)
-            {
-                if (string.Equals(task.Priority, priority, StringComparison.OrdinalIgnoreCase))
-                {
-                    rebuilt.Add(task);
-                }
-            }
-        }
-
-        foreach (TaskItem task in realTasks)
-        {
-            if (!PriorityOrder.Any(priority => string.Equals(task.Priority, priority, StringComparison.OrdinalIgnoreCase)))
-            {
-                rebuilt.Add(task);
-            }
-        }
-
-        tasks.Clear();
-        foreach (TaskItem task in rebuilt)
-        {
-            tasks.Add(task);
+            CurrentDay.Tasks.Add(task);
         }
     }
 }

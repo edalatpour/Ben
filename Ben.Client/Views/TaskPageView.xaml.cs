@@ -22,7 +22,7 @@ public partial class TaskPageView : ContentView
             return;
         }
 
-        if (bindable.BindingContext is not TaskItem task || task.IsPriorityBucket)
+        if (bindable.BindingContext is not TaskItem task)
         {
             return;
         }
@@ -59,7 +59,7 @@ public partial class TaskPageView : ContentView
             return;
         }
 
-        if (bindable.BindingContext is not TaskItem task || task.IsPriorityBucket)
+        if (bindable.BindingContext is not TaskItem task)
         {
             e.Cancel = true;
             return;
