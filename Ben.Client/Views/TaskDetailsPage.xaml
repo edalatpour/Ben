@@ -238,7 +238,7 @@
                                         StrokeShape="RoundRectangle 4"
                                         Padding="0">
                                     <VerticalStackLayout Spacing="0">
-                                        <Button x:Name="OrderUpButton"
+                                        <Button x:Name="OrderDownButton"
                                                 Text="▲"
                                                 Clicked="OnOrderDown"
                                                 BackgroundColor="Transparent"
@@ -258,7 +258,7 @@
                                                HeightRequest="64"/>
                                         <BoxView HeightRequest="1"
                                                  BackgroundColor="{StaticResource Line}"/>
-                                        <Button x:Name="OrderDownButton"
+                                        <Button x:Name="OrderUpButton"
                                                 Text="▼"
                                                 Clicked="OnOrderUp"
                                                 BackgroundColor="Transparent"
