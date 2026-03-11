@@ -5,18 +5,17 @@
              Title="Task Details">
 
     <Grid Style="{StaticResource PaperRootGrid}">
+
         <ScrollView>
             <Grid Padding="16"
                   RowDefinitions="Auto,*,Auto"
                   RowSpacing="12">
 
-                <!-- Header -->
                 <Label Grid.Row="0"
                        Text="Task Details"
                        Style="{StaticResource SectionTitle}"
                        HorizontalTextAlignment="Center"/>
 
-                <!-- Form -->
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -39,202 +38,254 @@
                           Grid.Column="1"
                           BackgroundColor="{StaticResource WritingPaper}"
                           Padding="16"
-                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-                          RowSpacing="8">
+                          RowDefinitions="Auto,Auto"
+                          RowSpacing="12">
 
-                        <!-- Title label -->
-                        <Label Grid.Row="0"
-                               Text="Title"
-                               Style="{StaticResource SectionTitle}"
-                               HorizontalTextAlignment="Start"/>
-
-                        <!-- Title entry -->
-                        <Entry x:Name="TitleEntry"
-                               Grid.Row="1"
-                               Placeholder="Enter task title..."
-                               Style="{StaticResource Handwriting}"
-                               FontSize="24"
-                               BackgroundColor="Transparent"/>
-
-                        <!-- Status label -->
-                        <Label Grid.Row="2"
-                               Text="Status"
-                               Style="{StaticResource SectionTitle}"
-                               HorizontalTextAlignment="Start"
-                               Margin="0,8,0,0"/>
-
-                        <!-- Status picker -->
-                        <Grid Grid.Row="3"
-                              ColumnDefinitions="*,*,*,*,*"
-                              ColumnSpacing="4"
-                              Margin="0,4,0,0">
-                            <Border x:Name="StatusBorderNotStarted"
-                                    Grid.Column="0"
-                                    BackgroundColor="Transparent"
-                                    Stroke="{StaticResource Line}"
-                                    StrokeShape="RoundRectangle 4"
-                                    Padding="4">
-                                <VerticalStackLayout Spacing="2">
-                                    <Image Source="not_started.webp"
-                                           HeightRequest="24"
-                                           WidthRequest="24"
-                                           HorizontalOptions="Center"/>
-                                    <Label Text="Not Started"
-                                           FontSize="9"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{StaticResource Ink}"/>
-                                </VerticalStackLayout>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                          CommandParameter="NotStarted"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                            <Border x:Name="StatusBorderInProgress"
-                                    Grid.Column="1"
-                                    BackgroundColor="Transparent"
-                                    Stroke="{StaticResource Line}"
-                                    StrokeShape="RoundRectangle 4"
-                                    Padding="4">
-                                <VerticalStackLayout Spacing="2">
-                                    <Image Source="in_progress.webp"
-                                           HeightRequest="24"
-                                           WidthRequest="24"
-                                           HorizontalOptions="Center"/>
-                                    <Label Text="In Progress"
-                                           FontSize="9"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{StaticResource Ink}"/>
-                                </VerticalStackLayout>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                          CommandParameter="InProgress"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                            <Border x:Name="StatusBorderCompleted"
-                                    Grid.Column="2"
-                                    BackgroundColor="Transparent"
-                                    Stroke="{StaticResource Line}"
-                                    StrokeShape="RoundRectangle 4"
-                                    Padding="4">
-                                <VerticalStackLayout Spacing="2">
-                                    <Image Source="completed.webp"
-                                           HeightRequest="24"
-                                           WidthRequest="24"
-                                           HorizontalOptions="Center"/>
-                                    <Label Text="Completed"
-                                           FontSize="9"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{StaticResource Ink}"/>
-                                </VerticalStackLayout>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                          CommandParameter="Completed"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                            <Border x:Name="StatusBorderForwarded"
-                                    Grid.Column="3"
-                                    BackgroundColor="Transparent"
-                                    Stroke="{StaticResource Line}"
-                                    StrokeShape="RoundRectangle 4"
-                                    Padding="4">
-                                <VerticalStackLayout Spacing="2">
-                                    <Image Source="forwarded.webp"
-                                           HeightRequest="24"
-                                           WidthRequest="24"
-                                           HorizontalOptions="Center"/>
-                                    <Label Text="Forwarded"
-                                           FontSize="9"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{StaticResource Ink}"/>
-                                </VerticalStackLayout>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                          CommandParameter="Forwarded"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                            <Border x:Name="StatusBorderDeleted"
-                                    Grid.Column="4"
-                                    BackgroundColor="Transparent"
-                                    Stroke="{StaticResource Line}"
-                                    StrokeShape="RoundRectangle 4"
-                                    Padding="4">
-                                <VerticalStackLayout Spacing="2">
-                                    <Image Source="cancelled.webp"
-                                           HeightRequest="24"
-                                           WidthRequest="24"
-                                           HorizontalOptions="Center"/>
-                                    <Label Text="Deleted"
-                                           FontSize="9"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{StaticResource Ink}"/>
-                                </VerticalStackLayout>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                          CommandParameter="Deleted"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                        </Grid>
-
-                        <!-- Priority label -->
-                        <Label Grid.Row="4"
-                               Text="Priority"
-                               Style="{StaticResource SectionTitle}"
-                               HorizontalTextAlignment="Start"
-                               Margin="0,8,0,0"/>
-
-                        <!-- Priority picker -->
-                        <Picker x:Name="PriorityPicker"
-                                Grid.Row="5"
-                                TextColor="{StaticResource Ink}"
-                                Style="{StaticResource Handwriting}"
-                                FontSize="24"
-                                SelectedIndexChanged="OnPriorityChanged"/>
-
-                        <!-- Order label -->
-                        <Label Grid.Row="6"
-                               Text="Order"
-                               Style="{StaticResource SectionTitle}"
-                               HorizontalTextAlignment="Start"
-                               Margin="0,8,0,0"/>
-
-                        <!-- Order up/down picker -->
-                        <HorizontalStackLayout Grid.Row="7"
-                                               Spacing="12"
-                                               VerticalOptions="Center">
-                            <Button Text="▼"
-                                    x:Name="OrderDownButton"
-                                    Clicked="OnOrderDown"
-                                    BackgroundColor="Transparent"
-                                    TextColor="{StaticResource Ink}"
-                                    BorderColor="{StaticResource Line}"
-                                    BorderWidth="1"
-                                    CornerRadius="4"
-                                    FontSize="20"
-                                    WidthRequest="44"
-                                    HeightRequest="44"
-                                    Padding="0"/>
-                            <Label x:Name="OrderLabel"
-                                   Text="1"
-                                   VerticalOptions="Center"
+                        <Border Grid.Row="0"
+                                BackgroundColor="{StaticResource WritingPaper}"
+                                Stroke="{StaticResource Line}"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="12,8">
+                            <Entry x:Name="TitleEntry"
+                                   Placeholder=""
                                    Style="{StaticResource Handwriting}"
                                    FontSize="24"
-                                   TextColor="{StaticResource Ink}"
-                                   MinimumWidthRequest="40"
-                                   HorizontalTextAlignment="Center"/>
-                            <Button Text="▲"
-                                    x:Name="OrderUpButton"
-                                    Clicked="OnOrderUp"
-                                    BackgroundColor="Transparent"
-                                    TextColor="{StaticResource Ink}"
-                                    BorderColor="{StaticResource Line}"
-                                    BorderWidth="1"
-                                    CornerRadius="4"
-                                    FontSize="20"
-                                    WidthRequest="44"
-                                    HeightRequest="44"
-                                    Padding="0"/>
-                        </HorizontalStackLayout>
+                                   BackgroundColor="Transparent"
+                                   TextColor="{StaticResource Ink}"/>
+                        </Border>
 
+                        <Grid Grid.Row="1"
+                            ColumnDefinitions="2.4*,1*,1*"
+                                                            RowDefinitions="Auto,46"
+                            ColumnSpacing="16"
+                            RowSpacing="10">
+
+                            <VerticalStackLayout Grid.Column="0"
+                                                                                                 Grid.RowSpan="2"
+                                                 Spacing="6">
+                                <Label Text="Status"
+                                       Style="{StaticResource SectionTitle}"
+                                       HorizontalTextAlignment="Start"/>
+                                <BoxView HeightRequest="1"
+                                         BackgroundColor="{StaticResource Line}"/>
+
+                                <Border x:Name="StatusBorderNotStarted"
+                                        BackgroundColor="Transparent"
+                                        Stroke="{StaticResource Line}"
+                                        StrokeShape="RoundRectangle 4"
+                                    Padding="4"
+                                    HeightRequest="46">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Image Source="not_started.webp"
+                                               HeightRequest="24"
+                                               WidthRequest="24"
+                                               HorizontalOptions="Center"/>
+                                        <Label Text="Not Started"
+                                               FontSize="9"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource Ink}"/>
+                                    </VerticalStackLayout>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                              CommandParameter="NotStarted"/>
+                                    </Border.GestureRecognizers>
+                                </Border>
+
+                                <Border x:Name="StatusBorderInProgress"
+                                        BackgroundColor="Transparent"
+                                        Stroke="{StaticResource Line}"
+                                        StrokeShape="RoundRectangle 4"
+                                    Padding="4"
+                                    HeightRequest="46">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Image Source="in_progress.webp"
+                                               HeightRequest="24"
+                                               WidthRequest="24"
+                                               HorizontalOptions="Center"/>
+                                        <Label Text="In Progress"
+                                               FontSize="9"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource Ink}"/>
+                                    </VerticalStackLayout>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                              CommandParameter="InProgress"/>
+                                    </Border.GestureRecognizers>
+                                </Border>
+
+                                <Border x:Name="StatusBorderCompleted"
+                                        BackgroundColor="Transparent"
+                                        Stroke="{StaticResource Line}"
+                                        StrokeShape="RoundRectangle 4"
+                                    Padding="4"
+                                    HeightRequest="46">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Image Source="completed.webp"
+                                               HeightRequest="24"
+                                               WidthRequest="24"
+                                               HorizontalOptions="Center"/>
+                                        <Label Text="Completed"
+                                               FontSize="9"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource Ink}"/>
+                                    </VerticalStackLayout>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                              CommandParameter="Completed"/>
+                                    </Border.GestureRecognizers>
+                                </Border>
+
+                                <Border x:Name="StatusBorderDeleted"
+                                        BackgroundColor="Transparent"
+                                        Stroke="{StaticResource Line}"
+                                        StrokeShape="RoundRectangle 4"
+                                    Padding="4"
+                                    HeightRequest="46">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Image Source="cancelled.webp"
+                                               HeightRequest="24"
+                                               WidthRequest="24"
+                                               HorizontalOptions="Center"/>
+                                        <Label Text="Deleted"
+                                               FontSize="9"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource Ink}"/>
+                                    </VerticalStackLayout>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                              CommandParameter="Deleted"/>
+                                    </Border.GestureRecognizers>
+                                </Border>
+
+                                <Border x:Name="StatusBorderForwarded"
+                                        BackgroundColor="Transparent"
+                                        Stroke="{StaticResource Line}"
+                                        StrokeShape="RoundRectangle 4"
+                                    Padding="4"
+                                    HeightRequest="46">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Image Source="forwarded.webp"
+                                               HeightRequest="24"
+                                               WidthRequest="24"
+                                               HorizontalOptions="Center"/>
+                                        <Label Text="Forwarded"
+                                               FontSize="9"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource Ink}"/>
+                                    </VerticalStackLayout>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                              CommandParameter="Forwarded"/>
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Grid.Row="0"
+                                                 Spacing="8">
+                                <Label Text="Priority"
+                                       Style="{StaticResource SectionTitle}"
+                                       HorizontalTextAlignment="Start"/>
+                                <BoxView HeightRequest="1"
+                                         BackgroundColor="{StaticResource Line}"/>
+
+                                <Border Stroke="{StaticResource Line}"
+                                        StrokeShape="RoundRectangle 4"
+                                        Padding="0">
+                                    <VerticalStackLayout Spacing="0">
+                                        <Button x:Name="PriorityUpButton"
+                                                Text="▲"
+                                                Clicked="OnPriorityUp"
+                                                BackgroundColor="Transparent"
+                                                TextColor="{StaticResource Ink}"
+                                                HeightRequest="44"
+                                                FontSize="20"
+                                                Padding="0"/>
+                                        <BoxView HeightRequest="1"
+                                                 BackgroundColor="{StaticResource Line}"/>
+                                        <Label x:Name="PriorityLabel"
+                                               Text="A"
+                                               Style="{StaticResource Handwriting}"
+                                               FontSize="24"
+                                               TextColor="{StaticResource Ink}"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               HeightRequest="64"/>
+                                        <BoxView HeightRequest="1"
+                                                 BackgroundColor="{StaticResource Line}"/>
+                                        <Button x:Name="PriorityDownButton"
+                                                Text="▼"
+                                                Clicked="OnPriorityDown"
+                                                BackgroundColor="Transparent"
+                                                TextColor="{StaticResource Ink}"
+                                                HeightRequest="44"
+                                                FontSize="20"
+                                                Padding="0"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="2"
+                                                 Grid.Row="0"
+                                                 Spacing="8">
+                                <Label Text="Order"
+                                       Style="{StaticResource SectionTitle}"
+                                       HorizontalTextAlignment="Start"/>
+                                <BoxView HeightRequest="1"
+                                         BackgroundColor="{StaticResource Line}"/>
+
+                                <Border Stroke="{StaticResource Line}"
+                                        StrokeShape="RoundRectangle 4"
+                                        Padding="0">
+                                    <VerticalStackLayout Spacing="0">
+                                        <Button x:Name="OrderUpButton"
+                                                Text="▲"
+                                                Clicked="OnOrderDown"
+                                                BackgroundColor="Transparent"
+                                                TextColor="{StaticResource Ink}"
+                                                HeightRequest="44"
+                                                FontSize="20"
+                                                Padding="0"/>
+                                        <BoxView HeightRequest="1"
+                                                 BackgroundColor="{StaticResource Line}"/>
+                                        <Label x:Name="OrderLabel"
+                                               Text="1"
+                                               Style="{StaticResource Handwriting}"
+                                               FontSize="24"
+                                               TextColor="{StaticResource Ink}"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               HeightRequest="64"/>
+                                        <BoxView HeightRequest="1"
+                                                 BackgroundColor="{StaticResource Line}"/>
+                                        <Button x:Name="OrderDownButton"
+                                                Text="▼"
+                                                Clicked="OnOrderUp"
+                                                BackgroundColor="Transparent"
+                                                TextColor="{StaticResource Ink}"
+                                                HeightRequest="44"
+                                                FontSize="20"
+                                                Padding="0"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                                <Border Grid.Row="1"
+                                    Grid.Column="2"
+                                    BackgroundColor="{StaticResource WritingPaper}"
+                                    Stroke="{StaticResource Line}"
+                                    StrokeShape="RoundRectangle 4"
+                                    HeightRequest="46"
+                                    Padding="10,4"
+                                    VerticalOptions="Center">
+                                <DatePicker x:Name="TaskDatePicker"
+                                            TextColor="{StaticResource Ink}"
+                                            BackgroundColor="Transparent"
+                                            FontSize="18"
+                                            HorizontalOptions="Fill"
+                                            VerticalOptions="Center"/>
+                            </Border>
+                        </Grid>
                     </Grid>
 
                     <BoxView Grid.Row="2"
@@ -243,7 +294,6 @@
                              BackgroundColor="{StaticResource Ink}"/>
                 </Grid>
 
-                <!-- Action buttons -->
                 <Grid Grid.Row="2"
                       ColumnDefinitions="*,*"
                       ColumnSpacing="12"
@@ -263,9 +313,9 @@
                             CornerRadius="4"
                             HeightRequest="44"/>
                 </Grid>
-
             </Grid>
         </ScrollView>
+
     </Grid>
 
 </ContentPage>

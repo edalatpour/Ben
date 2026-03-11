@@ -14,17 +14,13 @@ public partial class TaskDetailsPage : ContentPage
     private int _minOrder = 1;
     private int _maxOrder = 1;
     private int _order;
+    private int _priorityIndex;
     private string _selectedStatus = "NotStarted";
 
     public TaskDetailsPage(DailyViewModel viewModel, TaskItem? task = null)
     {
         InitializeComponent();
         _viewModel = viewModel;
-
-        foreach (string p in PriorityValues)
-        {
-            PriorityPicker.Items.Add(p);
-        }
 
         if (task == null)
         {
@@ -49,8 +45,13 @@ public partial class TaskDetailsPage : ContentPage
         _selectedStatus = Array.IndexOf(StatusValues, _task.Status) >= 0 ? _task.Status : "NotStarted";
         UpdateStatusSelection();
 
-        int priorityIndex = Array.IndexOf(PriorityValues, _task.Priority);
-        PriorityPicker.SelectedIndex = priorityIndex >= 0 ? priorityIndex : 0;
+        _priorityIndex = Array.IndexOf(PriorityValues, _task.Priority);
+        if (_priorityIndex < 0)
+        {
+            _priorityIndex = 0;
+        }
+
+        UpdatePriorityUi();
 
         _order = _task.Order > 0 ? _task.Order : 1;
         RefreshOrderForPriority();
@@ -97,9 +98,24 @@ public partial class TaskDetailsPage : ContentPage
         }
     }
 
-    void OnPriorityChanged(object sender, EventArgs e)
+    void OnPriorityUp(object sender, EventArgs e)
     {
-        RefreshOrderForPriority();
+        if (_priorityIndex > 0)
+        {
+            _priorityIndex--;
+            UpdatePriorityUi();
+            RefreshOrderForPriority();
+        }
+    }
+
+    void OnPriorityDown(object sender, EventArgs e)
+    {
+        if (_priorityIndex < PriorityValues.Length - 1)
+        {
+            _priorityIndex++;
+            UpdatePriorityUi();
+            RefreshOrderForPriority();
+        }
     }
 
     async void OnSaveClicked(object sender, EventArgs e)
@@ -111,7 +127,7 @@ public partial class TaskDetailsPage : ContentPage
             return;
         }
 
-        string selectedPriority = PriorityPicker.SelectedIndex >= 0 ? PriorityValues[PriorityPicker.SelectedIndex] : "A";
+        string selectedPriority = PriorityValues[_priorityIndex];
         _order = Math.Clamp(_order, _minOrder, _maxOrder);
 
         if (_isNewTask)
@@ -137,7 +153,7 @@ public partial class TaskDetailsPage : ContentPage
 
     void RefreshOrderForPriority()
     {
-        string selectedPriority = PriorityPicker.SelectedIndex >= 0 ? PriorityValues[PriorityPicker.SelectedIndex] : "A";
+        string selectedPriority = PriorityValues[_priorityIndex];
         DateTime key = _task.Key != default ? _task.Key : _viewModel.CurrentDay?.Key ?? DateTime.Today;
         (int min, int max) = _viewModel.GetTaskOrderRange(key, selectedPriority, _isNewTask ? null : _task);
 
@@ -161,5 +177,12 @@ public partial class TaskDetailsPage : ContentPage
         OrderLabel.Text = _order.ToString();
         OrderDownButton.IsEnabled = _order > _minOrder;
         OrderUpButton.IsEnabled = _order < _maxOrder;
+    }
+
+    void UpdatePriorityUi()
+    {
+        PriorityLabel.Text = PriorityValues[_priorityIndex];
+        PriorityUpButton.IsEnabled = _priorityIndex > 0;
+        PriorityDownButton.IsEnabled = _priorityIndex < PriorityValues.Length - 1;
     }
 }
