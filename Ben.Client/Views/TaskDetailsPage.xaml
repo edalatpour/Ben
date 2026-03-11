@@ -277,6 +277,7 @@
                                     StrokeShape="RoundRectangle 4"
                                     HeightRequest="46"
                                     Padding="10,4"
+                                    HorizontalOptions="Fill"
                                     VerticalOptions="Center">
                                 <DatePicker x:Name="TaskDatePicker"
                                             TextColor="{StaticResource Ink}"
