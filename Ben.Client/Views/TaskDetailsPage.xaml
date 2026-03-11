@@ -55,13 +55,13 @@
                         </Border>
 
                         <Grid Grid.Row="1"
-                            ColumnDefinitions="2.4*,1*,1*"
-                                                            RowDefinitions="Auto,46"
-                            ColumnSpacing="16"
-                            RowSpacing="10">
+                              ColumnDefinitions="2.4*,1*,1*"
+                              RowDefinitions="Auto,46"
+                              ColumnSpacing="16"
+                              RowSpacing="10">
 
                             <VerticalStackLayout Grid.Column="0"
-                                                                                                 Grid.RowSpan="2"
+                                                 Grid.RowSpan="2"
                                                  Spacing="6">
                                 <Label Text="Status"
                                        Style="{StaticResource SectionTitle}"
@@ -73,8 +73,8 @@
                                         BackgroundColor="Transparent"
                                         Stroke="{StaticResource Line}"
                                         StrokeShape="RoundRectangle 4"
-                                    Padding="4"
-                                    HeightRequest="46">
+                                        Padding="4"
+                                        HeightRequest="46">
                                     <VerticalStackLayout Spacing="2">
                                         <Image Source="not_started.webp"
                                                HeightRequest="24"
@@ -95,8 +95,8 @@
                                         BackgroundColor="Transparent"
                                         Stroke="{StaticResource Line}"
                                         StrokeShape="RoundRectangle 4"
-                                    Padding="4"
-                                    HeightRequest="46">
+                                        Padding="4"
+                                        HeightRequest="46">
                                     <VerticalStackLayout Spacing="2">
                                         <Image Source="in_progress.webp"
                                                HeightRequest="24"
@@ -117,8 +117,8 @@
                                         BackgroundColor="Transparent"
                                         Stroke="{StaticResource Line}"
                                         StrokeShape="RoundRectangle 4"
-                                    Padding="4"
-                                    HeightRequest="46">
+                                        Padding="4"
+                                        HeightRequest="46">
                                     <VerticalStackLayout Spacing="2">
                                         <Image Source="completed.webp"
                                                HeightRequest="24"
@@ -139,8 +139,8 @@
                                         BackgroundColor="Transparent"
                                         Stroke="{StaticResource Line}"
                                         StrokeShape="RoundRectangle 4"
-                                    Padding="4"
-                                    HeightRequest="46">
+                                        Padding="4"
+                                        HeightRequest="46">
                                     <VerticalStackLayout Spacing="2">
                                         <Image Source="cancelled.webp"
                                                HeightRequest="24"
@@ -161,8 +161,8 @@
                                         BackgroundColor="Transparent"
                                         Stroke="{StaticResource Line}"
                                         StrokeShape="RoundRectangle 4"
-                                    Padding="4"
-                                    HeightRequest="46">
+                                        Padding="4"
+                                        HeightRequest="46">
                                     <VerticalStackLayout Spacing="2">
                                         <Image Source="forwarded.webp"
                                                HeightRequest="24"
@@ -270,7 +270,7 @@
                                 </Border>
                             </VerticalStackLayout>
 
-                                <Border Grid.Row="1"
+                            <Border Grid.Row="1"
                                     Grid.Column="2"
                                     BackgroundColor="{StaticResource WritingPaper}"
                                     Stroke="{StaticResource Line}"
