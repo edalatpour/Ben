@@ -55,6 +55,19 @@ namespace Ben.Datasync.Server
                 .ToTable(tb => tb.HasTrigger("NoteItem_datasync"));
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TaskItem>()
+                .HasOne(t => t.ParentTask)
+                .WithMany()
+                .HasForeignKey(t => t.ParentTaskId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskItem>()
+                .HasOne(t => t.OriginalTask)
+                .WithMany()
+                .HasForeignKey(t => t.OriginalTaskId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 

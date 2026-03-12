@@ -11,6 +11,7 @@ namespace Ben.Datasync.Server
 
     public class TaskItem : EntityTableData, IPersonalEntity
     {
+
         [JsonIgnore]
         public string UserId { get; set; } = string.Empty;
 
@@ -24,6 +25,15 @@ namespace Ben.Datasync.Server
 
         [Required, MinLength(1)]
         public string Title { get; set; } = string.Empty;
+
+        // Lineage
+        public string? ParentTaskId { get; set; }
+        public TaskItem? ParentTask { get; set; }
+
+        public string? OriginalTaskId { get; set; }
+        public TaskItem? OriginalTask { get; set; }
+
+        public List<TaskItem> ForwardedChildren { get; set; } = new();
 
     }
 

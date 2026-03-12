@@ -98,7 +98,8 @@ public class TaskItem : INotifyPropertyChanged
                 "Completed" => "completed.webp",
                 "Forwarded" => "forwarded.webp",
                 "Deleted" => "cancelled.webp",
-                "NotStarted" => "not_started.webp"
+                "NotStarted" => "not_started.webp",
+                _ => "not_started.webp"
             };
         }
     }
@@ -123,19 +124,22 @@ public class TaskItem : INotifyPropertyChanged
         set => SetField(ref _title, value);
     }
 
+    public string? ParentTaskId { get; set; } = null;
+    public string? OriginalTaskId { get; set; } = null;
+
     string _id = Guid.NewGuid().ToString("N");
     DateTimeOffset? _updatedAt;
     string? _version;
     bool _deleted;
     DateTime _key;
     // string _status;
-    String _status;
-    string _priority;
+    string _status = string.Empty;
+    string _priority = string.Empty;
     int _order;
-    string _title;
-    public event PropertyChangedEventHandler PropertyChanged;
+    string _title = string.Empty;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-    bool SetField<T>(ref T field, T value, [CallerMemberName] string name = null)
+    bool SetField<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {
         if (Equals(field, value))
         {

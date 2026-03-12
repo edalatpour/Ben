@@ -13,12 +13,12 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-        builder
-            .UseMauiApp<App>()
-            .ConfigureFonts(fonts =>
-            {
-                fonts.AddFont("PatrickHand-Regular.ttf", "Patrick Hand");
-            });
+
+        builder.UseMauiApp<App>()
+               .ConfigureFonts(fonts =>
+                {
+                    fonts.AddFont("PatrickHand-Regular.ttf", "Patrick Hand");
+                });
 
 #if DEBUG
         builder.Logging.AddDebug();
@@ -35,6 +35,11 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<AuthenticationService>();
         builder.Services.AddSingleton<DatasyncSyncService>();
+
+        builder.Services.AddDbContext<LocalSchemaDbContext>(options =>
+        {
+            options.UseSqlite($"Filename={dbPath}");
+        });
 
         builder.Services.AddDbContext<PlannerDbContext>((serviceProvider, options) =>
         {
@@ -53,8 +58,11 @@ public static class MauiProgram
         // Ensure database is created
         using (var scope = app.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
-            db.Database.EnsureCreated();
+            var ldb = scope.ServiceProvider.GetRequiredService<LocalSchemaDbContext>();
+            LocalMigrationRunner.ApplyMigrations(ldb);
+
+            var pdb = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
+            pdb.Database.EnsureCreated();
 
             var repo = scope.ServiceProvider.GetRequiredService<PlannerRepository>();
             repo.EnsureNoteOrderBackfillAsync().GetAwaiter().GetResult();
