@@ -16,6 +16,7 @@ public partial class TaskDetailsPage : ContentPage
     private int _order;
     private int _priorityIndex;
     private string _selectedStatus = "NotStarted";
+    private DateTime? _selectedReminderDate;
 
     public TaskDetailsPage(DailyViewModel viewModel, TaskItem? task = null)
     {
@@ -78,6 +79,23 @@ public partial class TaskDetailsPage : ContentPage
         StatusBorderCompleted.Stroke = _selectedStatus == "Completed" ? accent : line;
         StatusBorderForwarded.Stroke = _selectedStatus == "Forwarded" ? accent : line;
         StatusBorderDeleted.Stroke = _selectedStatus == "Deleted" ? accent : line;
+
+        bool showReminderDate = _selectedStatus == "Forwarded";
+        ReminderDatePickerHost.IsVisible = showReminderDate;
+
+        if (!showReminderDate)
+        {
+            _selectedReminderDate = null;
+        }
+        else if (_selectedReminderDate.HasValue)
+        {
+            ReminderDatePicker.Date = _selectedReminderDate.Value;
+        }
+    }
+
+    void OnForwardedDateSelected(object sender, DateChangedEventArgs e)
+    {
+        _selectedReminderDate = e.NewDate;
     }
 
     void OnOrderDown(object sender, EventArgs e)

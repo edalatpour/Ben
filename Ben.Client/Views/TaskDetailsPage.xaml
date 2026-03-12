@@ -249,7 +249,7 @@
                                        HeightRequest="24"
                                        WidthRequest="24"
                                        HorizontalOptions="Center"/>
-                                <Label Text="Forwarded"
+                                <Label Text="Forward To"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
                                        TextColor="{StaticResource Ink}"/>
@@ -260,23 +260,22 @@
                             </Border.GestureRecognizers>
                         </Border>
 
-                        <StackLayout Grid.Row="5"
-                                     Grid.Column="1"
-                                     Grid.ColumnSpan="2"
-                                     Orientation="Horizontal"
-                                     Spacing="16"
-                                     VerticalOptions="Center">
-                            <Label Text="To:"
-                                   Style="{StaticResource SectionTitle}"
-                                   VerticalTextAlignment="Center"/>
+                        <Grid Grid.Row="5"
+                              Grid.Column="1"
+                              Grid.ColumnSpan="2"
+                              x:Name="ReminderDatePickerHost"
+                              IsVisible="False"
+                              HorizontalOptions="Fill">
                             <DatePicker x:Name="ReminderDatePicker"
                                         Format="d"
+                                        DateSelected="OnForwardedDateSelected"
                                         TextColor="{StaticResource Ink}"
                                         FontSize="18"
                                         HeightRequest="46"
-                                        HorizontalOptions="FillAndExpand"
+                                        WidthRequest="{Binding Source={x:Reference ReminderDatePickerHost}, Path=Width}"
+                                        HorizontalOptions="Fill"
                                         VerticalOptions="Center"/>
-                        </StackLayout>
+                        </Grid>
 
                         <Border x:Name="StatusBorderDeleted"
                                 Grid.Row="6"
@@ -291,7 +290,7 @@
                                        HeightRequest="24"
                                        WidthRequest="24"
                                        HorizontalOptions="Center"/>
-                                <Label Text="Deleted"
+                                <Label Text="Delete"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
                                        TextColor="{StaticResource Ink}"/>
