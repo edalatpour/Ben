@@ -8,6 +8,8 @@
           RowDefinitions="Auto,Auto,*"
           RowSpacing="8">
 
+        <!-- Date Header -->
+
         <VerticalStackLayout Spacing="0"
                              HorizontalOptions="End"
                              VerticalOptions="Start">
@@ -22,6 +24,8 @@
                    HorizontalTextAlignment="End"/>
         </VerticalStackLayout>
 
+        <!-- Section Titles -->
+
         <Grid Grid.Row="1"
               ColumnDefinitions="*"
               ColumnSpacing="10"
@@ -34,11 +38,12 @@
 
         <Grid Grid.Row="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="3"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="1"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
