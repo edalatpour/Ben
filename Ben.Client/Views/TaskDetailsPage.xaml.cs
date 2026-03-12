@@ -16,7 +16,7 @@ public partial class TaskDetailsPage : ContentPage
     private int _order;
     private int _priorityIndex;
     private string _selectedStatus = "NotStarted";
-    private DateTime? _selectedReminderDate;
+    private DateTime? _selectedForwardedDate;
 
     public TaskDetailsPage(DailyViewModel viewModel, TaskItem? task = null)
     {
@@ -80,22 +80,30 @@ public partial class TaskDetailsPage : ContentPage
         StatusBorderForwarded.Stroke = _selectedStatus == "Forwarded" ? accent : line;
         StatusBorderDeleted.Stroke = _selectedStatus == "Deleted" ? accent : line;
 
-        bool showReminderDate = _selectedStatus == "Forwarded";
-        ReminderDatePickerHost.IsVisible = showReminderDate;
+        bool showForwardedDate = _selectedStatus == "Forwarded";
+        ForwardedDatePickerHost.IsVisible = showForwardedDate;
 
-        if (!showReminderDate)
+        if (!showForwardedDate)
         {
-            _selectedReminderDate = null;
+            _selectedForwardedDate = null;
         }
-        else if (_selectedReminderDate.HasValue)
+        else
         {
-            ReminderDatePicker.Date = _selectedReminderDate.Value;
+            if (!_selectedForwardedDate.HasValue)
+            {
+                DateTime taskKey = _task.Key != default ? _task.Key.Date : DateTime.Today;
+                _selectedForwardedDate = taskKey < DateTime.Today.Date
+                    ? DateTime.Today
+                    : taskKey.AddDays(1);
+            }
+
+            ForwardedDatePicker.Date = _selectedForwardedDate.Value;
         }
     }
 
     void OnForwardedDateSelected(object sender, DateChangedEventArgs e)
     {
-        _selectedReminderDate = e.NewDate;
+        _selectedForwardedDate = e.NewDate;
     }
 
     void OnOrderDown(object sender, EventArgs e)
@@ -145,6 +153,16 @@ public partial class TaskDetailsPage : ContentPage
             return;
         }
 
+        if (_selectedStatus == "Forwarded")
+        {
+            DateTime forwardDate = _selectedForwardedDate.HasValue ? _selectedForwardedDate.Value : DateTime.Today;
+            if (forwardDate.Date == _task.Key.Date)
+            {
+                await DisplayAlertAsync("Validation", "Please select a different date to forward this task to.", "OK");
+                return;
+            }
+        }
+
         string selectedPriority = PriorityValues[_priorityIndex];
         _order = Math.Clamp(_order, _minOrder, _maxOrder);
 
@@ -159,6 +177,12 @@ public partial class TaskDetailsPage : ContentPage
         else
         {
             await _viewModel.UpdateTaskFromDetailsAsync(_task, title, _selectedStatus, selectedPriority, _order);
+        }
+
+        if (_selectedStatus == "Forwarded")
+        {
+            DateTime forwardDate = _selectedForwardedDate.HasValue ? _selectedForwardedDate.Value : DateTime.Today;
+            await _viewModel.CreateForwardedTaskAsync(_task, forwardDate);
         }
 
         await Navigation.PopModalAsync();

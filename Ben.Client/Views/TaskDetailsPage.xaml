@@ -263,16 +263,16 @@
                         <Grid Grid.Row="5"
                               Grid.Column="1"
                               Grid.ColumnSpan="2"
-                              x:Name="ReminderDatePickerHost"
+                              x:Name="ForwardedDatePickerHost"
                               IsVisible="False"
                               HorizontalOptions="Fill">
-                            <DatePicker x:Name="ReminderDatePicker"
+                            <DatePicker x:Name="ForwardedDatePicker"
                                         Format="d"
                                         DateSelected="OnForwardedDateSelected"
                                         TextColor="{StaticResource Ink}"
                                         FontSize="18"
                                         HeightRequest="46"
-                                        WidthRequest="{Binding Source={x:Reference ReminderDatePickerHost}, Path=Width}"
+                                        WidthRequest="{Binding Source={x:Reference ForwardedDatePickerHost}, Path=Width}"
                                         HorizontalOptions="Fill"
                                         VerticalOptions="Center"/>
                         </Grid>

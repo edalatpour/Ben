@@ -311,6 +311,28 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
+    public async Task CreateForwardedTaskAsync(TaskItem originalTask, DateTime forwardToDate)
+    {
+        if (originalTask == null)
+        {
+            return;
+        }
+
+        var forwardedTask = new TaskItem
+        {
+            Title = originalTask.Title,
+            Key = forwardToDate.Date,
+            Status = "NotStarted",
+            Priority = "A",
+            Order = 1,
+            ParentTaskId = originalTask.Id,
+            OriginalTaskId = originalTask.OriginalTaskId ?? originalTask.Id
+        };
+
+        await _repo.AddTaskAsync(forwardedTask);
+        await UpdateStatus();
+    }
+
     public async Task ReorderTaskAsync(TaskItem source, TaskItem target)
     {
         if (source == null || target == null)
