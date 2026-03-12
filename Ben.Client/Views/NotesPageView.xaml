@@ -74,6 +74,7 @@
                                           VerticalOptions="Start">
                                         <Label Grid.Column="0"
                                                Text="{Binding Order}"
+                                               Margin="0,3,0,0"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Start"
                                                LineHeight="1"
@@ -85,6 +86,7 @@
                                                  VerticalOptions="Fill"/>
                                         <Label Grid.Column="2"
                                                Text="{Binding Text}"
+                                               Margin="0,3,0,0"
                                                LineBreakMode="WordWrap"
                                                HorizontalTextAlignment="Start"
                                                VerticalTextAlignment="Start"

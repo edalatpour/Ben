@@ -49,6 +49,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="46"/>
                             <RowDefinition Height="46"/>
                             <RowDefinition Height="46"/>
@@ -70,24 +71,36 @@
                                FontSize="24"
                                TextColor="{StaticResource Ink}"/>
 
-                        <Label Grid.Row="1"
+                        <Grid x:Name="ParentTaskDateRow"
+                              Grid.Row="1"
+                              Grid.Column="0"
+                              Grid.ColumnSpan="3"
+                              IsVisible="False">
+                            <Label x:Name="ParentTaskDateLabel"
+                                   Style="{StaticResource Handwriting}"
+                                   FontSize="16"
+                                   LineBreakMode="WordWrap"
+                                   TextColor="{StaticResource Accent}"/>
+                        </Grid>
+
+                        <Label Grid.Row="2"
                                Grid.Column="0"
                                Text="Status"
                                Style="{StaticResource SectionTitle}"
                                HorizontalTextAlignment="Start"/>
-                        <Label Grid.Row="1"
+                        <Label Grid.Row="2"
                                Grid.Column="1"
                                Text="Priority"
                                Style="{StaticResource SectionTitle}"
                                HorizontalTextAlignment="Start"/>
-                        <Label Grid.Row="1"
+                        <Label Grid.Row="2"
                                Grid.Column="2"
                                Text="Order"
                                Style="{StaticResource SectionTitle}"
                                HorizontalTextAlignment="Start"/>
 
                         <Border x:Name="StatusBorderNotStarted"
-                                Grid.Row="2"
+                                Grid.Row="3"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
                                 Stroke="{StaticResource Line}"
@@ -110,7 +123,7 @@
                             </Border.GestureRecognizers>
                         </Border>
 
-                        <Border Grid.Row="2"
+                        <Border Grid.Row="3"
                                 Grid.Column="1"
                                 Grid.RowSpan="3"
                                 VerticalOptions="Fill"
@@ -149,7 +162,7 @@
                             </VerticalStackLayout>
                         </Border>
 
-                        <Border Grid.Row="2"
+                        <Border Grid.Row="3"
                                 Grid.Column="2"
                                 Grid.RowSpan="3"
                                 VerticalOptions="Fill"
@@ -189,7 +202,7 @@
                         </Border>
 
                         <Border x:Name="StatusBorderInProgress"
-                                Grid.Row="3"
+                                Grid.Row="4"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
                                 Stroke="{StaticResource Line}"
@@ -213,7 +226,7 @@
                         </Border>
 
                         <Border x:Name="StatusBorderCompleted"
-                                Grid.Row="4"
+                                Grid.Row="5"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
                                 Stroke="{StaticResource Line}"
@@ -237,7 +250,7 @@
                         </Border>
 
                         <Border x:Name="StatusBorderForwarded"
-                                Grid.Row="5"
+                                Grid.Row="6"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
                                 Stroke="{StaticResource Line}"
@@ -260,7 +273,7 @@
                             </Border.GestureRecognizers>
                         </Border>
 
-                        <Grid Grid.Row="5"
+                        <Grid Grid.Row="6"
                               Grid.Column="1"
                               Grid.ColumnSpan="2"
                               x:Name="ForwardedDatePickerHost"
@@ -278,7 +291,7 @@
                         </Grid>
 
                         <Border x:Name="StatusBorderDeleted"
-                                Grid.Row="6"
+                                Grid.Row="7"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
                                 Stroke="{StaticResource Line}"

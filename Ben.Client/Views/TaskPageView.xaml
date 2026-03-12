@@ -100,7 +100,7 @@
                                                  WidthRequest="1"
                                                  BackgroundColor="{StaticResource Line}"/>
                                         <Label Grid.Column="2"
-                                               Margin="0,0,0,0"
+                                               Margin="0,3,0,0"
                                                Padding="0"
                                                Text="{Binding PriorityOrder}"
                                                HorizontalTextAlignment="Center"
@@ -111,9 +111,9 @@
                                                  WidthRequest="1"
                                                  BackgroundColor="{StaticResource Line}"/>
                                         <Label Grid.Column="4"
-                                               Margin="0"
+                                               Margin="0,3,0,0"
                                                Padding="0"
-                                               Text="{Binding Title}"
+                                               Text="{Binding TitleWithForwardedDate}"
                                                LineBreakMode="WordWrap"
                                                HorizontalTextAlignment="Start"
                                                VerticalTextAlignment="Start"

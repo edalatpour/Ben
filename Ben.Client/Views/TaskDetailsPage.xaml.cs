@@ -42,6 +42,7 @@ public partial class TaskDetailsPage : ContentPage
 
         // Populate form fields
         TitleEntry.Text = _task.Title;
+        _ = InitializeParentTaskDateAsync();
 
         _selectedStatus = Array.IndexOf(StatusValues, _task.Status) >= 0 ? _task.Status : "NotStarted";
         UpdateStatusSelection();
@@ -56,6 +57,52 @@ public partial class TaskDetailsPage : ContentPage
 
         _order = _task.Order > 0 ? _task.Order : 1;
         RefreshOrderForPriority();
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // DispatchDelayed ensures the modal transition is complete before
+        // requesting focus, which is required on iOS for the keyboard to appear.
+        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), () =>
+        {
+            TitleEntry.Focus();
+            if (!_isNewTask && TitleEntry.Text?.Length > 0)
+            {
+                TitleEntry.CursorPosition = TitleEntry.Text.Length;
+                TitleEntry.SelectionLength = 0;
+            }
+        });
+    }
+
+    async Task InitializeParentTaskDateAsync()
+    {
+        ParentTaskDateRow.IsVisible = false;
+        ParentTaskDateLabel.Text = string.Empty;
+
+        if (_isNewTask || string.IsNullOrWhiteSpace(_task.ParentTaskId))
+        {
+            return;
+        }
+
+        DateTime? parentKey = await _viewModel.GetTaskKeyByIdAsync(_task.ParentTaskId);
+        string parentDateText = parentKey.HasValue
+            ? $"Forwarded from {parentKey.Value:M/d}."
+            : "Forwarded.";
+
+        if (!string.IsNullOrWhiteSpace(_task.OriginalTaskId)
+            && _task.OriginalTaskId != _task.ParentTaskId)
+        {
+            DateTime? originalKey = await _viewModel.GetTaskKeyByIdAsync(_task.OriginalTaskId);
+            if (originalKey.HasValue)
+            {
+                parentDateText += $" Originally created on {originalKey.Value:M/d}.";
+            }
+        }
+
+        ParentTaskDateLabel.Text = parentDateText;
+        ParentTaskDateRow.IsVisible = true;
     }
 
     void OnStatusSelected(object sender, TappedEventArgs e)

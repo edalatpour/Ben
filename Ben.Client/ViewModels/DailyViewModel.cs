@@ -258,6 +258,11 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
+    public Task<DateTime?> GetTaskKeyByIdAsync(string taskId)
+    {
+        return _repo.GetTaskKeyByIdAsync(taskId);
+    }
+
     static string NormalizeTaskTitle(string text)
     {
         if (string.IsNullOrEmpty(text))

@@ -121,7 +121,46 @@ public class TaskItem : INotifyPropertyChanged
     public string Title
     {
         get => _title;
-        set => SetField(ref _title, value);
+        set
+        {
+            if (SetField(ref _title, value))
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TitleWithForwardedDate)));
+            }
+        }
+    }
+
+    [NotMapped]
+    [JsonIgnore]
+    public string? ForwardedFromDate
+    {
+        get => _forwardedFromDate;
+        set
+        {
+            if (SetField(ref _forwardedFromDate, value))
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasForwardedFromDate)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TitleWithForwardedDate)));
+            }
+        }
+    }
+
+    [NotMapped]
+    [JsonIgnore]
+    public bool HasForwardedFromDate => !string.IsNullOrWhiteSpace(_forwardedFromDate);
+
+    [NotMapped]
+    [JsonIgnore]
+    public string TitleWithForwardedDate => string.IsNullOrWhiteSpace(_forwardedFromDate)
+        ? _title
+        : string.Concat(_title, " ", _forwardedFromDate);
+
+    [NotMapped]
+    [JsonIgnore]
+    public string? ParentTaskDate
+    {
+        get => _parentTaskDate;
+        set => SetField(ref _parentTaskDate, value);
     }
 
     public string? ParentTaskId { get; set; } = null;
@@ -137,6 +176,8 @@ public class TaskItem : INotifyPropertyChanged
     string _priority = string.Empty;
     int _order;
     string _title = string.Empty;
+    string? _forwardedFromDate;
+    string? _parentTaskDate;
     public event PropertyChangedEventHandler? PropertyChanged;
 
     bool SetField<T>(ref T field, T value, [CallerMemberName] string? name = null)
