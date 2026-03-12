@@ -8,6 +8,7 @@
 
         <ScrollView>
             <Grid Padding="16"
+                  HorizontalOptions="Fill"
                   RowDefinitions="Auto,*,Auto"
                   RowSpacing="12">
 
@@ -36,23 +37,17 @@
 
                     <Grid Grid.Row="1"
                           Grid.Column="1"
+                          HorizontalOptions="Fill"
                           BackgroundColor="{StaticResource WritingPaper}"
                           Padding="16"
                           RowDefinitions="Auto,Auto"
                           RowSpacing="12">
-
-                        <Border Grid.Row="0"
-                                BackgroundColor="{StaticResource WritingPaper}"
-                                Stroke="{StaticResource Line}"
-                                StrokeShape="RoundRectangle 10"
-                                Padding="12,8">
-                            <Entry x:Name="TitleEntry"
-                                   Placeholder=""
-                                   Style="{StaticResource Handwriting}"
-                                   FontSize="24"
-                                   BackgroundColor="Transparent"
-                                   TextColor="{StaticResource Ink}"/>
-                        </Border>
+                        <Entry Grid.Row="0"
+                               x:Name="TitleEntry"
+                               Placeholder=""
+                               Style="{StaticResource Handwriting}"
+                               FontSize="24"
+                               TextColor="{StaticResource Ink}"/>
 
                         <Grid Grid.Row="1"
                               ColumnDefinitions="2.4*,1*,1*"
@@ -270,22 +265,20 @@
                                 </Border>
                             </VerticalStackLayout>
 
-                            <Border Grid.Row="1"
-                                    Grid.Column="2"
-                                    BackgroundColor="{StaticResource WritingPaper}"
-                                    Stroke="{StaticResource Line}"
-                                    StrokeShape="RoundRectangle 4"
-                                    HeightRequest="46"
-                                    Padding="10,4"
-                                    HorizontalOptions="Fill"
-                                    VerticalOptions="Center">
+                            <Grid Grid.Row="1"
+                                  Grid.Column="1"
+                                  Grid.ColumnSpan="2"
+                                  x:Name="TaskDatePickerHost"
+                                  HorizontalOptions="Fill">
                                 <DatePicker x:Name="TaskDatePicker"
+                                            Format="d"
                                             TextColor="{StaticResource Ink}"
-                                            BackgroundColor="Transparent"
                                             FontSize="18"
+                                            HeightRequest="46"
+                                            WidthRequest="{Binding Source={x:Reference TaskDatePickerHost}, Path=Width}"
                                             HorizontalOptions="Fill"
                                             VerticalOptions="Center"/>
-                            </Border>
+                            </Grid>
                         </Grid>
                     </Grid>
 
