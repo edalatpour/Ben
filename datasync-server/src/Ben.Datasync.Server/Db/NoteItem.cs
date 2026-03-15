@@ -14,7 +14,8 @@ namespace Ben.Datasync.Server
         [JsonIgnore]
         public string UserId { get; set; } = string.Empty;
 
-        public DateTime Key { get; set; }
+        [Required, MaxLength(128)]
+        public string Key { get; set; } = string.Empty;
 
         public int Order { get; set; }
 

@@ -11,15 +11,20 @@
         <!-- Date Header -->
 
         <VerticalStackLayout Spacing="0"
-                             HorizontalOptions="Start"
+                             HorizontalOptions="Fill"
                              VerticalOptions="Start">
-            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dd}'}"
+            <Label Text="{Binding HeaderPrimaryText}"
                    Style="{StaticResource DateNumber}"
+                   LineBreakMode="TailTruncation"
+                   MaxLines="1"
+                   HorizontalOptions="Fill"
                    HorizontalTextAlignment="Start"/>
-            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:dddd}'}"
+            <Label Text="{Binding HeaderSecondaryText}"
+                   IsVisible="{Binding ShowDateHeaderDetails}"
                    Style="{StaticResource DateText}"
                    HorizontalTextAlignment="Start"/>
-            <Label Text="{Binding CurrentDay.Key, StringFormat='{0:MMMM yyyy}'}"
+            <Label Text="{Binding HeaderTertiaryText}"
+                   IsVisible="{Binding ShowDateHeaderDetails}"
                    Style="{StaticResource DateText}"
                    HorizontalTextAlignment="Start"/>
         </VerticalStackLayout>

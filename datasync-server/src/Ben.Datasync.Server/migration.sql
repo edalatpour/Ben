@@ -1,6 +1,24 @@
-﻿IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+﻿-- ============================================================
+-- Ben.Datasync.Server — idempotent migration script
+--
+-- Safe to run in any state:
+--   • Fresh empty database (no tables yet)
+--   • Existing database created by EnsureCreated (no __EFMigrationsHistory)
+--   • Partially-migrated database (some history rows already present)
+--   • Fully-migrated database (safe no-op)
+--
+-- Run this script against the live database whenever the server
+-- cannot apply migrations automatically on startup (e.g., the
+-- first time switching from EnsureCreated to MigrateAsync).
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- Ensure migrations history table exists
+-- ------------------------------------------------------------
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
-    CREATE TABLE [__EFMigrationsHistory] (
+    CREATE TABLE [__EFMigrationsHistory]
+    (
         [MigrationId] nvarchar(150) NOT NULL,
         [ProductVersion] nvarchar(32) NOT NULL,
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
@@ -8,35 +26,248 @@ BEGIN
 END;
 GO
 
-BEGIN TRANSACTION;
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260312004643_Baseline', N'10.0.3');
-
-COMMIT;
+-- ============================================================
+-- 20260312004643_Baseline
+-- (empty migration — schema was already created by EnsureCreated)
+-- ============================================================
+IF NOT EXISTS (
+    SELECT 1
+FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'20260312004643_Baseline'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory]
+        ([MigrationId], [ProductVersion])
+    VALUES
+        (N'20260312004643_Baseline', N'10.0.3');
+END;
 GO
 
-BEGIN TRANSACTION;
-ALTER TABLE [TaskItems] ADD [OriginalTaskId] nvarchar(450) NULL;
+-- ============================================================
+-- 20260312013726_AddTaskForwardingLineage
+-- ============================================================
 
-ALTER TABLE [TaskItems] ADD [ParentTaskId] nvarchar(450) NULL;
+-- Columns
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.columns
+WHERE object_id = OBJECT_ID(N'[TaskItems]') AND name = N'OriginalTaskId'
+)
+BEGIN
+    ALTER TABLE [TaskItems] ADD [OriginalTaskId] nvarchar(450) NULL;
+END;
+GO
 
-ALTER TABLE [TaskItems] ADD [TaskItemId] nvarchar(450) NULL;
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.columns
+WHERE object_id = OBJECT_ID(N'[TaskItems]') AND name = N'ParentTaskId'
+)
+BEGIN
+    ALTER TABLE [TaskItems] ADD [ParentTaskId] nvarchar(450) NULL;
+END;
+GO
 
-CREATE INDEX [IX_TaskItems_OriginalTaskId] ON [TaskItems] ([OriginalTaskId]);
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.columns
+WHERE object_id = OBJECT_ID(N'[TaskItems]') AND name = N'TaskItemId'
+)
+BEGIN
+    ALTER TABLE [TaskItems] ADD [TaskItemId] nvarchar(450) NULL;
+END;
+GO
 
-CREATE INDEX [IX_TaskItems_ParentTaskId] ON [TaskItems] ([ParentTaskId]);
+-- Indexes
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[TaskItems]') AND name = N'IX_TaskItems_OriginalTaskId'
+)
+BEGIN
+    CREATE INDEX [IX_TaskItems_OriginalTaskId] ON [TaskItems] ([OriginalTaskId]);
+END;
+GO
 
-CREATE INDEX [IX_TaskItems_TaskItemId] ON [TaskItems] ([TaskItemId]);
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[TaskItems]') AND name = N'IX_TaskItems_ParentTaskId'
+)
+BEGIN
+    CREATE INDEX [IX_TaskItems_ParentTaskId] ON [TaskItems] ([ParentTaskId]);
+END;
+GO
 
-ALTER TABLE [TaskItems] ADD CONSTRAINT [FK_TaskItems_TaskItems_OriginalTaskId] FOREIGN KEY ([OriginalTaskId]) REFERENCES [TaskItems] ([Id]) ON DELETE NO ACTION;
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[TaskItems]') AND name = N'IX_TaskItems_TaskItemId'
+)
+BEGIN
+    CREATE INDEX [IX_TaskItems_TaskItemId] ON [TaskItems] ([TaskItemId]);
+END;
+GO
 
-ALTER TABLE [TaskItems] ADD CONSTRAINT [FK_TaskItems_TaskItems_ParentTaskId] FOREIGN KEY ([ParentTaskId]) REFERENCES [TaskItems] ([Id]) ON DELETE NO ACTION;
+-- Foreign keys
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.foreign_keys
+WHERE object_id = OBJECT_ID(N'[FK_TaskItems_TaskItems_OriginalTaskId]')
+)
+BEGIN
+    ALTER TABLE [TaskItems]
+        ADD CONSTRAINT [FK_TaskItems_TaskItems_OriginalTaskId]
+        FOREIGN KEY ([OriginalTaskId]) REFERENCES [TaskItems] ([Id]) ON DELETE NO ACTION;
+END;
+GO
 
-ALTER TABLE [TaskItems] ADD CONSTRAINT [FK_TaskItems_TaskItems_TaskItemId] FOREIGN KEY ([TaskItemId]) REFERENCES [TaskItems] ([Id]);
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.foreign_keys
+WHERE object_id = OBJECT_ID(N'[FK_TaskItems_TaskItems_ParentTaskId]')
+)
+BEGIN
+    ALTER TABLE [TaskItems]
+        ADD CONSTRAINT [FK_TaskItems_TaskItems_ParentTaskId]
+        FOREIGN KEY ([ParentTaskId]) REFERENCES [TaskItems] ([Id]) ON DELETE NO ACTION;
+END;
+GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260312013726_AddTaskForwardingLineage', N'10.0.3');
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.foreign_keys
+WHERE object_id = OBJECT_ID(N'[FK_TaskItems_TaskItems_TaskItemId]')
+)
+BEGIN
+    ALTER TABLE [TaskItems]
+        ADD CONSTRAINT [FK_TaskItems_TaskItems_TaskItemId]
+        FOREIGN KEY ([TaskItemId]) REFERENCES [TaskItems] ([Id]);
+END;
+GO
 
-COMMIT;
+-- History entry
+IF NOT EXISTS (
+    SELECT 1
+FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'20260312013726_AddTaskForwardingLineage'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory]
+        ([MigrationId], [ProductVersion])
+    VALUES
+        (N'20260312013726_AddTaskForwardingLineage', N'10.0.3');
+END;
+GO
+
+-- ============================================================
+-- 20260314120000_ConvertKeysToStringConvention
+-- ============================================================
+
+-- Drop Key indexes before altering column type (SQL Server requires this).
+-- They are recreated below after the ALTER.
+IF EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[TaskItems]') AND name = N'IX_TaskItems_Key'
+)
+BEGIN
+    DROP INDEX [IX_TaskItems_Key] ON [TaskItems];
+END;
+GO
+
+IF EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[NoteItems]') AND name = N'IX_NoteItems_Key'
+)
+BEGIN
+    DROP INDEX [IX_NoteItems_Key] ON [NoteItems];
+END;
+GO
+
+-- Alter column type only if it is still datetime2
+IF EXISTS (
+    SELECT 1
+FROM sys.columns c
+    INNER JOIN sys.types t ON c.system_type_id = t.system_type_id
+WHERE c.object_id = OBJECT_ID(N'[TaskItems]') AND c.name = N'Key' AND t.name = N'datetime2'
+)
+BEGIN
+    ALTER TABLE [TaskItems] ALTER COLUMN [Key] nvarchar(128) NOT NULL;
+END;
+GO
+
+IF EXISTS (
+    SELECT 1
+FROM sys.columns c
+    INNER JOIN sys.types t ON c.system_type_id = t.system_type_id
+WHERE c.object_id = OBJECT_ID(N'[NoteItems]') AND c.name = N'Key' AND t.name = N'datetime2'
+)
+BEGIN
+    ALTER TABLE [NoteItems] ALTER COLUMN [Key] nvarchar(128) NOT NULL;
+END;
+GO
+
+-- Normalize any rows not yet using the date:/project: prefix
+UPDATE [TaskItems]
+SET [Key] =
+    CASE
+        WHEN TRY_CONVERT(datetime2, [Key]) IS NOT NULL
+            THEN 'date:' + CONVERT(varchar(10), TRY_CONVERT(datetime2, [Key]), 23)
+        WHEN [Key] LIKE '____-__-__%'
+            THEN 'date:' + LEFT([Key], 10)
+        ELSE
+            'date:' + CONVERT(varchar(10), SYSUTCDATETIME(), 23)
+    END
+WHERE [Key] NOT LIKE 'date:%' AND [Key] NOT LIKE 'project:%';
+GO
+
+UPDATE [NoteItems]
+SET [Key] =
+    CASE
+        WHEN TRY_CONVERT(datetime2, [Key]) IS NOT NULL
+            THEN 'date:' + CONVERT(varchar(10), TRY_CONVERT(datetime2, [Key]), 23)
+        WHEN [Key] LIKE '____-__-__%'
+            THEN 'date:' + LEFT([Key], 10)
+        ELSE
+            'date:' + CONVERT(varchar(10), SYSUTCDATETIME(), 23)
+    END
+WHERE [Key] NOT LIKE 'date:%' AND [Key] NOT LIKE 'project:%';
+GO
+
+-- Recreate Key indexes
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[TaskItems]') AND name = N'IX_TaskItems_Key'
+)
+BEGIN
+    CREATE INDEX [IX_TaskItems_Key] ON [TaskItems] ([Key]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[NoteItems]') AND name = N'IX_NoteItems_Key'
+)
+BEGIN
+    CREATE INDEX [IX_NoteItems_Key] ON [NoteItems] ([Key]);
+END;
+GO
+
+-- History entry
+IF NOT EXISTS (
+    SELECT 1
+FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'20260314120000_ConvertKeysToStringConvention'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory]
+        ([MigrationId], [ProductVersion])
+    VALUES
+        (N'20260314120000_ConvertKeysToStringConvention', N'10.0.3');
+END;
 GO
 

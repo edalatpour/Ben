@@ -1,6 +1,7 @@
 namespace Ben.Views;
 
 using Ben.Models;
+using Ben.Services;
 using Ben.ViewModels;
 
 public partial class TaskDetailsPage : ContentPage
@@ -28,7 +29,7 @@ public partial class TaskDetailsPage : ContentPage
             _isNewTask = true;
             _task = new TaskItem
             {
-                Key = viewModel.CurrentDay?.Key ?? DateTime.Today,
+                Key = viewModel.CurrentDay?.Key ?? KeyConvention.ToDateKey(DateTime.Today),
                 Status = "NotStarted",
                 Priority = "A",
                 Order = 1
@@ -86,18 +87,20 @@ public partial class TaskDetailsPage : ContentPage
             return;
         }
 
-        DateTime? parentKey = await _viewModel.GetTaskKeyByIdAsync(_task.ParentTaskId);
-        string parentDateText = parentKey.HasValue
-            ? $"Forwarded from {parentKey.Value:M/d}."
+        string? parentKey = await _viewModel.GetTaskKeyByIdAsync(_task.ParentTaskId);
+        string parentDateValue = KeyConvention.ToShortDateDisplay(parentKey);
+        string parentDateText = !string.IsNullOrWhiteSpace(parentDateValue)
+            ? $"Forwarded from {parentDateValue}."
             : "Forwarded.";
 
         if (!string.IsNullOrWhiteSpace(_task.OriginalTaskId)
             && _task.OriginalTaskId != _task.ParentTaskId)
         {
-            DateTime? originalKey = await _viewModel.GetTaskKeyByIdAsync(_task.OriginalTaskId);
-            if (originalKey.HasValue)
+            string? originalKey = await _viewModel.GetTaskKeyByIdAsync(_task.OriginalTaskId);
+            string originalDateValue = KeyConvention.ToShortDateDisplay(originalKey);
+            if (!string.IsNullOrWhiteSpace(originalDateValue))
             {
-                parentDateText += $" Originally created on {originalKey.Value:M/d}.";
+                parentDateText += $" Originally created on {originalDateValue}.";
             }
         }
 
@@ -138,7 +141,9 @@ public partial class TaskDetailsPage : ContentPage
         {
             if (!_selectedForwardedDate.HasValue)
             {
-                DateTime taskKey = _task.Key != default ? _task.Key.Date : DateTime.Today;
+                DateTime taskKey = KeyConvention.TryParseDateKey(_task.Key, out DateTime parsedDate)
+                    ? parsedDate
+                    : DateTime.Today;
                 _selectedForwardedDate = taskKey < DateTime.Today.Date
                     ? DateTime.Today
                     : taskKey.AddDays(1);
@@ -203,7 +208,7 @@ public partial class TaskDetailsPage : ContentPage
         if (_selectedStatus == "Forwarded")
         {
             DateTime forwardDate = _selectedForwardedDate.HasValue ? _selectedForwardedDate.Value : DateTime.Today;
-            if (forwardDate.Date == _task.Key.Date)
+            if (string.Equals(KeyConvention.ToDateKey(forwardDate), KeyConvention.NormalizeDateOrFallback(_task.Key, DateTime.Today), StringComparison.Ordinal))
             {
                 await DisplayAlertAsync("Validation", "Please select a different date to forward this task to.", "OK");
                 return;
@@ -243,7 +248,9 @@ public partial class TaskDetailsPage : ContentPage
     void RefreshOrderForPriority()
     {
         string selectedPriority = PriorityValues[_priorityIndex];
-        DateTime key = _task.Key != default ? _task.Key : _viewModel.CurrentDay?.Key ?? DateTime.Today;
+        string key = !string.IsNullOrWhiteSpace(_task.Key)
+            ? _task.Key
+            : _viewModel.CurrentDay?.Key ?? KeyConvention.ToDateKey(DateTime.Today);
         (int min, int max) = _viewModel.GetTaskOrderRange(key, selectedPriority, _isNewTask ? null : _task);
 
         _minOrder = min;

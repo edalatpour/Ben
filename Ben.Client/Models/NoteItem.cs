@@ -2,6 +2,8 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
+#nullable enable
+
 namespace Ben.Models;
 
 public class NoteItem : INotifyPropertyChanged
@@ -31,7 +33,7 @@ public class NoteItem : INotifyPropertyChanged
         set => SetField(ref _deleted, value);
     }
 
-    public DateTime Key
+    public string Key
     {
         get => _key;
         set => SetField(ref _key, value);
@@ -53,12 +55,12 @@ public class NoteItem : INotifyPropertyChanged
     DateTimeOffset? _updatedAt;
     string? _version;
     bool _deleted;
-    DateTime _key;
-    string _text;
+    string _key = string.Empty;
+    string _text = string.Empty;
     int _order;
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-    void SetField<T>(ref T field, T value, [CallerMemberName] string name = null)
+    void SetField<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {
         if (Equals(field, value))
         {

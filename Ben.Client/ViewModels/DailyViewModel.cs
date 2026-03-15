@@ -12,11 +12,13 @@ using Ben.Models;
 using Ben.Services;
 using Ben.Views;
 
+#nullable enable
+
 namespace Ben.ViewModels;
 
 public class DailyViewModel : INotifyPropertyChanged
 {
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private readonly PlannerRepository _repo;
     private readonly AuthenticationService _authService;
@@ -44,23 +46,23 @@ public class DailyViewModel : INotifyPropertyChanged
         _ = UpdateStatus();
     }
 
-    private void OnConnectivityChanged(object sender, ConnectivityChangedEventArgs e)
+    private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
     {
         _ = UpdateStatus();
     }
 
-    private void OnAuthenticationStateChanged(object sender, EventArgs e)
+    private void OnAuthenticationStateChanged(object? sender, EventArgs e)
     {
         _ = UpdateStatus();
     }
 
-    private void OnSyncStarted(object sender, EventArgs e)
+    private void OnSyncStarted(object? sender, EventArgs e)
     {
         _isSyncing = true;
         _ = UpdateStatus();
     }
 
-    private void OnSyncCompleted(object sender, EventArgs e)
+    private void OnSyncCompleted(object? sender, EventArgs e)
     {
         _isSyncing = false;
         _ = UpdateStatus();
@@ -155,12 +157,47 @@ public class DailyViewModel : INotifyPropertyChanged
         }
     }
 
-    DailyData _currentDay;
+    DailyData _currentDay = new() { Key = KeyConvention.ToDateKey(DateTime.Today), Date = DateTime.Today };
     public DailyData CurrentDay
     {
         get => _currentDay;
-        set { _currentDay = value; OnPropertyChanged(); }
+        set
+        {
+            _currentDay = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsProjectPage));
+            OnPropertyChanged(nameof(HeaderPrimaryText));
+            OnPropertyChanged(nameof(HeaderSecondaryText));
+            OnPropertyChanged(nameof(HeaderTertiaryText));
+            OnPropertyChanged(nameof(ShowDateHeaderDetails));
+        }
     }
+
+    public bool IsProjectPage => KeyConvention.IsProjectKey(CurrentDay?.Key);
+
+    public string HeaderPrimaryText
+    {
+        get
+        {
+            if (CurrentDay == null)
+            {
+                return string.Empty;
+            }
+
+            if (KeyConvention.TryGetProjectName(CurrentDay.Key, out string projectName))
+            {
+                return projectName;
+            }
+
+            return CurrentDate.ToString("dd");
+        }
+    }
+
+    public string HeaderSecondaryText => IsProjectPage ? string.Empty : CurrentDate.ToString("dddd");
+
+    public string HeaderTertiaryText => IsProjectPage ? string.Empty : CurrentDate.ToString("MMMM yyyy");
+
+    public bool ShowDateHeaderDetails => !IsProjectPage;
 
     DateTime _currentDate;
     public DateTime CurrentDate
@@ -188,8 +225,17 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task LoadDay(DateTime key)
     {
-        CurrentDate = key;
-        DailyData day = await _repo.LoadDayAsync(key);
+        await LoadPageAsync(KeyConvention.ToDateKey(key));
+    }
+
+    public async Task LoadPageAsync(string key)
+    {
+        if (KeyConvention.TryParseDateKey(key, out DateTime date))
+        {
+            CurrentDate = date;
+        }
+
+        DailyData day = await _repo.LoadPageAsync(key);
         // day.Tasks.Add(new TaskItem { Status = "I", Priority = "A", Order = 1, Title = "The most important thing" });
         // day.Tasks.Add(new TaskItem { Status = "C", Priority = "A", Order = 2, Title = "Also important" });
         // day.Tasks.Add(new TaskItem { Status = "I", Priority = "A", Order = 1, Title = "The most important thing" });
@@ -258,7 +304,7 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
-    public Task<DateTime?> GetTaskKeyByIdAsync(string taskId)
+    public Task<string?> GetTaskKeyByIdAsync(string taskId)
     {
         return _repo.GetTaskKeyByIdAsync(taskId);
     }
@@ -326,7 +372,7 @@ public class DailyViewModel : INotifyPropertyChanged
         var forwardedTask = new TaskItem
         {
             Title = originalTask.Title,
-            Key = forwardToDate.Date,
+            Key = KeyConvention.ToDateKey(forwardToDate),
             Status = "NotStarted",
             Priority = "A",
             Order = 1,
@@ -480,7 +526,7 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         SubPage = 0;
-        await LoadDay(CurrentDate.AddDays(1));
+        await NavigatePageAsync(1);
     }
 
     public async Task GoBackwardAsync()
@@ -492,10 +538,54 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         SubPage = 1;
-        await LoadDay(CurrentDate.AddDays(-1));
+        await NavigatePageAsync(-1);
     }
 
-    void OnPropertyChanged([CallerMemberName] string name = null)
+    public async Task NavigatePageAsync(int direction)
+    {
+        if (direction == 0)
+        {
+            return;
+        }
+
+        string currentKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
+        if (KeyConvention.TryParseDateKey(currentKey, out DateTime currentDate))
+        {
+            await LoadDay(currentDate.AddDays(direction > 0 ? 1 : -1));
+            return;
+        }
+
+        if (KeyConvention.TryGetProjectName(currentKey, out _))
+        {
+            List<string> projectKeys = await _repo.GetProjectKeysAsync();
+            int currentIndex = projectKeys.FindIndex(key => string.Equals(key, currentKey, StringComparison.OrdinalIgnoreCase));
+
+            if (projectKeys.Count > 0 && currentIndex >= 0)
+            {
+                int targetIndex = currentIndex + (direction > 0 ? 1 : -1);
+                if (targetIndex >= 0 && targetIndex < projectKeys.Count)
+                {
+                    await LoadPageAsync(projectKeys[targetIndex]);
+                    return;
+                }
+
+                if (direction > 0)
+                {
+                    string firstDate = await _repo.GetEarliestNonEmptyDateKeyAsync() ?? KeyConvention.ToDateKey(DateTime.Today);
+                    await LoadPageAsync(firstDate);
+                    return;
+                }
+
+                string latestDate = await _repo.GetLatestNonEmptyDateKeyAsync() ?? KeyConvention.ToDateKey(DateTime.Today);
+                await LoadPageAsync(latestDate);
+                return;
+            }
+        }
+
+        await LoadDay(DateTime.Today);
+    }
+
+    void OnPropertyChanged([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
     public async Task ToggleAuthenticationAsync()
@@ -538,7 +628,7 @@ public class DailyViewModel : INotifyPropertyChanged
             if (success)
             {
                 // Reload current day to show synced data
-                await LoadDay(CurrentDate);
+                await LoadPageAsync(CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate));
             }
         }
         finally
@@ -559,7 +649,7 @@ public class DailyViewModel : INotifyPropertyChanged
         return order;
     }
 
-    public (int Min, int Max) GetTaskOrderRange(DateTime key, string priority, TaskItem? excludeTask = null)
+    public (int Min, int Max) GetTaskOrderRange(string key, string priority, TaskItem? excludeTask)
     {
         if (CurrentDay?.Tasks == null)
         {
@@ -569,15 +659,25 @@ public class DailyViewModel : INotifyPropertyChanged
         string normalizedPriority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
         int samePriorityCount = CurrentDay.Tasks.Count(task =>
             !ReferenceEquals(task, excludeTask)
-            && task.Key.Date == key.Date
+            && string.Equals(task.Key, key, StringComparison.Ordinal)
             && string.Equals(task.Priority, normalizedPriority, StringComparison.OrdinalIgnoreCase));
 
         return (1, Math.Max(1, samePriorityCount + 1));
     }
 
-    public int GetSuggestedTaskOrder(DateTime key, string priority, TaskItem? excludeTask = null)
+    public (int Min, int Max) GetTaskOrderRange(string key, string priority)
+    {
+        return GetTaskOrderRange(key, priority, excludeTask: null);
+    }
+
+    public int GetSuggestedTaskOrder(string key, string priority, TaskItem? excludeTask)
     {
         return GetTaskOrderRange(key, priority, excludeTask).Max;
+    }
+
+    public int GetSuggestedTaskOrder(string key, string priority)
+    {
+        return GetSuggestedTaskOrder(key, priority, excludeTask: null);
     }
 
     async Task UpdateTaskOrderAsync(IEnumerable<TaskItem>? additionallyChanged = null)

@@ -30,8 +30,10 @@ namespace Ben.Datasync.Server.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("Key")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -56,6 +58,8 @@ namespace Ben.Datasync.Server.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Key");
+
                     b.HasIndex("UpdatedAt", "Deleted");
 
                     b.ToTable("NoteItems", t =>
@@ -74,8 +78,10 @@ namespace Ben.Datasync.Server.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("Key")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -116,6 +122,8 @@ namespace Ben.Datasync.Server.Migrations
                         .HasColumnType("rowversion");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Key");
 
                     b.HasIndex("OriginalTaskId");
 

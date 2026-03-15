@@ -19,7 +19,28 @@ namespace Ben.Datasync.Server
 
         public async Task InitializeDatabaseAsync()
         {
-            _ = await Database.EnsureCreatedAsync();
+            // EnsureCreatedAsync creates the full current schema for a brand-new database.
+            // It returns true only when the database (and its tables) were just created.
+            bool isNewDatabase = await Database.EnsureCreatedAsync();
+
+            if (isNewDatabase)
+            {
+                // The schema is already up-to-date via EnsureCreated.
+                // Seed all known migration IDs so MigrateAsync treats them as already applied.
+                foreach (var migrationId in Database.GetMigrations())
+                {
+                    await Database.ExecuteSqlRawAsync(
+                        "INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES ({0}, {1})",
+                        migrationId, "10.0.3");
+                }
+            }
+
+            // Apply any migrations not yet recorded in history:
+            //   - New databases:  all migrations are seeded above; this is a no-op.
+            //   - Existing databases that already have history: applies only pending ones.
+            //   - Existing databases with no history (transition from EnsureCreated):
+            //     run migration.sql against the database first to establish the baseline.
+            await Database.MigrateAsync();
 
             const string datasyncTrigger = @"
             CREATE OR ALTER TRIGGER [dbo].[{0}_datasync] ON [dbo].[{0}] AFTER INSERT, UPDATE AS
@@ -63,10 +84,16 @@ namespace Ben.Datasync.Server
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TaskItem>()
+                .HasIndex(t => t.Key);
+
+            modelBuilder.Entity<TaskItem>()
                 .HasOne(t => t.OriginalTask)
                 .WithMany()
                 .HasForeignKey(t => t.OriginalTaskId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<NoteItem>()
+                .HasIndex(n => n.Key);
 
         }
     }

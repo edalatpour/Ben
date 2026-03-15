@@ -6,7 +6,7 @@ namespace Ben.Data;
 
 public static class LocalMigrationRunner
 {
-    private const int LatestVersion = 2; // Update this as you add migrations
+    private const int LatestVersion = 3; // Update this as you add migrations
 
 
     private static bool TableExists(LocalSchemaDbContext db, string tableName)
@@ -114,6 +114,27 @@ public static class LocalMigrationRunner
             }
 
             version = 2;
+        }
+
+        if (version < 3)
+        {
+            db.Database.ExecuteSqlRaw(@"
+                UPDATE Tasks
+                SET [Key] = 'date:' || COALESCE(strftime('%Y-%m-%d', [Key]), substr([Key], 1, 10))
+                WHERE [Key] IS NOT NULL
+                  AND [Key] NOT LIKE 'date:%'
+                  AND [Key] NOT LIKE 'project:%';
+            ");
+
+            db.Database.ExecuteSqlRaw(@"
+                UPDATE Notes
+                SET [Key] = 'date:' || COALESCE(strftime('%Y-%m-%d', [Key]), substr([Key], 1, 10))
+                WHERE [Key] IS NOT NULL
+                  AND [Key] NOT LIKE 'date:%'
+                  AND [Key] NOT LIKE 'project:%';
+            ");
+
+            version = 3;
         }
 
         // Save final version

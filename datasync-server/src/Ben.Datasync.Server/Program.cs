@@ -76,7 +76,7 @@ app.MapControllers();
 if (openApiEnabled)
 {
     _ = app.MapOpenApi(pattern: "swagger/{documentName}/swagger.json");
-    _ = app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Sample.Datasync.Server v1"));
+    _ = app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Ben.Datasync.Server v1"));
 }
 
 app.Run();

@@ -94,7 +94,7 @@ public partial class DailyHostPage : ContentPage
             {
                 if (ViewModel.CurrentDay != null)
                 {
-                    await ViewModel.LoadDay(ViewModel.CurrentDay.Key.AddDays(-1));
+                    await ViewModel.NavigatePageAsync(-1);
                 }
             }
             else
@@ -123,7 +123,7 @@ public partial class DailyHostPage : ContentPage
             {
                 if (ViewModel.CurrentDay != null)
                 {
-                    await ViewModel.LoadDay(ViewModel.CurrentDay.Key.AddDays(1));
+                    await ViewModel.NavigatePageAsync(1);
                 }
             }
             else

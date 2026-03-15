@@ -17,7 +17,12 @@ public class PlannerRepository
         _syncService = syncService;
     }
 
-    public async Task<DailyData> LoadDayAsync(DateTime key)
+    public Task<DailyData> LoadDayAsync(DateTime key)
+    {
+        return LoadPageAsync(KeyConvention.ToDateKey(key));
+    }
+
+    public async Task<DailyData> LoadPageAsync(string key)
     {
         var tasks = await _db.Tasks
             .Where(t => t.Key == key)
@@ -45,8 +50,8 @@ public class PlannerRepository
             .Union(originalTaskIds, StringComparer.Ordinal)
             .ToList();
 
-        Dictionary<string, DateTime> keyById = allReferencedIds.Count == 0
-            ? new Dictionary<string, DateTime>(StringComparer.Ordinal)
+        Dictionary<string, string?> keyById = allReferencedIds.Count == 0
+            ? new Dictionary<string, string?>(StringComparer.Ordinal)
             : await _db.Tasks
                 .Where(task => allReferencedIds.Contains(task.Id))
                 .Select(task => new { task.Id, task.Key })
@@ -56,14 +61,16 @@ public class PlannerRepository
         {
             // Task list shows the original task's date
             if (!string.IsNullOrWhiteSpace(task.OriginalTaskId)
-                && keyById.TryGetValue(task.OriginalTaskId, out DateTime originalKey))
+                && keyById.TryGetValue(task.OriginalTaskId, out string? originalKey))
             {
-                task.ForwardedFromDate = $"({originalKey:M/d})";
+                string originalDateText = KeyConvention.ToShortDateDisplay(originalKey);
+                task.ForwardedFromDate = string.IsNullOrWhiteSpace(originalDateText) ? null : $"({originalDateText})";
             }
             else if (!string.IsNullOrWhiteSpace(task.ParentTaskId)
-                && keyById.TryGetValue(task.ParentTaskId, out DateTime parentKeyFallback))
+                && keyById.TryGetValue(task.ParentTaskId, out string? parentKeyFallback))
             {
-                task.ForwardedFromDate = $"({parentKeyFallback:M/d})";
+                string parentDateText = KeyConvention.ToShortDateDisplay(parentKeyFallback);
+                task.ForwardedFromDate = string.IsNullOrWhiteSpace(parentDateText) ? null : $"({parentDateText})";
             }
             else
             {
@@ -72,9 +79,10 @@ public class PlannerRepository
 
             // Store parent task date separately for task details
             if (!string.IsNullOrWhiteSpace(task.ParentTaskId)
-                && keyById.TryGetValue(task.ParentTaskId, out DateTime parentKey))
+                && keyById.TryGetValue(task.ParentTaskId, out string? parentKey))
             {
-                task.ParentTaskDate = $"{parentKey:M/d}";
+                string parentDateText = KeyConvention.ToShortDateDisplay(parentKey);
+                task.ParentTaskDate = string.IsNullOrWhiteSpace(parentDateText) ? null : parentDateText;
             }
             else
             {
@@ -91,6 +99,7 @@ public class PlannerRepository
         return new DailyData
         {
             Key = key,
+            Date = KeyConvention.TryParseDateKey(key, out DateTime date) ? date : DateTime.Today,
             Tasks = new ObservableCollection<TaskItem>(tasks),
             Notes = new ObservableCollection<NoteItem>(notes)
         };
@@ -103,17 +112,85 @@ public class PlannerRepository
         _ = _syncService.TriggerSyncAsync();
     }
 
-    public Task<DateTime?> GetTaskKeyByIdAsync(string taskId)
+    public Task<string?> GetTaskKeyByIdAsync(string taskId)
     {
         if (string.IsNullOrWhiteSpace(taskId))
         {
-            return Task.FromResult<DateTime?>(null);
+            return Task.FromResult<string?>(null);
         }
 
         return _db.Tasks
             .Where(task => task.Id == taskId)
-            .Select(task => (DateTime?)task.Key)
+            .Select(task => task.Key)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<List<string>> GetProjectKeysAsync()
+    {
+        List<string> taskProjectKeys = await _db.Tasks
+            .Where(task => task.Key.StartsWith(KeyConvention.ProjectPrefix))
+            .Select(task => task.Key)
+            .Distinct()
+            .ToListAsync();
+
+        List<string> noteProjectKeys = await _db.Notes
+            .Where(note => note.Key.StartsWith(KeyConvention.ProjectPrefix))
+            .Select(note => note.Key)
+            .Distinct()
+            .ToListAsync();
+
+        return taskProjectKeys
+            .Concat(noteProjectKeys)
+            .Where(key => KeyConvention.IsProjectKey(key))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(
+                key => KeyConvention.TryGetProjectName(key, out string name) ? name : string.Empty,
+                StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    public async Task<string?> GetEarliestNonEmptyDateKeyAsync()
+    {
+        List<string> taskDateKeys = await _db.Tasks
+            .Where(task => task.Key.StartsWith(KeyConvention.DatePrefix))
+            .Select(task => task.Key)
+            .Distinct()
+            .ToListAsync();
+
+        List<string> noteDateKeys = await _db.Notes
+            .Where(note => note.Key.StartsWith(KeyConvention.DatePrefix))
+            .Select(note => note.Key)
+            .Distinct()
+            .ToListAsync();
+
+        return taskDateKeys
+            .Concat(noteDateKeys)
+            .Where(KeyConvention.IsDateKey)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(key => key, StringComparer.Ordinal)
+            .FirstOrDefault();
+    }
+
+    public async Task<string?> GetLatestNonEmptyDateKeyAsync()
+    {
+        List<string> taskDateKeys = await _db.Tasks
+            .Where(task => task.Key.StartsWith(KeyConvention.DatePrefix))
+            .Select(task => task.Key)
+            .Distinct()
+            .ToListAsync();
+
+        List<string> noteDateKeys = await _db.Notes
+            .Where(note => note.Key.StartsWith(KeyConvention.DatePrefix))
+            .Select(note => note.Key)
+            .Distinct()
+            .ToListAsync();
+
+        return taskDateKeys
+            .Concat(noteDateKeys)
+            .Where(KeyConvention.IsDateKey)
+            .Distinct(StringComparer.Ordinal)
+            .OrderByDescending(key => key, StringComparer.Ordinal)
+            .FirstOrDefault();
     }
 
     public async Task UpdateTaskAsync(TaskItem task)
@@ -189,7 +266,7 @@ public class PlannerRepository
             .ThenBy(note => note.Id)
             .ToListAsync();
 
-        DateTime currentKey = default;
+        string currentKey = string.Empty;
         int order = 0;
 
         foreach (NoteItem note in notes)

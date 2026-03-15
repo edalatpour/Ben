@@ -1,7 +1,10 @@
 namespace Ben.Views;
 
 using Ben.Models;
+using Ben.Services;
 using Ben.ViewModels;
+
+#nullable enable
 
 public partial class NoteDetailsPage : ContentPage
 {
@@ -9,7 +12,12 @@ public partial class NoteDetailsPage : ContentPage
     private readonly NoteItem _note;
     private readonly bool _isNewNote;
 
-    public NoteDetailsPage(DailyViewModel viewModel, NoteItem note = null)
+    public NoteDetailsPage(DailyViewModel viewModel)
+        : this(viewModel, note: null)
+    {
+    }
+
+    public NoteDetailsPage(DailyViewModel viewModel, NoteItem? note)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -19,7 +27,7 @@ public partial class NoteDetailsPage : ContentPage
             _isNewNote = true;
             _note = new NoteItem
             {
-                Key = viewModel.CurrentDay?.Key ?? DateTime.Today
+                Key = viewModel.CurrentDay?.Key ?? KeyConvention.ToDateKey(DateTime.Today)
             };
         }
         else

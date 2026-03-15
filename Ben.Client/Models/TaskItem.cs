@@ -43,7 +43,7 @@ public class TaskItem : INotifyPropertyChanged
         set => SetField(ref _deleted, value);
     }
 
-    public DateTime Key
+    public string Key
     {
         get => _key;
         set => SetField(ref _key, value);
@@ -170,7 +170,7 @@ public class TaskItem : INotifyPropertyChanged
     DateTimeOffset? _updatedAt;
     string? _version;
     bool _deleted;
-    DateTime _key;
+    string _key = string.Empty;
     // string _status;
     string _status = string.Empty;
     string _priority = string.Empty;
