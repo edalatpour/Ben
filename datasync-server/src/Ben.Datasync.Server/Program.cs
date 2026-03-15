@@ -54,7 +54,27 @@ WebApplication app = builder.Build();
 using (IServiceScope scope = app.Services.CreateScope())
 {
     AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    ILogger<Program> logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    List<string> appliedBefore = [.. await context.Database.GetAppliedMigrationsAsync()];
+    List<string> pendingBefore = [.. await context.Database.GetPendingMigrationsAsync()];
+
+    logger.LogInformation("EF migrations before initialization. Applied: {AppliedCount} ({AppliedMigrations}); Pending: {PendingCount} ({PendingMigrations})",
+        appliedBefore.Count,
+        appliedBefore.Count == 0 ? "none" : string.Join(", ", appliedBefore),
+        pendingBefore.Count,
+        pendingBefore.Count == 0 ? "none" : string.Join(", ", pendingBefore));
+
     await context.InitializeDatabaseAsync();
+
+    List<string> appliedAfter = [.. await context.Database.GetAppliedMigrationsAsync()];
+    List<string> pendingAfter = [.. await context.Database.GetPendingMigrationsAsync()];
+
+    logger.LogInformation("EF migrations after initialization. Applied: {AppliedCount} ({AppliedMigrations}); Pending: {PendingCount} ({PendingMigrations})",
+        appliedAfter.Count,
+        appliedAfter.Count == 0 ? "none" : string.Join(", ", appliedAfter),
+        pendingAfter.Count,
+        pendingAfter.Count == 0 ? "none" : string.Join(", ", pendingAfter));
 }
 
 app.UseHttpsRedirection();
