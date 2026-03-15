@@ -276,18 +276,45 @@
                         <Grid Grid.Row="6"
                               Grid.Column="1"
                               Grid.ColumnSpan="2"
-                              x:Name="ForwardedDatePickerHost"
+                              x:Name="ForwardingTargetHost"
                               IsVisible="False"
-                              HorizontalOptions="Fill">
+                              HorizontalOptions="Fill"
+                              RowDefinitions="Auto,Auto"
+                              RowSpacing="8">
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="8">
+                                <Button x:Name="ForwardToDateButton"
+                                        Text="Date"
+                                        Clicked="OnForwardToDateClicked"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        TextColor="{StaticResource WritingPaper}"
+                                        CornerRadius="4"/>
+                                <Button x:Name="ForwardToProjectButton"
+                                        Grid.Column="1"
+                                        Text="Project"
+                                        Clicked="OnForwardToProjectClicked"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{StaticResource Ink}"
+                                        BorderColor="{StaticResource Line}"
+                                        BorderWidth="1"
+                                        CornerRadius="4"/>
+                            </Grid>
                             <DatePicker x:Name="ForwardedDatePicker"
+                                        Grid.Row="1"
                                         Format="d"
                                         DateSelected="OnForwardedDateSelected"
                                         TextColor="{StaticResource Ink}"
                                         FontSize="18"
                                         HeightRequest="46"
-                                        WidthRequest="{Binding Source={x:Reference ForwardedDatePickerHost}, Path=Width}"
                                         HorizontalOptions="Fill"
                                         VerticalOptions="Center"/>
+                            <Picker x:Name="ForwardedProjectPicker"
+                                    Grid.Row="1"
+                                    IsVisible="False"
+                                    Title="Select project"
+                                    TextColor="{StaticResource Ink}"
+                                    TitleColor="{StaticResource Line}"
+                                    SelectedIndexChanged="OnForwardedProjectChanged"/>
                         </Grid>
 
                         <Border x:Name="StatusBorderDeleted"

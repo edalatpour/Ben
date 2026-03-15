@@ -56,6 +56,22 @@ public partial class TaskPageView : ContentView
         await page.Navigation.PushModalAsync(new TaskDetailsPage(viewModel));
     }
 
+    async void OnHeaderTapped(object sender, TappedEventArgs e)
+    {
+        if (BindingContext is not DailyViewModel viewModel)
+        {
+            return;
+        }
+
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page == null)
+        {
+            return;
+        }
+
+        await page.Navigation.PushModalAsync(new DateProjectPickerPage(viewModel));
+    }
+
     void OnTaskDragStarting(object sender, DragStartingEventArgs e)
     {
         if (sender is not BindableObject bindable)

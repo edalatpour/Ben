@@ -15,8 +15,18 @@ public static class KeyConvention
 
     public static string ToProjectKey(string projectName)
     {
-        string normalized = (projectName ?? string.Empty).Trim();
-        return string.Concat(ProjectPrefix, normalized);
+        string displayName = NormalizeProjectDisplayName(projectName);
+        return string.Concat(ProjectPrefix, displayName);
+    }
+
+    public static string NormalizeProjectDisplayName(string? projectName)
+    {
+        return (projectName ?? string.Empty).Trim();
+    }
+
+    public static string NormalizeProjectName(string? projectName)
+    {
+        return NormalizeProjectDisplayName(projectName).ToUpperInvariant();
     }
 
     public static bool IsDateKey(string? key)
@@ -73,6 +83,21 @@ public static class KeyConvention
         if (TryParseDateKey(key, out DateTime date))
         {
             return date.ToString("M/d", CultureInfo.InvariantCulture);
+        }
+
+        return string.Empty;
+    }
+
+    public static string ToShortPageDisplay(string? key)
+    {
+        if (TryParseDateKey(key, out DateTime date))
+        {
+            return date.ToString("M/d", CultureInfo.InvariantCulture);
+        }
+
+        if (TryGetProjectName(key, out string projectName))
+        {
+            return projectName;
         }
 
         return string.Empty;

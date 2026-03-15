@@ -8,6 +8,7 @@ using CommunityToolkit.Datasync.Server.OpenApi;
 using CommunityToolkit.Datasync.Server.Swashbuckle;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Ben.Datasync.Server;
@@ -26,7 +27,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(connectionString);
+    options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+});
 builder.Services.AddDatasyncServices();
 builder.Services.AddControllers();
 
@@ -56,25 +61,32 @@ using (IServiceScope scope = app.Services.CreateScope())
     AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     ILogger<Program> logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    List<string> appliedBefore = [.. await context.Database.GetAppliedMigrationsAsync()];
-    List<string> pendingBefore = [.. await context.Database.GetPendingMigrationsAsync()];
+    try
+    {
+        List<string> appliedBefore = [.. await context.Database.GetAppliedMigrationsAsync()];
+        List<string> pendingBefore = [.. await context.Database.GetPendingMigrationsAsync()];
 
-    logger.LogInformation("EF migrations before initialization. Applied: {AppliedCount} ({AppliedMigrations}); Pending: {PendingCount} ({PendingMigrations})",
-        appliedBefore.Count,
-        appliedBefore.Count == 0 ? "none" : string.Join(", ", appliedBefore),
-        pendingBefore.Count,
-        pendingBefore.Count == 0 ? "none" : string.Join(", ", pendingBefore));
+        logger.LogInformation("EF migrations before initialization. Applied: {AppliedCount} ({AppliedMigrations}); Pending: {PendingCount} ({PendingMigrations})",
+            appliedBefore.Count,
+            appliedBefore.Count == 0 ? "none" : string.Join(", ", appliedBefore),
+            pendingBefore.Count,
+            pendingBefore.Count == 0 ? "none" : string.Join(", ", pendingBefore));
 
-    await context.InitializeDatabaseAsync();
+        await context.InitializeDatabaseAsync();
 
-    List<string> appliedAfter = [.. await context.Database.GetAppliedMigrationsAsync()];
-    List<string> pendingAfter = [.. await context.Database.GetPendingMigrationsAsync()];
+        List<string> appliedAfter = [.. await context.Database.GetAppliedMigrationsAsync()];
+        List<string> pendingAfter = [.. await context.Database.GetPendingMigrationsAsync()];
 
-    logger.LogInformation("EF migrations after initialization. Applied: {AppliedCount} ({AppliedMigrations}); Pending: {PendingCount} ({PendingMigrations})",
-        appliedAfter.Count,
-        appliedAfter.Count == 0 ? "none" : string.Join(", ", appliedAfter),
-        pendingAfter.Count,
-        pendingAfter.Count == 0 ? "none" : string.Join(", ", pendingAfter));
+        logger.LogInformation("EF migrations after initialization. Applied: {AppliedCount} ({AppliedMigrations}); Pending: {PendingCount} ({PendingMigrations})",
+            appliedAfter.Count,
+            appliedAfter.Count == 0 ? "none" : string.Join(", ", appliedAfter),
+            pendingAfter.Count,
+            pendingAfter.Count == 0 ? "none" : string.Join(", ", pendingAfter));
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database initialization failed. Continuing startup without blocking the web process.");
+    }
 }
 
 app.UseHttpsRedirection();

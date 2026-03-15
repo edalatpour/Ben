@@ -55,5 +55,21 @@ public partial class NotesPageView : ContentView
 
         await page.Navigation.PushModalAsync(new NoteDetailsPage(viewModel));
     }
+
+    async void OnHeaderTapped(object sender, TappedEventArgs e)
+    {
+        if (BindingContext is not DailyViewModel viewModel)
+        {
+            return;
+        }
+
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page == null)
+        {
+            return;
+        }
+
+        await page.Navigation.PushModalAsync(new DateProjectPickerPage(viewModel));
+    }
 }
 

@@ -50,12 +50,16 @@ public class PlannerRepository
             .Union(originalTaskIds, StringComparer.Ordinal)
             .ToList();
 
-        Dictionary<string, string?> keyById = allReferencedIds.Count == 0
-            ? new Dictionary<string, string?>(StringComparer.Ordinal)
-            : await _db.Tasks
+        Dictionary<string, string> keyById = new(StringComparer.Ordinal);
+        if (allReferencedIds.Count > 0)
+        {
+            var referencedKeys = await _db.Tasks
                 .Where(task => allReferencedIds.Contains(task.Id))
                 .Select(task => new { task.Id, task.Key })
-                .ToDictionaryAsync(task => task.Id, task => task.Key, StringComparer.Ordinal);
+                .ToListAsync();
+
+            keyById = referencedKeys.ToDictionary(task => task.Id, task => task.Key, StringComparer.Ordinal);
+        }
 
         foreach (var task in tasks)
         {
@@ -63,13 +67,13 @@ public class PlannerRepository
             if (!string.IsNullOrWhiteSpace(task.OriginalTaskId)
                 && keyById.TryGetValue(task.OriginalTaskId, out string? originalKey))
             {
-                string originalDateText = KeyConvention.ToShortDateDisplay(originalKey);
+                string originalDateText = KeyConvention.ToShortPageDisplay(originalKey);
                 task.ForwardedFromDate = string.IsNullOrWhiteSpace(originalDateText) ? null : $"({originalDateText})";
             }
             else if (!string.IsNullOrWhiteSpace(task.ParentTaskId)
                 && keyById.TryGetValue(task.ParentTaskId, out string? parentKeyFallback))
             {
-                string parentDateText = KeyConvention.ToShortDateDisplay(parentKeyFallback);
+                string parentDateText = KeyConvention.ToShortPageDisplay(parentKeyFallback);
                 task.ForwardedFromDate = string.IsNullOrWhiteSpace(parentDateText) ? null : $"({parentDateText})";
             }
             else
@@ -81,7 +85,7 @@ public class PlannerRepository
             if (!string.IsNullOrWhiteSpace(task.ParentTaskId)
                 && keyById.TryGetValue(task.ParentTaskId, out string? parentKey))
             {
-                string parentDateText = KeyConvention.ToShortDateDisplay(parentKey);
+                string parentDateText = KeyConvention.ToShortPageDisplay(parentKey);
                 task.ParentTaskDate = string.IsNullOrWhiteSpace(parentDateText) ? null : parentDateText;
             }
             else
@@ -125,28 +129,39 @@ public class PlannerRepository
             .FirstOrDefaultAsync();
     }
 
-    public async Task<List<string>> GetProjectKeysAsync()
+    public Task<List<string>> GetProjectKeysAsync()
     {
-        List<string> taskProjectKeys = await _db.Tasks
-            .Where(task => task.Key.StartsWith(KeyConvention.ProjectPrefix))
-            .Select(task => task.Key)
-            .Distinct()
+        return _db.Projects
+            .Where(project => !project.Deleted)
+            .OrderBy(project => project.Name)
+            .Select(project => KeyConvention.ToProjectKey(project.Name))
             .ToListAsync();
+    }
 
-        List<string> noteProjectKeys = await _db.Notes
-            .Where(note => note.Key.StartsWith(KeyConvention.ProjectPrefix))
-            .Select(note => note.Key)
-            .Distinct()
+    public async Task<List<ProjectItem>> GetProjectsAsync()
+    {
+        return await _db.Projects
+            .Where(project => !project.Deleted)
+            .OrderBy(project => project.Name)
+            .ThenBy(project => project.Id)
             .ToListAsync();
+    }
 
-        return taskProjectKeys
-            .Concat(noteProjectKeys)
-            .Where(key => KeyConvention.IsProjectKey(key))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(
-                key => KeyConvention.TryGetProjectName(key, out string name) ? name : string.Empty,
-                StringComparer.OrdinalIgnoreCase)
-            .ToList();
+    public Task<bool> ProjectExistsAsync(string normalizedName)
+    {
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            return Task.FromResult(false);
+        }
+
+        return _db.Projects.AnyAsync(project => !project.Deleted && project.NormalizedName == normalizedName);
+    }
+
+    public async Task AddProjectAsync(ProjectItem project)
+    {
+        _db.Projects.Add(project);
+        await _db.SaveChangesAsync();
+        _ = _syncService.TriggerSyncAsync();
     }
 
     public async Task<string?> GetEarliestNonEmptyDateKeyAsync()

@@ -13,6 +13,9 @@
         <VerticalStackLayout Spacing="0"
                              HorizontalOptions="Fill"
                              VerticalOptions="Start">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnHeaderTapped"/>
+            </VerticalStackLayout.GestureRecognizers>
             <Label Text="{Binding HeaderPrimaryText}"
                    Style="{StaticResource DateNumber}"
                    LineBreakMode="TailTruncation"

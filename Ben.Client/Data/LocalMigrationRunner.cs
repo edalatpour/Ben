@@ -6,7 +6,7 @@ namespace Ben.Data;
 
 public static class LocalMigrationRunner
 {
-    private const int LatestVersion = 3; // Update this as you add migrations
+    private const int LatestVersion = 5; // Update this as you add migrations
 
 
     private static bool TableExists(LocalSchemaDbContext db, string tableName)
@@ -135,6 +135,42 @@ public static class LocalMigrationRunner
             ");
 
             version = 3;
+        }
+
+        if (version < 4)
+        {
+            db.Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS Projects (
+                    Id TEXT NOT NULL PRIMARY KEY,
+                    UpdatedAt TEXT NULL,
+                    Version TEXT NULL,
+                    Deleted INTEGER NOT NULL DEFAULT 0,
+                    Name TEXT NOT NULL,
+                    NormalizedName TEXT NOT NULL
+                );
+            ");
+
+            db.Database.ExecuteSqlRaw(@"
+                CREATE UNIQUE INDEX IF NOT EXISTS IX_Projects_NormalizedName ON Projects (NormalizedName);
+            ");
+
+            version = 4;
+        }
+
+        if (version < 5)
+        {
+            db.Database.ExecuteSqlRaw(@"
+                DROP INDEX IF EXISTS IX_Projects_Key;
+            ");
+
+            if (ColumnExists(db, "Projects", "Key"))
+            {
+                db.Database.ExecuteSqlRaw(@"
+                    ALTER TABLE Projects DROP COLUMN [Key];
+                ");
+            }
+
+            version = 5;
         }
 
         // Save final version

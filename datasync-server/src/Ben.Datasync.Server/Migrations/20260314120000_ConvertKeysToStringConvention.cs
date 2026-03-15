@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
 namespace Ben.Datasync.Server.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20260314120000_ConvertKeysToStringConvention")]
     public partial class ConvertKeysToStringConvention : Migration
     {
         /// <inheritdoc />

@@ -1,8 +1,12 @@
 using CommunityToolkit.Datasync.Client.Offline;
+using CommunityToolkit.Datasync.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Networking;
 using Ben.Data;
+using System.Reflection;
+using System.Text;
+using System.IO;
 
 namespace Ben.Services;
 
@@ -98,7 +102,7 @@ public sealed class DatasyncSyncService : IDisposable
             // Query the Datasync operations queue to get pending changes
             var count = await context.DatasyncOperationsQueue.CountAsync();
             _logger.LogInformation("Found {Count} pending operations in queue", count);
-            
+
             return count;
         }
         catch (Exception ex)
@@ -158,6 +162,22 @@ public sealed class DatasyncSyncService : IDisposable
             {
                 _logger.LogWarning("Datasync push completed with {Count} failed requests.",
                     pushResult.FailedRequests.Count);
+
+                foreach (var failedRequest in pushResult.FailedRequests)
+                {
+                    _logger.LogWarning("Datasync push failure detail: {FailedRequest}", DescribeFailedRequest(failedRequest));
+                }
+            }
+
+            int pendingAfterPush = await context.DatasyncOperationsQueue.CountAsync();
+            if (pendingAfterPush > 0)
+            {
+                _logger.LogWarning(
+                    "Skipping pull because {Count} pending operations remain in queue after push.",
+                    pendingAfterPush);
+
+                await LogQueueSnapshotAsync(context);
+                return false;
             }
 
             PullResult pullResult = await context.PullAsync();
@@ -165,9 +185,23 @@ public sealed class DatasyncSyncService : IDisposable
             {
                 _logger.LogWarning("Datasync pull completed with {Count} failed requests.",
                     pullResult.FailedRequests.Count);
+
+                foreach (var failedRequest in pullResult.FailedRequests)
+                {
+                    _logger.LogWarning("Datasync pull failure detail: {FailedRequest}", DescribeFailedRequest(failedRequest));
+                }
             }
 
             return pushResult.IsSuccessful && pullResult.IsSuccessful;
+        }
+        catch (DatasyncException ex)
+        {
+            _logger.LogError(ex, "Datasync synchronization failed with DatasyncException: {Message}", ex.Message);
+
+            using IServiceScope diagnosticsScope = _scopeFactory.CreateScope();
+            PlannerDbContext diagnosticsContext = diagnosticsScope.ServiceProvider.GetRequiredService<PlannerDbContext>();
+            await LogQueueSnapshotAsync(diagnosticsContext);
+            return false;
         }
         catch (Exception ex)
         {
@@ -178,6 +212,252 @@ public sealed class DatasyncSyncService : IDisposable
         {
             _syncLock.Release();
             SyncCompleted?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private async Task LogQueueSnapshotAsync(PlannerDbContext context)
+    {
+        try
+        {
+            int totalPending = await context.DatasyncOperationsQueue.CountAsync();
+            _logger.LogWarning("Datasync queue snapshot: {Count} total pending operations.", totalPending);
+
+            var connection = context.Database.GetDbConnection();
+            bool shouldClose = connection.State != System.Data.ConnectionState.Open;
+            if (shouldClose)
+            {
+                await connection.OpenAsync();
+            }
+
+            try
+            {
+                List<string> columns = await GetQueueColumnsAsync(connection);
+                if (columns.Count == 0)
+                {
+                    _logger.LogWarning("Datasync queue schema inspection returned no columns.");
+                    return;
+                }
+
+                string orderColumn = columns.FirstOrDefault(static c =>
+                        string.Equals(c, "Sequence", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(c, "sequence", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(c, "Id", StringComparison.OrdinalIgnoreCase))
+                    ?? columns[0];
+
+                string projection = string.Join(", ",
+                    columns
+                        .Take(12)
+                        .Select(static c => $"[{c}]"));
+
+                using var command = connection.CreateCommand();
+                command.CommandText = $@"
+                    SELECT {projection}
+                    FROM [DatasyncOperationsQueue]
+                    ORDER BY [{orderColumn}]
+                    LIMIT 10;";
+
+                using var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var row = new StringBuilder();
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        if (i > 0)
+                        {
+                            row.Append(", ");
+                        }
+
+                        string column = reader.GetName(i);
+                        string value = reader.IsDBNull(i) ? "<null>" : reader.GetValue(i)?.ToString() ?? string.Empty;
+                        row.Append(column).Append('=').Append(value);
+                    }
+
+                    _logger.LogWarning("Pending operation row: {Row}", row.ToString());
+                }
+            }
+            finally
+            {
+                if (shouldClose)
+                {
+                    await connection.CloseAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to log Datasync queue snapshot.");
+        }
+    }
+
+    private static async Task<List<string>> GetQueueColumnsAsync(System.Data.Common.DbConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "PRAGMA table_info('DatasyncOperationsQueue');";
+
+        using var reader = await command.ExecuteReaderAsync();
+        List<string> columns = new();
+        while (await reader.ReadAsync())
+        {
+            if (!reader.IsDBNull(1))
+            {
+                columns.Add(reader.GetString(1));
+            }
+        }
+
+        return columns;
+    }
+
+    private static string DescribeFailedRequest(object failedRequest)
+    {
+        if (failedRequest == null)
+        {
+            return "<null>";
+        }
+
+        Type requestType = failedRequest.GetType();
+        PropertyInfo? keyProp = requestType.GetProperty("Key");
+        PropertyInfo? valueProp = requestType.GetProperty("Value");
+
+        if (keyProp != null && valueProp != null)
+        {
+            object? key = SafeGetValue(keyProp, failedRequest);
+            object? value = SafeGetValue(valueProp, failedRequest);
+            return $"Key={key ?? "<null>"}, Value={DescribeObject(value)}{TryReadContentStream(value)}";
+        }
+
+        return DescribeObject(failedRequest);
+    }
+
+    private static string DescribeObject(object? value)
+    {
+        if (value == null)
+        {
+            return "<null>";
+        }
+
+        Type type = value.GetType();
+        PropertyInfo[] props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(static prop => prop.GetIndexParameters().Length == 0)
+            .ToArray();
+
+        if (props.Length == 0)
+        {
+            return value.ToString() ?? type.FullName ?? type.Name;
+        }
+
+        var sb = new StringBuilder();
+        sb.Append(type.Name).Append(" {");
+
+        bool first = true;
+        foreach (PropertyInfo prop in props)
+        {
+            object? propValue = SafeGetValue(prop, value);
+
+            if (!ShouldLogProperty(prop.Name, propValue))
+            {
+                continue;
+            }
+
+            if (!first)
+            {
+                sb.Append(", ");
+            }
+
+            first = false;
+            sb.Append(prop.Name).Append('=').Append(propValue ?? "<null>");
+        }
+
+        sb.Append('}');
+        return sb.ToString();
+    }
+
+    private static string TryReadContentStream(object? serviceResponse)
+    {
+        if (serviceResponse == null)
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            PropertyInfo? streamProp = serviceResponse.GetType().GetProperty("ContentStream");
+            if (streamProp == null)
+            {
+                return string.Empty;
+            }
+
+            if (streamProp.GetValue(serviceResponse) is not Stream stream || !stream.CanRead)
+            {
+                return string.Empty;
+            }
+
+            long originalPosition = 0;
+            if (stream.CanSeek)
+            {
+                originalPosition = stream.Position;
+                stream.Position = 0;
+            }
+
+            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true);
+            string content = reader.ReadToEnd();
+
+            if (stream.CanSeek)
+            {
+                stream.Position = originalPosition;
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return string.Empty;
+            }
+
+            return $", ResponseBody={content}";
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private static bool ShouldLogProperty(string name, object? value)
+    {
+        if (value == null)
+        {
+            return true;
+        }
+
+        if (value is string or bool or byte or sbyte or short or ushort or int or uint or long or ulong
+            or float or double or decimal or DateTime or DateTimeOffset or Guid)
+        {
+            return true;
+        }
+
+        if (value.GetType().IsEnum)
+        {
+            return true;
+        }
+
+        // Include common HTTP-ish members even when complex.
+        return name.Contains("Status", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("Reason", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("Message", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("Error", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("Uri", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("Content", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("Request", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("Method", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("Header", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static object? SafeGetValue(PropertyInfo property, object source)
+    {
+        try
+        {
+            return property.GetValue(source);
+        }
+        catch
+        {
+            return "<unavailable>";
         }
     }
 }

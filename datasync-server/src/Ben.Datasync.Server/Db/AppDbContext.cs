@@ -14,6 +14,7 @@ namespace Ben.Datasync.Server
     {
         public DbSet<TaskItem> TaskItems => Set<TaskItem>();
         public DbSet<NoteItem> NoteItems => Set<NoteItem>();
+        public DbSet<ProjectItem> ProjectItems => Set<ProjectItem>();
 
         // public DbSet<TodoList> TodoLists => Set<TodoList>();
 
@@ -41,6 +42,96 @@ namespace Ben.Datasync.Server
             //   - Existing databases with no history (transition from EnsureCreated):
             //     run migration.sql against the database first to establish the baseline.
             await Database.MigrateAsync();
+
+            // Defensive fallback for environments where migration discovery/history can drift.
+            // Keeps project sync functional even if AddProjects is not picked up as pending.
+            await Database.ExecuteSqlRawAsync(@"
+IF OBJECT_ID(N'[ProjectItems]') IS NULL
+BEGIN
+    CREATE TABLE [ProjectItems]
+    (
+        [Id] nvarchar(450) NOT NULL,
+        [Deleted] bit NOT NULL,
+        [UpdatedAt] datetimeoffset NULL,
+        [Version] rowversion NOT NULL,
+        [UserId] nvarchar(256) NOT NULL,
+        [Name] nvarchar(128) NOT NULL,
+        [NormalizedName] nvarchar(128) NOT NULL,
+        CONSTRAINT [PK_ProjectItems] PRIMARY KEY ([Id])
+    );
+END;
+
+IF EXISTS (
+    SELECT 1
+    FROM sys.columns c
+    INNER JOIN sys.types t ON c.user_type_id = t.user_type_id
+    WHERE c.object_id = OBJECT_ID(N'[ProjectItems]')
+      AND c.name = N'UserId'
+      AND t.name = N'nvarchar'
+      AND c.max_length = -1
+)
+BEGIN
+    UPDATE [ProjectItems]
+    SET [UserId] = LEFT([UserId], 256)
+    WHERE LEN([UserId]) > 256;
+
+    ALTER TABLE [ProjectItems] ALTER COLUMN [UserId] nvarchar(256) NOT NULL;
+END;
+
+IF EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[ProjectItems]') AND name = N'IX_ProjectItems_Key'
+)
+BEGIN
+    DROP INDEX [IX_ProjectItems_Key] ON [ProjectItems];
+END;
+
+IF COL_LENGTH(N'ProjectItems', N'Key') IS NOT NULL
+BEGIN
+    ALTER TABLE [ProjectItems] DROP COLUMN [Key];
+END;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[ProjectItems]') AND name = N'IX_ProjectItems_UpdatedAt_Deleted'
+)
+BEGIN
+    CREATE INDEX [IX_ProjectItems_UpdatedAt_Deleted] ON [ProjectItems] ([UpdatedAt], [Deleted]);
+END;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[ProjectItems]') AND name = N'IX_ProjectItems_UserId_NormalizedName'
+)
+BEGIN
+    CREATE UNIQUE INDEX [IX_ProjectItems_UserId_NormalizedName] ON [ProjectItems] ([UserId], [NormalizedName]);
+END;
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM [__EFMigrationsHistory]
+       WHERE [MigrationId] = N'20260314154500_AddProjects'
+   )
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260314154500_AddProjects', N'10.0.3');
+END;
+
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM [__EFMigrationsHistory]
+       WHERE [MigrationId] = N'20260315031000_RemoveProjectKeyColumn'
+   )
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260315031000_RemoveProjectKeyColumn', N'10.0.3');
+END;
+");
 
             const string datasyncTrigger = @"
             CREATE OR ALTER TRIGGER [dbo].[{0}_datasync] ON [dbo].[{0}] AFTER INSERT, UPDATE AS
@@ -75,6 +166,9 @@ namespace Ben.Datasync.Server
             modelBuilder.Entity<NoteItem>()
                 .ToTable(tb => tb.HasTrigger("NoteItem_datasync"));
 
+            modelBuilder.Entity<ProjectItem>()
+                .ToTable(tb => tb.HasTrigger("ProjectItem_datasync"));
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<TaskItem>()
@@ -94,6 +188,14 @@ namespace Ben.Datasync.Server
 
             modelBuilder.Entity<NoteItem>()
                 .HasIndex(n => n.Key);
+
+            modelBuilder.Entity<ProjectItem>()
+                .HasIndex(project => new { project.UserId, project.NormalizedName })
+                .IsUnique();
+
+            modelBuilder.Entity<ProjectItem>()
+                .Property(project => project.UserId)
+                .HasMaxLength(256);
 
         }
     }

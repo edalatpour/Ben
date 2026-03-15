@@ -271,3 +271,107 @@ BEGIN
 END;
 GO
 
+-- ============================================================
+-- 20260314154500_AddProjects
+-- ============================================================
+
+IF OBJECT_ID(N'[ProjectItems]') IS NULL
+BEGIN
+    CREATE TABLE [ProjectItems]
+    (
+        [Id] nvarchar(450) NOT NULL,
+        [Deleted] bit NOT NULL,
+        [UpdatedAt] datetimeoffset NULL,
+        [Version] rowversion NOT NULL,
+        [UserId] nvarchar(256) NOT NULL,
+        [Name] nvarchar(128) NOT NULL,
+        [NormalizedName] nvarchar(128) NOT NULL,
+        CONSTRAINT [PK_ProjectItems] PRIMARY KEY ([Id])
+    );
+END;
+GO
+
+IF EXISTS (
+    SELECT 1
+FROM sys.columns c
+    INNER JOIN sys.types t ON c.user_type_id = t.user_type_id
+WHERE c.object_id = OBJECT_ID(N'[ProjectItems]')
+    AND c.name = N'UserId'
+    AND t.name = N'nvarchar'
+    AND c.max_length = -1
+)
+BEGIN
+    UPDATE [ProjectItems]
+SET [UserId] = LEFT([UserId], 256)
+WHERE LEN([UserId]) > 256;
+
+    ALTER TABLE [ProjectItems] ALTER COLUMN [UserId] nvarchar(256) NOT NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[ProjectItems]') AND name = N'IX_ProjectItems_UpdatedAt_Deleted'
+)
+BEGIN
+    CREATE INDEX [IX_ProjectItems_UpdatedAt_Deleted] ON [ProjectItems] ([UpdatedAt], [Deleted]);
+END;
+GO
+
+-- ============================================================
+-- 20260315031000_RemoveProjectKeyColumn
+-- ============================================================
+
+IF EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[ProjectItems]') AND name = N'IX_ProjectItems_Key'
+)
+BEGIN
+    DROP INDEX [IX_ProjectItems_Key] ON [ProjectItems];
+END;
+GO
+
+IF COL_LENGTH(N'ProjectItems', N'Key') IS NOT NULL
+BEGIN
+    ALTER TABLE [ProjectItems] DROP COLUMN [Key];
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'20260315031000_RemoveProjectKeyColumn'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory]
+        ([MigrationId], [ProductVersion])
+    VALUES
+        (N'20260315031000_RemoveProjectKeyColumn', N'10.0.3');
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+FROM sys.indexes
+WHERE object_id = OBJECT_ID(N'[ProjectItems]') AND name = N'IX_ProjectItems_UserId_NormalizedName'
+)
+BEGIN
+    CREATE UNIQUE INDEX [IX_ProjectItems_UserId_NormalizedName] ON [ProjectItems] ([UserId], [NormalizedName]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'20260314154500_AddProjects'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory]
+        ([MigrationId], [ProductVersion])
+    VALUES
+        (N'20260314154500_AddProjects', N'10.0.3');
+END;
+GO
+

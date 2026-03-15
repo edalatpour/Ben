@@ -25,6 +25,7 @@ public class PlannerDbContext : OfflineDbContext
 
     public DbSet<TaskItem> Tasks { get; set; }
     public DbSet<NoteItem> Notes { get; set; }
+    public DbSet<ProjectItem> Projects { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +36,10 @@ public class PlannerDbContext : OfflineDbContext
 
         modelBuilder.Entity<NoteItem>()
             .HasIndex(n => n.Key);
+
+        modelBuilder.Entity<ProjectItem>()
+            .HasIndex(project => project.NormalizedName)
+            .IsUnique();
     }
 
 
@@ -64,6 +69,12 @@ public class PlannerDbContext : OfflineDbContext
         optionsBuilder.Entity<NoteItem>(cfg =>
         {
             cfg.Endpoint = new Uri("/tables/noteitem", UriKind.Relative);
+            cfg.ConflictResolver = new ClientWinsConflictResolver();
+        });
+
+        optionsBuilder.Entity<ProjectItem>(cfg =>
+        {
+            cfg.Endpoint = new Uri("/tables/projectitem", UriKind.Relative);
             cfg.ConflictResolver = new ClientWinsConflictResolver();
         });
     }

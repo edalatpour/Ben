@@ -18,6 +18,8 @@ namespace Ben.ViewModels;
 
 public class DailyViewModel : INotifyPropertyChanged
 {
+    private const int MaxProjectNameLength = 128;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private readonly PlannerRepository _repo;
@@ -362,9 +364,14 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
-    public async Task CreateForwardedTaskAsync(TaskItem originalTask, DateTime forwardToDate)
+    public async Task CreateForwardedTaskAsync(TaskItem originalTask, string destinationKey)
     {
-        if (originalTask == null)
+        if (originalTask == null || string.IsNullOrWhiteSpace(destinationKey))
+        {
+            return;
+        }
+
+        if (string.Equals(originalTask.Key, destinationKey, StringComparison.Ordinal))
         {
             return;
         }
@@ -372,7 +379,7 @@ public class DailyViewModel : INotifyPropertyChanged
         var forwardedTask = new TaskItem
         {
             Title = originalTask.Title,
-            Key = KeyConvention.ToDateKey(forwardToDate),
+            Key = destinationKey,
             Status = "NotStarted",
             Priority = "A",
             Order = 1,
@@ -382,6 +389,52 @@ public class DailyViewModel : INotifyPropertyChanged
 
         await _repo.AddTaskAsync(forwardedTask);
         await UpdateStatus();
+    }
+
+    public Task<List<ProjectItem>> GetProjectsAsync()
+    {
+        return _repo.GetProjectsAsync();
+    }
+
+    public async Task<(bool Success, string ErrorMessage, ProjectItem? Project)> TryCreateProjectAsync(string projectName)
+    {
+        string displayName = KeyConvention.NormalizeProjectDisplayName(projectName);
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            return (false, "Please enter a project name.", null);
+        }
+
+        if (displayName.Length > MaxProjectNameLength)
+        {
+            return (false, $"Project name must be {MaxProjectNameLength} characters or fewer.", null);
+        }
+
+        string normalizedName = KeyConvention.NormalizeProjectName(displayName);
+        if (await _repo.ProjectExistsAsync(normalizedName))
+        {
+            return (false, "A project with that name already exists.", null);
+        }
+
+        var project = new ProjectItem
+        {
+            Name = displayName,
+            NormalizedName = normalizedName
+        };
+
+        try
+        {
+            await _repo.AddProjectAsync(project);
+            return (true, string.Empty, project);
+        }
+        catch (DbUpdateException)
+        {
+            return (false, "A project with that name already exists.", null);
+        }
+    }
+
+    public Task NavigateToPageAsync(string key)
+    {
+        return LoadPageAsync(key);
     }
 
     public async Task ReorderTaskAsync(TaskItem source, TaskItem target)

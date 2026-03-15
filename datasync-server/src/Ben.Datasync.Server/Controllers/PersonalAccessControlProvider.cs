@@ -26,9 +26,16 @@ namespace Ben.Datasync.Server
 
     public ValueTask<bool> IsAuthorizedAsync(TableOperation op, TEntity? entity, CancellationToken cancellationToken = default)
     {
+      string? userId = UserId;
       logger.LogInformation("IsAuthorizedAsync called. Operation: {Operation}, UserId: {UserId}, Entity.UserId: {EntityUserId}",
-        op, UserId ?? "(null)", entity?.UserId ?? "(null)");
-      return ValueTask.FromResult(op is TableOperation.Create || op is TableOperation.Query || entity.UserId == UserId);
+        op, userId ?? "(null)", entity?.UserId ?? "(null)");
+
+      if (string.IsNullOrWhiteSpace(userId))
+      {
+        return ValueTask.FromResult(false);
+      }
+
+      return ValueTask.FromResult(op is TableOperation.Create || op is TableOperation.Query || (entity?.UserId == userId));
     }
 
     public ValueTask PreCommitHookAsync(TableOperation op, TEntity entity, CancellationToken cancellationToken = default)
@@ -79,14 +86,16 @@ namespace Ben.Datasync.Server
         logger.LogWarning("HttpContext is null - authentication context unavailable");
       }
 
-      logger.LogInformation("UserId extracted from Identity.Name: {UserId}", UserId ?? "(null)");
+      string? userId = UserId;
+      logger.LogInformation("UserId extracted from claims/identity: {UserId}", userId ?? "(null)");
 
-      if (UserId is null)
+      if (string.IsNullOrWhiteSpace(userId))
       {
-        logger.LogWarning("UserId is null in PreCommitHookAsync! Cannot assign to entity.");
+        logger.LogWarning("UserId is null in PreCommitHookAsync. Skipping user assignment and relying on IsAuthorizedAsync to reject the operation.");
+        return ValueTask.CompletedTask;
       }
 
-      entity.UserId = UserId;
+      entity.UserId = userId;
       return ValueTask.CompletedTask;
     }
 
