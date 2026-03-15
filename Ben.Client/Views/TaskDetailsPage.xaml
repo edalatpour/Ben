@@ -283,11 +283,11 @@
                               RowDefinitions="Auto,Auto"
                               RowSpacing="8">
                             <views:DateProjectSelectorView x:Name="ForwardTargetSelector"
-                                           Grid.Row="0" />
+                                                           Grid.Row="0"/>
                             <Label Grid.Row="1"
-                               Text="{Binding Source={x:Reference ForwardTargetSelector}, Path=SelectionIndicatorText}"
-                               TextColor="{StaticResource Ink}"
-                               HorizontalTextAlignment="Center"/>
+                                   Text="{Binding Source={x:Reference ForwardTargetSelector}, Path=SelectionIndicatorText}"
+                                   TextColor="{StaticResource Ink}"
+                                   HorizontalTextAlignment="Center"/>
                         </Grid>
 
                         <Border x:Name="StatusBorderDeleted"

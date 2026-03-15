@@ -9,7 +9,7 @@
         <Entry Grid.Row="0"
                Text="{Binding Source={x:Reference Root}, Path=ProjectName, Mode=TwoWay}"
                Placeholder="Project name"
-               TextColor="{StaticResource Ink}" />
+               TextColor="{StaticResource Ink}"/>
 
         <Grid Grid.Row="1"
               ColumnDefinitions="*,*"
@@ -19,7 +19,7 @@
                     Clicked="OnAddClicked"
                     BackgroundColor="{StaticResource Accent}"
                     TextColor="{StaticResource WritingPaper}"
-                    CornerRadius="4" />
+                    CornerRadius="4"/>
             <Button Grid.Column="1"
                     Text="Edit"
                     Clicked="OnEditClicked"
@@ -27,7 +27,7 @@
                     BorderColor="{StaticResource Line}"
                     BorderWidth="1"
                     TextColor="{StaticResource Ink}"
-                    CornerRadius="4" />
+                    CornerRadius="4"/>
         </Grid>
     </Grid>
 </ContentView>

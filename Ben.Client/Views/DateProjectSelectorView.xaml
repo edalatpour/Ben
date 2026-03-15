@@ -8,18 +8,18 @@
           RowSpacing="10">
         <Label Grid.Row="0"
                Text="Select Date"
-               Style="{StaticResource SectionTitle}" />
+               Style="{StaticResource SectionTitle}"/>
 
         <DatePicker Grid.Row="1"
                     x:Name="SelectorDatePicker"
                     Format="D"
                     HorizontalOptions="Fill"
                     DateSelected="OnDateSelected"
-                    TextColor="{StaticResource Ink}" />
+                    TextColor="{StaticResource Ink}"/>
 
         <Label Grid.Row="2"
                Text="Select Project"
-               Style="{StaticResource SectionTitle}" />
+               Style="{StaticResource SectionTitle}"/>
 
         <Border Grid.Row="3"
                 Stroke="{StaticResource Line}"
@@ -32,7 +32,7 @@
                     <DataTemplate>
                         <Grid Padding="8">
                             <Label Text="{Binding Name}"
-                                   TextColor="{StaticResource Ink}" />
+                                   TextColor="{StaticResource Ink}"/>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

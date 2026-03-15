@@ -13,41 +13,41 @@
 
         <views:DateProjectSelectorView Grid.Row="0"
                                        x:Name="PageSelector"
-                                       Projects="{Binding Projects}" />
+                                       Projects="{Binding Projects}"/>
 
         <Grid Grid.Row="1"
-                                          RowDefinitions="Auto"
+              RowDefinitions="Auto"
               RowSpacing="10">
-                                    <views:ProjectManagementView Grid.Row="0"
-                                                                                                                         ProjectName="{Binding ProjectNameInput, Mode=TwoWay}"
-                                                                                                                         AddRequested="OnAddProjectClicked"
-                                                                                                                         EditRequested="OnEditProjectClicked" />
+            <views:ProjectManagementView Grid.Row="0"
+                                         ProjectName="{Binding ProjectNameInput, Mode=TwoWay}"
+                                         AddRequested="OnAddProjectClicked"
+                                         EditRequested="OnEditProjectClicked"/>
         </Grid>
 
-                <VerticalStackLayout Grid.Row="2"
-                           Spacing="8"
-                           HorizontalOptions="Center">
-                  <Label Text="{Binding Source={x:Reference PageSelector}, Path=SelectionIndicatorText}"
-                       TextColor="{StaticResource Ink}"
-                       HorizontalTextAlignment="Center"/>
-                    <Grid ColumnDefinitions="Auto,Auto"
-                    ColumnSpacing="12"
-                    HorizontalOptions="Center">
-                  <Button Grid.Column="0"
-                    Text="Cancel"
-                    Clicked="OnCancelClicked"
-                    BackgroundColor="{StaticResource Ink}"
-                    TextColor="{StaticResource WritingPaper}"
-                    CornerRadius="6"
-                    Padding="20,10"/>
-                  <Button Grid.Column="1"
-                    Text="Go to Page"
-                    Clicked="OnGoToPageClicked"
-                    BackgroundColor="{StaticResource Accent}"
-                    TextColor="{StaticResource WritingPaper}"
-                    CornerRadius="6"
-                    Padding="20,10"/>
-                    </Grid>
-                </VerticalStackLayout>
+        <VerticalStackLayout Grid.Row="2"
+                             Spacing="8"
+                             HorizontalOptions="Center">
+            <Label Text="{Binding Source={x:Reference PageSelector}, Path=SelectionIndicatorText}"
+                   TextColor="{StaticResource Ink}"
+                   HorizontalTextAlignment="Center"/>
+            <Grid ColumnDefinitions="Auto,Auto"
+                  ColumnSpacing="12"
+                  HorizontalOptions="Center">
+                <Button Grid.Column="0"
+                        Text="Cancel"
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="{StaticResource Ink}"
+                        TextColor="{StaticResource WritingPaper}"
+                        CornerRadius="6"
+                        Padding="20,10"/>
+                <Button Grid.Column="1"
+                        Text="Go to Page"
+                        Clicked="OnGoToPageClicked"
+                        BackgroundColor="{StaticResource Accent}"
+                        TextColor="{StaticResource WritingPaper}"
+                        CornerRadius="6"
+                        Padding="20,10"/>
+            </Grid>
+        </VerticalStackLayout>
     </Grid>
 </ContentPage>
