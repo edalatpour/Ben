@@ -157,9 +157,29 @@ public class PlannerRepository
         return _db.Projects.AnyAsync(project => !project.Deleted && project.NormalizedName == normalizedName);
     }
 
+    public Task<bool> ProjectExistsAsync(string normalizedName, string? excludedProjectId)
+    {
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            return Task.FromResult(false);
+        }
+
+        return _db.Projects.AnyAsync(project =>
+            !project.Deleted
+            && project.NormalizedName == normalizedName
+            && project.Id != excludedProjectId);
+    }
+
     public async Task AddProjectAsync(ProjectItem project)
     {
         _db.Projects.Add(project);
+        await _db.SaveChangesAsync();
+        _ = _syncService.TriggerSyncAsync();
+    }
+
+    public async Task UpdateProjectAsync(ProjectItem project)
+    {
+        _db.Projects.Update(project);
         await _db.SaveChangesAsync();
         _ = _syncService.TriggerSyncAsync();
     }

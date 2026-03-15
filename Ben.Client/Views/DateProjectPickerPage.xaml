@@ -1,94 +1,53 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:Ben.Views"
              x:Class="Ben.Views.DateProjectPickerPage"
              Title="Open Page">
 
-    <Grid Style="{StaticResource PaperRootGrid}">
-        <ScrollView>
-            <Grid Padding="16"
-                  RowDefinitions="Auto,Auto,Auto,Auto"
-                  RowSpacing="16">
+    <Grid Style="{StaticResource PaperRootGrid}"
+          Padding="16"
+          ColumnDefinitions="*"
+          RowDefinitions="Auto,*,Auto"
+          RowSpacing="16">
 
-                <Label Grid.Row="0"
-                       Text="Open Page"
-                       Style="{StaticResource SectionTitle}"
+        <views:DateProjectSelectorView Grid.Row="0"
+                                       x:Name="PageSelector"
+                                       Projects="{Binding Projects}" />
+
+        <Grid Grid.Row="1"
+                                          RowDefinitions="Auto"
+              RowSpacing="10">
+                                    <views:ProjectManagementView Grid.Row="0"
+                                                                                                                         ProjectName="{Binding ProjectNameInput, Mode=TwoWay}"
+                                                                                                                         AddRequested="OnAddProjectClicked"
+                                                                                                                         EditRequested="OnEditProjectClicked" />
+        </Grid>
+
+                <VerticalStackLayout Grid.Row="2"
+                           Spacing="8"
+                           HorizontalOptions="Center">
+                  <Label Text="{Binding Source={x:Reference PageSelector}, Path=SelectionIndicatorText}"
+                       TextColor="{StaticResource Ink}"
                        HorizontalTextAlignment="Center"/>
-
-                <Grid Grid.Row="1"
-                      RowDefinitions="Auto,Auto"
-                      RowSpacing="10">
-                    <Label Text="Choose Date"
-                           Style="{StaticResource SectionTitle}"/>
-                    <Grid Grid.Row="1"
-                          ColumnDefinitions="*,Auto"
-                          ColumnSpacing="12">
-                        <DatePicker x:Name="PageDatePicker"
-                                    Date="{Binding SelectedDate}"
-                                    Format="D"
-                                    TextColor="{StaticResource Ink}"/>
-                        <Button Grid.Column="1"
-                                Text="Open"
-                                Clicked="OnOpenDateClicked"
-                                BackgroundColor="{StaticResource Accent}"
-                                TextColor="{StaticResource WritingPaper}"
-                                CornerRadius="4"/>
+                    <Grid ColumnDefinitions="Auto,Auto"
+                    ColumnSpacing="12"
+                    HorizontalOptions="Center">
+                  <Button Grid.Column="0"
+                    Text="Cancel"
+                    Clicked="OnCancelClicked"
+                    BackgroundColor="{StaticResource Ink}"
+                    TextColor="{StaticResource WritingPaper}"
+                    CornerRadius="6"
+                    Padding="20,10"/>
+                  <Button Grid.Column="1"
+                    Text="Go to Page"
+                    Clicked="OnGoToPageClicked"
+                    BackgroundColor="{StaticResource Accent}"
+                    TextColor="{StaticResource WritingPaper}"
+                    CornerRadius="6"
+                    Padding="20,10"/>
                     </Grid>
-                </Grid>
-
-                <Grid Grid.Row="2"
-                      RowDefinitions="Auto,Auto"
-                      RowSpacing="10">
-                    <Label Text="Projects"
-                           Style="{StaticResource SectionTitle}"/>
-                    <ScrollView Grid.Row="1"
-                                HeightRequest="220">
-                        <VerticalStackLayout Spacing="8"
-                                             BindableLayout.ItemsSource="{Binding Projects}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Text="{Binding Name}"
-                                            Clicked="OnProjectSelected"
-                                            BackgroundColor="Transparent"
-                                            BorderColor="{StaticResource Line}"
-                                            BorderWidth="1"
-                                            TextColor="{StaticResource Ink}"
-                                            CornerRadius="4"
-                                            HorizontalOptions="Fill"/>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </ScrollView>
-                </Grid>
-
-                <Grid Grid.Row="3"
-                      RowDefinitions="Auto,Auto,Auto"
-                      RowSpacing="10">
-                    <Label Text="Create Project"
-                           Style="{StaticResource SectionTitle}"/>
-                    <Entry Grid.Row="1"
-                           x:Name="NewProjectEntry"
-                           Text="{Binding NewProjectName}"
-                           Placeholder="Project name"
-                           TextColor="{StaticResource Ink}"/>
-                    <Grid Grid.Row="2"
-                          ColumnDefinitions="*,*"
-                          ColumnSpacing="12">
-                        <Button Grid.Column="0"
-                                Text="Cancel"
-                                Clicked="OnCancelClicked"
-                                BackgroundColor="{StaticResource Ink}"
-                                TextColor="{StaticResource WritingPaper}"
-                                CornerRadius="4"/>
-                        <Button Grid.Column="1"
-                                Text="Create"
-                                Clicked="OnCreateProjectClicked"
-                                BackgroundColor="{StaticResource Accent}"
-                                TextColor="{StaticResource WritingPaper}"
-                                CornerRadius="4"/>
-                    </Grid>
-                </Grid>
-            </Grid>
-        </ScrollView>
+                </VerticalStackLayout>
     </Grid>
 </ContentPage>

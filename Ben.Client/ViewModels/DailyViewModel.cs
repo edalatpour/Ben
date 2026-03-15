@@ -432,6 +432,44 @@ public class DailyViewModel : INotifyPropertyChanged
         }
     }
 
+    public async Task<(bool Success, string ErrorMessage)> TryRenameProjectAsync(ProjectItem project, string newProjectName)
+    {
+        if (project == null)
+        {
+            return (false, "Please select a project to edit.");
+        }
+
+        string displayName = KeyConvention.NormalizeProjectDisplayName(newProjectName);
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            return (false, "Please enter a project name.");
+        }
+
+        if (displayName.Length > MaxProjectNameLength)
+        {
+            return (false, $"Project name must be {MaxProjectNameLength} characters or fewer.");
+        }
+
+        string normalizedName = KeyConvention.NormalizeProjectName(displayName);
+        if (await _repo.ProjectExistsAsync(normalizedName, project.Id))
+        {
+            return (false, "A project with that name already exists.");
+        }
+
+        project.Name = displayName;
+        project.NormalizedName = normalizedName;
+
+        try
+        {
+            await _repo.UpdateProjectAsync(project);
+            return (true, string.Empty);
+        }
+        catch (DbUpdateException)
+        {
+            return (false, "A project with that name already exists.");
+        }
+    }
+
     public Task NavigateToPageAsync(string key)
     {
         return LoadPageAsync(key);

@@ -1,5 +1,6 @@
 using Ben.Models;
 using Ben.ViewModels;
+using Microsoft.Maui.Controls;
 
 namespace Ben.Views;
 
@@ -26,34 +27,30 @@ public partial class DateProjectPickerPage : ContentPage
 
         _initialized = true;
         await _viewModel.InitializeAsync();
+        PageSelector.SelectedKey = _viewModel.InitialKey;
     }
 
-    async void OnOpenDateClicked(object sender, EventArgs e)
+    async void OnAddProjectClicked(object sender, EventArgs e)
     {
-        await _viewModel.NavigateToSelectedDateAsync();
-        await Navigation.PopModalAsync();
-    }
-
-    async void OnProjectSelected(object sender, EventArgs e)
-    {
-        if (sender is not BindableObject bindable || bindable.BindingContext is not ProjectItem project)
-        {
-            return;
-        }
-
-        await _viewModel.NavigateToProjectAsync(project);
-        await Navigation.PopModalAsync();
-    }
-
-    async void OnCreateProjectClicked(object sender, EventArgs e)
-    {
-        (bool success, string errorMessage) = await _viewModel.CreateProjectAsync();
+        (bool success, string errorMessage) = await _viewModel.AddProjectAsync();
         if (!success)
         {
             await DisplayAlertAsync("Validation", errorMessage, "OK");
-            return;
         }
+    }
 
+    async void OnEditProjectClicked(object sender, EventArgs e)
+    {
+        (bool success, string errorMessage) = await _viewModel.EditProjectAsync(PageSelector.SelectedProject);
+        if (!success)
+        {
+            await DisplayAlertAsync("Validation", errorMessage, "OK");
+        }
+    }
+
+    async void OnGoToPageClicked(object sender, EventArgs e)
+    {
+        await _viewModel.OpenSelectedPageAsync(PageSelector.SelectedKey);
         await Navigation.PopModalAsync();
     }
 

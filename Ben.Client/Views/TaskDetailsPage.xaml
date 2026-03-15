@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:Ben.Views"
              x:Class="Ben.Views.TaskDetailsPage"
              Title="Task Details">
 
@@ -53,7 +54,7 @@
                             <RowDefinition Height="46"/>
                             <RowDefinition Height="46"/>
                             <RowDefinition Height="46"/>
-                            <RowDefinition Height="46"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="46"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
@@ -281,40 +282,12 @@
                               HorizontalOptions="Fill"
                               RowDefinitions="Auto,Auto"
                               RowSpacing="8">
-                            <Grid ColumnDefinitions="*,*"
-                                  ColumnSpacing="8">
-                                <Button x:Name="ForwardToDateButton"
-                                        Text="Date"
-                                        Clicked="OnForwardToDateClicked"
-                                        BackgroundColor="{StaticResource Accent}"
-                                        TextColor="{StaticResource WritingPaper}"
-                                        CornerRadius="4"/>
-                                <Button x:Name="ForwardToProjectButton"
-                                        Grid.Column="1"
-                                        Text="Project"
-                                        Clicked="OnForwardToProjectClicked"
-                                        BackgroundColor="Transparent"
-                                        TextColor="{StaticResource Ink}"
-                                        BorderColor="{StaticResource Line}"
-                                        BorderWidth="1"
-                                        CornerRadius="4"/>
-                            </Grid>
-                            <DatePicker x:Name="ForwardedDatePicker"
-                                        Grid.Row="1"
-                                        Format="d"
-                                        DateSelected="OnForwardedDateSelected"
-                                        TextColor="{StaticResource Ink}"
-                                        FontSize="18"
-                                        HeightRequest="46"
-                                        HorizontalOptions="Fill"
-                                        VerticalOptions="Center"/>
-                            <Picker x:Name="ForwardedProjectPicker"
-                                    Grid.Row="1"
-                                    IsVisible="False"
-                                    Title="Select project"
-                                    TextColor="{StaticResource Ink}"
-                                    TitleColor="{StaticResource Line}"
-                                    SelectedIndexChanged="OnForwardedProjectChanged"/>
+                            <views:DateProjectSelectorView x:Name="ForwardTargetSelector"
+                                           Grid.Row="0" />
+                            <Label Grid.Row="1"
+                               Text="{Binding Source={x:Reference ForwardTargetSelector}, Path=SelectionIndicatorText}"
+                               TextColor="{StaticResource Ink}"
+                               HorizontalTextAlignment="Center"/>
                         </Grid>
 
                         <Border x:Name="StatusBorderDeleted"

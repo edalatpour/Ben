@@ -18,8 +18,6 @@ public partial class TaskDetailsPage : ContentPage
     private int _priorityIndex;
     private string _selectedStatus = "NotStarted";
     private string? _selectedForwardKey;
-    private bool _isForwardingToProject;
-    private List<ProjectItem> _forwardProjects = new();
 
     public TaskDetailsPage(DailyViewModel viewModel, TaskItem? task = null)
     {
@@ -140,47 +138,6 @@ public partial class TaskDetailsPage : ContentPage
         {
             _selectedForwardKey = null;
         }
-        else
-        {
-            EnsureForwardSelection();
-            UpdateForwardTargetUi();
-        }
-    }
-
-    void OnForwardedDateSelected(object sender, DateChangedEventArgs e)
-    {
-        if (!e.NewDate.HasValue)
-        {
-            _selectedForwardKey = null;
-            return;
-        }
-
-        _selectedForwardKey = KeyConvention.ToDateKey(e.NewDate.Value);
-    }
-
-    void OnForwardedProjectChanged(object sender, EventArgs e)
-    {
-        if (ForwardedProjectPicker.SelectedIndex < 0 || ForwardedProjectPicker.SelectedIndex >= _forwardProjects.Count)
-        {
-            _selectedForwardKey = null;
-            return;
-        }
-
-        _selectedForwardKey = KeyConvention.ToProjectKey(_forwardProjects[ForwardedProjectPicker.SelectedIndex].Name);
-    }
-
-    void OnForwardToDateClicked(object sender, EventArgs e)
-    {
-        _isForwardingToProject = false;
-        EnsureForwardSelection();
-        UpdateForwardTargetUi();
-    }
-
-    void OnForwardToProjectClicked(object sender, EventArgs e)
-    {
-        _isForwardingToProject = true;
-        EnsureForwardSelection();
-        UpdateForwardTargetUi();
     }
 
     void OnOrderDown(object sender, EventArgs e)
@@ -318,101 +275,31 @@ public partial class TaskDetailsPage : ContentPage
 
     async Task InitializeForwardTargetsAsync()
     {
-        _forwardProjects = (await _viewModel.GetProjectsAsync())
+        List<ProjectItem> forwardProjects = (await _viewModel.GetProjectsAsync())
             .Where(project => !string.Equals(KeyConvention.ToProjectKey(project.Name), _task.Key, StringComparison.Ordinal))
             .ToList();
 
-        ForwardedProjectPicker.ItemsSource = _forwardProjects.Select(project => project.Name).ToList();
-        EnsureForwardSelection();
-        UpdateForwardTargetUi();
-    }
+        ForwardTargetSelector.Projects = forwardProjects;
 
-    void EnsureForwardSelection()
-    {
-        if (_isForwardingToProject)
+        if (!string.IsNullOrWhiteSpace(_selectedForwardKey))
         {
-            if (_forwardProjects.Count == 0)
-            {
-                _selectedForwardKey = null;
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(_selectedForwardKey)
-                || !KeyConvention.IsProjectKey(_selectedForwardKey)
-                || !_forwardProjects.Any(project => string.Equals(KeyConvention.ToProjectKey(project.Name), _selectedForwardKey, StringComparison.Ordinal)))
-            {
-                _selectedForwardKey = KeyConvention.ToProjectKey(_forwardProjects[0].Name);
-            }
-
+            ForwardTargetSelector.SelectedKey = _selectedForwardKey;
             return;
         }
 
-        if (!KeyConvention.TryParseDateKey(_selectedForwardKey, out DateTime _))
-        {
-            DateTime sourceDate = KeyConvention.TryParseDateKey(_task.Key, out DateTime parsedDate)
-                ? parsedDate
-                : DateTime.Today;
-            DateTime forwardDate = sourceDate < DateTime.Today.Date
-                ? DateTime.Today
-                : sourceDate.AddDays(1);
-            _selectedForwardKey = KeyConvention.ToDateKey(forwardDate);
-        }
-    }
+        DateTime sourceDate = KeyConvention.TryParseDateKey(_task.Key, out DateTime parsedDate)
+            ? parsedDate
+            : DateTime.Today;
+        DateTime forwardDate = sourceDate < DateTime.Today.Date
+            ? DateTime.Today
+            : sourceDate.AddDays(1);
 
-    void UpdateForwardTargetUi()
-    {
-        if (Application.Current?.Resources == null)
-        {
-            return;
-        }
-
-        var accent = (Color)Application.Current.Resources["Accent"];
-        var ink = (Color)Application.Current.Resources["Ink"];
-        var line = (Color)Application.Current.Resources["Line"];
-        var paper = (Color)Application.Current.Resources["WritingPaper"];
-
-        ForwardToDateButton.BackgroundColor = _isForwardingToProject ? Colors.Transparent : accent;
-        ForwardToDateButton.TextColor = _isForwardingToProject ? ink : paper;
-        ForwardToDateButton.BorderColor = _isForwardingToProject ? line : accent;
-        ForwardToDateButton.BorderWidth = _isForwardingToProject ? 1 : 0;
-
-        ForwardToProjectButton.BackgroundColor = _isForwardingToProject ? accent : Colors.Transparent;
-        ForwardToProjectButton.TextColor = _isForwardingToProject ? paper : ink;
-        ForwardToProjectButton.BorderColor = _isForwardingToProject ? accent : line;
-        ForwardToProjectButton.BorderWidth = _isForwardingToProject ? 0 : 1;
-
-        ForwardedDatePicker.IsVisible = !_isForwardingToProject;
-        ForwardedProjectPicker.IsVisible = _isForwardingToProject;
-
-        if (!_isForwardingToProject && KeyConvention.TryParseDateKey(_selectedForwardKey, out DateTime forwardDate))
-        {
-            ForwardedDatePicker.Date = forwardDate;
-        }
-
-        if (_isForwardingToProject)
-        {
-            int selectedIndex = _forwardProjects.FindIndex(project => string.Equals(KeyConvention.ToProjectKey(project.Name), _selectedForwardKey, StringComparison.Ordinal));
-            ForwardedProjectPicker.SelectedIndex = selectedIndex;
-        }
+        ForwardTargetSelector.SelectedKey = KeyConvention.ToDateKey(forwardDate);
     }
 
     string? GetForwardDestinationKey()
     {
-        if (_isForwardingToProject)
-        {
-            if (ForwardedProjectPicker.SelectedIndex < 0 || ForwardedProjectPicker.SelectedIndex >= _forwardProjects.Count)
-            {
-                return null;
-            }
-
-            return KeyConvention.ToProjectKey(_forwardProjects[ForwardedProjectPicker.SelectedIndex].Name);
-        }
-
-        if (KeyConvention.TryParseDateKey(_selectedForwardKey, out DateTime forwardDate))
-        {
-            return KeyConvention.ToDateKey(forwardDate);
-        }
-
-        return null;
+        _selectedForwardKey = ForwardTargetSelector.SelectedKey;
+        return _selectedForwardKey;
     }
 }

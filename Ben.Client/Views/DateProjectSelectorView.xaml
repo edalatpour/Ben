@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ben.Views.DateProjectSelectorView"
+             x:Name="Root">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*"
+          RowSpacing="10">
+        <Label Grid.Row="0"
+               Text="Select Date"
+               Style="{StaticResource SectionTitle}" />
+
+        <DatePicker Grid.Row="1"
+                    x:Name="SelectorDatePicker"
+                    Format="D"
+                    HorizontalOptions="Fill"
+                    DateSelected="OnDateSelected"
+                    TextColor="{StaticResource Ink}" />
+
+        <Label Grid.Row="2"
+               Text="Select Project"
+               Style="{StaticResource SectionTitle}" />
+
+        <Border Grid.Row="3"
+                Stroke="{StaticResource Line}"
+                StrokeThickness="1"
+                Padding="8">
+            <CollectionView x:Name="ProjectsCollectionView"
+                            SelectionMode="Single"
+                            SelectionChanged="OnProjectSelectionChanged">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="8">
+                            <Label Text="{Binding Name}"
+                                   TextColor="{StaticResource Ink}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Border>
+    </Grid>
+</ContentView>
