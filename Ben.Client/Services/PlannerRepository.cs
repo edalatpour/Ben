@@ -324,6 +324,11 @@ public class PlannerRepository
 
     public async Task EnsureNoteOrderBackfillAsync()
     {
+        if (!await TableExistsAsync("Notes"))
+        {
+            return;
+        }
+
         await EnsureNoteOrderColumnAsync();
 
         if (!await _db.Notes.AnyAsync())
@@ -371,6 +376,11 @@ public class PlannerRepository
 
         try
         {
+            if (!await TableExistsAsync("Notes", connection))
+            {
+                return;
+            }
+
             bool hasOrder = false;
 
             using (var command = connection.CreateCommand())
@@ -395,6 +405,43 @@ public class PlannerRepository
                 alterCommand.CommandText = "ALTER TABLE Notes ADD COLUMN [Order] INTEGER NOT NULL DEFAULT 0;";
                 await alterCommand.ExecuteNonQueryAsync();
             }
+        }
+        finally
+        {
+            if (shouldClose)
+            {
+                await connection.CloseAsync();
+            }
+        }
+    }
+
+    async Task<bool> TableExistsAsync(string tableName, System.Data.Common.DbConnection? existingConnection = null)
+    {
+        var connection = existingConnection ?? _db.Database.GetDbConnection();
+        bool shouldClose = existingConnection == null && connection.State != ConnectionState.Open;
+
+        if (shouldClose)
+        {
+            await connection.OpenAsync();
+        }
+
+        try
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT COUNT(*)
+                FROM sqlite_master
+                WHERE type = 'table' AND name = $name;
+            ";
+
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "$name";
+            parameter.Value = tableName;
+            command.Parameters.Add(parameter);
+
+            object? value = await command.ExecuteScalarAsync();
+            long count = Convert.ToInt64(value ?? 0);
+            return count > 0;
         }
         finally
         {
