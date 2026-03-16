@@ -15,8 +15,13 @@ public static class KeyConvention
 
     public static string ToProjectKey(string projectName)
     {
-        string displayName = NormalizeProjectDisplayName(projectName);
-        return string.Concat(ProjectPrefix, displayName);
+        string projectId = NormalizeProjectId(projectName);
+        return string.Concat(ProjectPrefix, projectId);
+    }
+
+    public static string NormalizeProjectId(string? projectId)
+    {
+        return (projectId ?? string.Empty).Trim();
     }
 
     public static string NormalizeProjectDisplayName(string? projectName)
@@ -36,7 +41,7 @@ public static class KeyConvention
 
     public static bool IsProjectKey(string? key)
     {
-        return TryGetProjectName(key, out _);
+        return TryGetProjectId(key, out _);
     }
 
     public static bool TryParseDateKey(string? key, out DateTime date)
@@ -56,16 +61,16 @@ public static class KeyConvention
             out date);
     }
 
-    public static bool TryGetProjectName(string? key, out string projectName)
+    public static bool TryGetProjectId(string? key, out string projectId)
     {
-        projectName = string.Empty;
+        projectId = string.Empty;
         if (string.IsNullOrWhiteSpace(key) || !key.StartsWith(ProjectPrefix, StringComparison.Ordinal))
         {
             return false;
         }
 
-        projectName = key[ProjectPrefix.Length..].Trim();
-        return projectName.Length > 0;
+        projectId = NormalizeProjectId(key[ProjectPrefix.Length..]);
+        return projectId.Length > 0;
     }
 
     public static string NormalizeDateOrFallback(string? key, DateTime fallbackDate)
@@ -88,16 +93,16 @@ public static class KeyConvention
         return string.Empty;
     }
 
-    public static string ToShortPageDisplay(string? key)
+    public static string ToShortPageDisplay(string? key, string? projectName = null)
     {
         if (TryParseDateKey(key, out DateTime date))
         {
             return date.ToString("M/d", CultureInfo.InvariantCulture);
         }
 
-        if (TryGetProjectName(key, out string projectName))
+        if (TryGetProjectId(key, out _))
         {
-            return projectName;
+            return NormalizeProjectDisplayName(projectName);
         }
 
         return string.Empty;

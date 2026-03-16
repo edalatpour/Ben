@@ -89,7 +89,7 @@ public partial class TaskDetailsPage : ContentPage
         }
 
         string? parentKey = await _viewModel.GetTaskKeyByIdAsync(_task.ParentTaskId);
-        string parentDateValue = KeyConvention.ToShortPageDisplay(parentKey);
+        string parentDateValue = await _viewModel.GetPageDisplayAsync(parentKey);
         string parentDateText = !string.IsNullOrWhiteSpace(parentDateValue)
             ? $"Forwarded from {parentDateValue}."
             : "Forwarded.";
@@ -98,7 +98,7 @@ public partial class TaskDetailsPage : ContentPage
             && _task.OriginalTaskId != _task.ParentTaskId)
         {
             string? originalKey = await _viewModel.GetTaskKeyByIdAsync(_task.OriginalTaskId);
-            string originalDateValue = KeyConvention.ToShortPageDisplay(originalKey);
+            string originalDateValue = await _viewModel.GetPageDisplayAsync(originalKey);
             if (!string.IsNullOrWhiteSpace(originalDateValue))
             {
                 parentDateText += $" Originally created on {originalDateValue}.";
@@ -276,7 +276,7 @@ public partial class TaskDetailsPage : ContentPage
     async Task InitializeForwardTargetsAsync()
     {
         List<ProjectItem> forwardProjects = (await _viewModel.GetProjectsAsync())
-            .Where(project => !string.Equals(KeyConvention.ToProjectKey(project.Name), _task.Key, StringComparison.Ordinal))
+            .Where(project => !string.Equals(KeyConvention.ToProjectKey(project.Id), _task.Key, StringComparison.Ordinal))
             .ToList();
 
         ForwardTargetSelector.Projects = forwardProjects;

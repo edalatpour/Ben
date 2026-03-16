@@ -61,19 +61,36 @@ public class PlannerRepository
             keyById = referencedKeys.ToDictionary(task => task.Id, task => task.Key, StringComparer.Ordinal);
         }
 
+        Dictionary<string, string> projectNamesById = new(StringComparer.Ordinal);
+        List<string> referencedProjectIds = keyById.Values
+            .Select(GetProjectId)
+            .Where(projectId => !string.IsNullOrWhiteSpace(projectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToList()!;
+
+        if (referencedProjectIds.Count > 0)
+        {
+            var referencedProjects = await _db.Projects
+                .Where(project => !project.Deleted && referencedProjectIds.Contains(project.Id))
+                .Select(project => new { project.Id, project.Name })
+                .ToListAsync();
+
+            projectNamesById = referencedProjects.ToDictionary(project => project.Id, project => project.Name, StringComparer.Ordinal);
+        }
+
         foreach (var task in tasks)
         {
             // Task list shows the original task's date
             if (!string.IsNullOrWhiteSpace(task.OriginalTaskId)
                 && keyById.TryGetValue(task.OriginalTaskId, out string? originalKey))
             {
-                string originalDateText = KeyConvention.ToShortPageDisplay(originalKey);
+                string originalDateText = ToPageDisplay(originalKey, projectNamesById);
                 task.ForwardedFromDate = string.IsNullOrWhiteSpace(originalDateText) ? null : $"({originalDateText})";
             }
             else if (!string.IsNullOrWhiteSpace(task.ParentTaskId)
                 && keyById.TryGetValue(task.ParentTaskId, out string? parentKeyFallback))
             {
-                string parentDateText = KeyConvention.ToShortPageDisplay(parentKeyFallback);
+                string parentDateText = ToPageDisplay(parentKeyFallback, projectNamesById);
                 task.ForwardedFromDate = string.IsNullOrWhiteSpace(parentDateText) ? null : $"({parentDateText})";
             }
             else
@@ -85,7 +102,7 @@ public class PlannerRepository
             if (!string.IsNullOrWhiteSpace(task.ParentTaskId)
                 && keyById.TryGetValue(task.ParentTaskId, out string? parentKey))
             {
-                string parentDateText = KeyConvention.ToShortPageDisplay(parentKey);
+                string parentDateText = ToPageDisplay(parentKey, projectNamesById);
                 task.ParentTaskDate = string.IsNullOrWhiteSpace(parentDateText) ? null : parentDateText;
             }
             else
@@ -134,8 +151,32 @@ public class PlannerRepository
         return _db.Projects
             .Where(project => !project.Deleted)
             .OrderBy(project => project.Name)
-            .Select(project => KeyConvention.ToProjectKey(project.Name))
+            .Select(project => KeyConvention.ToProjectKey(project.Id))
             .ToListAsync();
+    }
+
+    public Task<string?> GetProjectNameByKeyAsync(string? key)
+    {
+        if (!KeyConvention.TryGetProjectId(key, out string projectId))
+        {
+            return Task.FromResult<string?>(null);
+        }
+
+        return _db.Projects
+            .Where(project => !project.Deleted && project.Id == projectId)
+            .Select(project => project.Name)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<string> GetPageDisplayAsync(string? key)
+    {
+        if (KeyConvention.TryParseDateKey(key, out _))
+        {
+            return KeyConvention.ToShortPageDisplay(key);
+        }
+
+        string? projectName = await GetProjectNameByKeyAsync(key);
+        return KeyConvention.ToShortPageDisplay(key, projectName);
     }
 
     public async Task<List<ProjectItem>> GetProjectsAsync()
@@ -362,5 +403,23 @@ public class PlannerRepository
                 await connection.CloseAsync();
             }
         }
+    }
+
+    static string? GetProjectId(string? key)
+    {
+        return KeyConvention.TryGetProjectId(key, out string projectId)
+            ? projectId
+            : null;
+    }
+
+    static string ToPageDisplay(string? key, IReadOnlyDictionary<string, string> projectNamesById)
+    {
+        if (KeyConvention.TryGetProjectId(key, out string projectId)
+            && projectNamesById.TryGetValue(projectId, out string projectName))
+        {
+            return KeyConvention.ToShortPageDisplay(key, projectName);
+        }
+
+        return KeyConvention.ToShortPageDisplay(key);
     }
 }

@@ -27,6 +27,7 @@ public class DailyViewModel : INotifyPropertyChanged
     private readonly DatasyncSyncService _syncService;
     private readonly IConnectivity _connectivity;
     private bool _isSyncing;
+    private string _currentProjectName = string.Empty;
 
     public DailyViewModel(PlannerRepository repo, AuthenticationService authService, DatasyncSyncService syncService, IConnectivity connectivity)
     {
@@ -186,9 +187,9 @@ public class DailyViewModel : INotifyPropertyChanged
                 return string.Empty;
             }
 
-            if (KeyConvention.TryGetProjectName(CurrentDay.Key, out string projectName))
+            if (IsProjectPage)
             {
-                return projectName;
+                return string.IsNullOrWhiteSpace(_currentProjectName) ? "Project" : _currentProjectName;
             }
 
             return CurrentDate.ToString("dd");
@@ -236,6 +237,8 @@ public class DailyViewModel : INotifyPropertyChanged
         {
             CurrentDate = date;
         }
+
+        _currentProjectName = await _repo.GetProjectNameByKeyAsync(key) ?? string.Empty;
 
         DailyData day = await _repo.LoadPageAsync(key);
         // day.Tasks.Add(new TaskItem { Status = "I", Priority = "A", Order = 1, Title = "The most important thing" });
@@ -396,6 +399,11 @@ public class DailyViewModel : INotifyPropertyChanged
         return _repo.GetProjectsAsync();
     }
 
+    public Task<string> GetPageDisplayAsync(string? key)
+    {
+        return _repo.GetPageDisplayAsync(key);
+    }
+
     public async Task<(bool Success, string ErrorMessage, ProjectItem? Project)> TryCreateProjectAsync(string projectName)
     {
         string displayName = KeyConvention.NormalizeProjectDisplayName(projectName);
@@ -462,6 +470,15 @@ public class DailyViewModel : INotifyPropertyChanged
         try
         {
             await _repo.UpdateProjectAsync(project);
+
+            if (CurrentDay != null
+                && KeyConvention.TryGetProjectId(CurrentDay.Key, out string currentProjectId)
+                && string.Equals(currentProjectId, project.Id, StringComparison.Ordinal))
+            {
+                _currentProjectName = displayName;
+                OnPropertyChanged(nameof(HeaderPrimaryText));
+            }
+
             return (true, string.Empty);
         }
         catch (DbUpdateException)
@@ -646,7 +663,7 @@ public class DailyViewModel : INotifyPropertyChanged
             return;
         }
 
-        if (KeyConvention.TryGetProjectName(currentKey, out _))
+        if (KeyConvention.IsProjectKey(currentKey))
         {
             List<string> projectKeys = await _repo.GetProjectKeysAsync();
             int currentIndex = projectKeys.FindIndex(key => string.Equals(key, currentKey, StringComparison.OrdinalIgnoreCase));

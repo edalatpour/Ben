@@ -362,6 +362,26 @@ BEGIN
 END;
 GO
 
+UPDATE taskItems
+SET [Key] = N'project:' + projectItems.[Id]
+FROM [TaskItems] taskItems
+INNER JOIN [ProjectItems] projectItems
+        ON projectItems.[UserId] = taskItems.[UserId]
+     AND projectItems.[NormalizedName] = UPPER(LTRIM(RTRIM(SUBSTRING(taskItems.[Key], LEN(N'project:') + 1, 4000))))
+WHERE taskItems.[Key] LIKE N'project:%'
+    AND taskItems.[Key] <> N'project:' + projectItems.[Id];
+GO
+
+UPDATE noteItems
+SET [Key] = N'project:' + projectItems.[Id]
+FROM [NoteItems] noteItems
+INNER JOIN [ProjectItems] projectItems
+        ON projectItems.[UserId] = noteItems.[UserId]
+     AND projectItems.[NormalizedName] = UPPER(LTRIM(RTRIM(SUBSTRING(noteItems.[Key], LEN(N'project:') + 1, 4000))))
+WHERE noteItems.[Key] LIKE N'project:%'
+    AND noteItems.[Key] <> N'project:' + projectItems.[Id];
+GO
+
 IF NOT EXISTS (
     SELECT 1
 FROM [__EFMigrationsHistory]

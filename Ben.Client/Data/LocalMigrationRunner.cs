@@ -6,7 +6,7 @@ namespace Ben.Data;
 
 public static class LocalMigrationRunner
 {
-    private const int LatestVersion = 5; // Update this as you add migrations
+    private const int LatestVersion = 6; // Update this as you add migrations
 
 
     private static bool TableExists(LocalSchemaDbContext db, string tableName)
@@ -171,6 +171,43 @@ public static class LocalMigrationRunner
             }
 
             version = 5;
+        }
+
+        if (version < 6)
+        {
+            db.Database.ExecuteSqlRaw(@"
+                UPDATE [Tasks]
+                SET [Key] = 'project:' || (
+                    SELECT [Id]
+                    FROM [Projects]
+                    WHERE [NormalizedName] = UPPER(TRIM(substr([Tasks].[Key], length('project:') + 1)))
+                    LIMIT 1
+                )
+                WHERE [Key] LIKE 'project:%'
+                  AND EXISTS (
+                      SELECT 1
+                      FROM [Projects]
+                      WHERE [NormalizedName] = UPPER(TRIM(substr([Tasks].[Key], length('project:') + 1)))
+                  );
+            ");
+
+            db.Database.ExecuteSqlRaw(@"
+                UPDATE [Notes]
+                SET [Key] = 'project:' || (
+                    SELECT [Id]
+                    FROM [Projects]
+                    WHERE [NormalizedName] = UPPER(TRIM(substr([Notes].[Key], length('project:') + 1)))
+                    LIMIT 1
+                )
+                WHERE [Key] LIKE 'project:%'
+                  AND EXISTS (
+                      SELECT 1
+                      FROM [Projects]
+                      WHERE [NormalizedName] = UPPER(TRIM(substr([Notes].[Key], length('project:') + 1)))
+                  );
+            ");
+
+            version = 6;
         }
 
         // Save final version

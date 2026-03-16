@@ -111,7 +111,7 @@ public partial class DateProjectSelectorView : ContentView
         {
             if (e.CurrentSelection.FirstOrDefault() is ProjectItem project)
             {
-                SelectedKey = KeyConvention.ToProjectKey(project.Name);
+                SelectedKey = KeyConvention.ToProjectKey(project.Id);
                 SelectionIndicatorText = $"Selected: Project ({project.Name})";
             }
             else if (KeyConvention.TryParseDateKey(SelectedKey, out DateTime date))
@@ -150,10 +150,10 @@ public partial class DateProjectSelectorView : ContentView
                 return;
             }
 
-            if (KeyConvention.TryGetProjectName(SelectedKey, out string projectName))
+            if (KeyConvention.TryGetProjectId(SelectedKey, out string projectId))
             {
                 ProjectItem? selectedProject = (ProjectsCollectionView.ItemsSource as IEnumerable<ProjectItem>)?
-                    .FirstOrDefault(project => string.Equals(project.Name, projectName, StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(project => string.Equals(project.Id, projectId, StringComparison.Ordinal));
 
                 ProjectsCollectionView.SelectedItem = selectedProject;
                 SelectionIndicatorText = selectedProject == null
