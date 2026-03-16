@@ -7,38 +7,42 @@
 
     <Grid Style="{StaticResource PaperRootGrid}">
 
-        <ScrollView>
-            <Grid Padding="16"
-                  HorizontalOptions="Fill"
-                  RowDefinitions="Auto,*,Auto"
-                  RowSpacing="12">
+        <Grid Padding="16"
+              HorizontalOptions="Fill"
+              RowDefinitions="Auto,*,Auto"
+              RowSpacing="12">
 
-                <!-- Header -->
+            <!-- Header -->
 
-                <Label Grid.Row="0"
-                       Text="Task Details"
-                       Style="{StaticResource SectionTitle}"
-                       HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="0"
+                   Text="Task Details"
+                   Style="{StaticResource SectionTitle}"
+                   HorizontalTextAlignment="Center"/>
 
-                <!-- Task Details Form -->
+            <!-- Task Details Form -->
 
-                <Grid Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="1"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                    <BoxView Grid.ColumnSpan="2"
-                             HeightRequest="3"
-                             BackgroundColor="{StaticResource Ink}"/>
-                    <BoxView Grid.RowSpan="2"
-                             WidthRequest="1"
-                             BackgroundColor="{StaticResource Ink}"/>
+                <BoxView Grid.ColumnSpan="2"
+                         HeightRequest="3"
+                         BackgroundColor="{StaticResource Ink}"/>
+                <BoxView Grid.RowSpan="3"
+                         WidthRequest="1"
+                         BackgroundColor="{StaticResource Ink}"/>
+
+                <ScrollView Grid.Row="1"
+                            Grid.Column="1"
+                            HorizontalOptions="Fill"
+                            VerticalOptions="Fill">
 
                     <Grid x:Name="TaskDetailsForm"
                           Grid.Row="1"
@@ -54,8 +58,8 @@
                             <RowDefinition Height="46"/>
                             <RowDefinition Height="46"/>
                             <RowDefinition Height="46"/>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="46"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2.4*"/>
@@ -108,6 +112,10 @@
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
                                 HeightRequest="46">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                      CommandParameter="NotStarted"/>
+                            </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Image Source="not_started.webp"
                                        HeightRequest="24"
@@ -118,10 +126,6 @@
                                        HorizontalTextAlignment="Center"
                                        TextColor="{StaticResource Ink}"/>
                             </VerticalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                      CommandParameter="NotStarted"/>
-                            </Border.GestureRecognizers>
                         </Border>
 
                         <Border Grid.Row="3"
@@ -210,6 +214,10 @@
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
                                 HeightRequest="46">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                      CommandParameter="InProgress"/>
+                            </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Image Source="in_progress.webp"
                                        HeightRequest="24"
@@ -220,10 +228,6 @@
                                        HorizontalTextAlignment="Center"
                                        TextColor="{StaticResource Ink}"/>
                             </VerticalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                      CommandParameter="InProgress"/>
-                            </Border.GestureRecognizers>
                         </Border>
 
                         <Border x:Name="StatusBorderCompleted"
@@ -234,6 +238,10 @@
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
                                 HeightRequest="46">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                      CommandParameter="Completed"/>
+                            </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Image Source="completed.webp"
                                        HeightRequest="24"
@@ -244,10 +252,6 @@
                                        HorizontalTextAlignment="Center"
                                        TextColor="{StaticResource Ink}"/>
                             </VerticalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                      CommandParameter="Completed"/>
-                            </Border.GestureRecognizers>
                         </Border>
 
                         <Border x:Name="StatusBorderForwarded"
@@ -257,7 +261,12 @@
                                 Stroke="{StaticResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
-                                HeightRequest="46">
+                                HeightRequest="46"
+                                VerticalOptions="Start">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                      CommandParameter="Forwarded"/>
+                            </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Image Source="forwarded.webp"
                                        HeightRequest="24"
@@ -268,22 +277,20 @@
                                        HorizontalTextAlignment="Center"
                                        TextColor="{StaticResource Ink}"/>
                             </VerticalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                      CommandParameter="Forwarded"/>
-                            </Border.GestureRecognizers>
                         </Border>
 
                         <Grid Grid.Row="6"
                               Grid.Column="1"
                               Grid.ColumnSpan="2"
+                              Grid.RowSpan="2"
                               x:Name="ForwardingTargetHost"
                               IsVisible="False"
                               HorizontalOptions="Fill"
                               RowDefinitions="Auto,Auto"
                               RowSpacing="8">
                             <views:DateProjectSelectorView x:Name="ForwardTargetSelector"
-                                                           Grid.Row="0"/>
+                                                           Grid.Row="0"
+                                                           HorizontalOptions="Fill"/>
                             <Label Grid.Row="1"
                                    Text="{Binding Source={x:Reference ForwardTargetSelector}, Path=SelectionIndicatorText}"
                                    TextColor="{StaticResource Ink}"
@@ -297,7 +304,12 @@
                                 Stroke="{StaticResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
-                                HeightRequest="46">
+                                HeightRequest="46"
+                                VerticalOptions="Start">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnStatusSelected"
+                                                      CommandParameter="Deleted"/>
+                            </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Image Source="cancelled.webp"
                                        HeightRequest="24"
@@ -308,43 +320,44 @@
                                        HorizontalTextAlignment="Center"
                                        TextColor="{StaticResource Ink}"/>
                             </VerticalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnStatusSelected"
-                                                      CommandParameter="Deleted"/>
-                            </Border.GestureRecognizers>
                         </Border>
                     </Grid>
 
-                    <BoxView Grid.Row="2"
-                             Grid.ColumnSpan="2"
-                             HeightRequest="1"
-                             BackgroundColor="{StaticResource Ink}"/>
+                </ScrollView>
 
-                </Grid>
+                <BoxView Grid.Row="2"
+                         Grid.ColumnSpan="2"
+                         HeightRequest="1"
+                         BackgroundColor="{StaticResource Ink}"/>
 
-                <!-- Action buttons -->
-
-                <Grid Grid.Row="2"
-                      ColumnDefinitions="*,*"
-                      ColumnSpacing="12"
-                      Margin="0,16,0,0">
-                    <Button Grid.Column="0"
-                            Text="Cancel"
-                            Clicked="OnCancelClicked"
-                            BackgroundColor="{StaticResource Ink}"
-                            TextColor="{StaticResource WritingPaper}"
-                            CornerRadius="4"
-                            HeightRequest="44"/>
-                    <Button Grid.Column="1"
-                            Text="Save"
-                            Clicked="OnSaveClicked"
-                            BackgroundColor="{StaticResource Accent}"
-                            TextColor="{StaticResource WritingPaper}"
-                            CornerRadius="4"
-                            HeightRequest="44"/>
-                </Grid>
             </Grid>
-        </ScrollView>
+
+            <!-- Action buttons -->
+
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="12"
+                  Margin="0,16,0,0">
+
+                <Button Grid.Column="0"
+                        Text="Cancel"
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="{StaticResource Ink}"
+                        TextColor="{StaticResource WritingPaper}"
+                        CornerRadius="4"
+                        HeightRequest="44"/>
+
+                <Button Grid.Column="1"
+                        Text="Save"
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="{StaticResource Accent}"
+                        TextColor="{StaticResource WritingPaper}"
+                        CornerRadius="4"
+                        HeightRequest="44"/>
+
+            </Grid>
+
+        </Grid>
 
     </Grid>
 

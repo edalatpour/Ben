@@ -47,7 +47,7 @@
                    Grid.Column="1"
                    Style="{StaticResource SectionTitle}"
                    HorizontalTextAlignment="Center"/>
-            <Label Text="Prioritized Daily Task List"
+            <Label Text="Task List"
                    Grid.Column="2"
                    Style="{StaticResource SectionTitle}"
                    HorizontalTextAlignment="Center"/>
