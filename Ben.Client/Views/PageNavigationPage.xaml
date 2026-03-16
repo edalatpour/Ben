@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:Ben.Views"
+             x:Class="Ben.Views.PageNavigationPage"
+             Title="Open Page">
+
+  <Grid Style="{StaticResource PaperRootGrid}">
+
+    <Grid Padding="16"
+          HorizontalOptions="Fill"
+          RowDefinitions="Auto,*,Auto"
+          RowSpacing="12">
+
+      <Label Grid.Row="0"
+             Text="Page Navigation"
+             Style="{StaticResource SectionTitle}"
+             HorizontalTextAlignment="Center"/>
+
+      <Grid Grid.Row="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="3"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="1"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <BoxView Grid.ColumnSpan="2"
+                 HeightRequest="3"
+                 BackgroundColor="{StaticResource Ink}"/>
+        <BoxView Grid.RowSpan="3"
+                 WidthRequest="1"
+                 BackgroundColor="{StaticResource Ink}"/>
+
+        <ScrollView Grid.Row="1"
+                    Grid.Column="1"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill">
+
+          <Grid BackgroundColor="{StaticResource WritingPaper}"
+                Padding="16"
+                RowDefinitions="Auto,Auto,Auto"
+                RowSpacing="12">
+            <views:DateProjectSelectorView Grid.Row="0"
+                                           x:Name="PageSelector"
+                                           Projects="{Binding Projects}"/>
+
+            <views:ProjectManagementView Grid.Row="1"
+                                         ProjectName="{Binding ProjectNameInput, Mode=TwoWay}"
+                                         AddRequested="OnAddProjectClicked"
+                                         EditRequested="OnEditProjectClicked"/>
+
+            <Label Grid.Row="2"
+                   Text="{Binding Source={x:Reference PageSelector}, Path=SelectionIndicatorText}"
+                   TextColor="{StaticResource Ink}"
+                   HorizontalTextAlignment="Center"/>
+          </Grid>
+        </ScrollView>
+
+        <BoxView Grid.Row="2"
+                 Grid.ColumnSpan="2"
+                 HeightRequest="1"
+                 BackgroundColor="{StaticResource Ink}"/>
+
+      </Grid>
+
+      <Grid Grid.Row="2"
+            ColumnDefinitions="*,*"
+            ColumnSpacing="12"
+            Margin="0,16,0,0">
+        <Button Grid.Column="0"
+                Text="Cancel"
+                Clicked="OnCancelClicked"
+                BackgroundColor="{StaticResource Ink}"
+                TextColor="{StaticResource WritingPaper}"
+                CornerRadius="4"
+                HeightRequest="44"/>
+        <Button Grid.Column="1"
+                Text="Go"
+                Clicked="OnGoToPageClicked"
+                BackgroundColor="{StaticResource Accent}"
+                TextColor="{StaticResource WritingPaper}"
+                CornerRadius="4"
+                HeightRequest="44"/>
+      </Grid>
+    </Grid>
+  </Grid>
+</ContentPage>

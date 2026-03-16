@@ -69,7 +69,7 @@ public partial class NotesPageView : ContentView
             return;
         }
 
-        await page.Navigation.PushModalAsync(new DateProjectPickerPage(viewModel));
+        await page.Navigation.PushModalAsync(new PageNavigationPage(viewModel));
     }
 }
 

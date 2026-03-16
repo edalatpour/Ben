@@ -4,12 +4,12 @@ using Microsoft.Maui.Controls;
 
 namespace Ben.Views;
 
-public partial class DateProjectPickerPage : ContentPage
+public partial class PageNavigationPage : ContentPage
 {
     private readonly DateProjectPickerViewModel _viewModel;
     private bool _initialized;
 
-    public DateProjectPickerPage(DailyViewModel dailyViewModel)
+    public PageNavigationPage(DailyViewModel dailyViewModel)
     {
         InitializeComponent();
         _viewModel = new DateProjectPickerViewModel(dailyViewModel);
