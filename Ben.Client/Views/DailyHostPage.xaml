@@ -46,7 +46,7 @@
                    HeightRequest="60"
                    Padding="6"
                    Margin="6,0,0,0"
-                   VerticalOptions="End"
+                   VerticalOptions="Center"
                    HorizontalOptions="Start"/>
       <ImageButton Grid.Column="2"
                    Source="swipe_right.webp"
@@ -57,7 +57,7 @@
                    HeightRequest="60"
                    Padding="6"
                    Margin="0,0,6,0"
-                   VerticalOptions="End"
+                   VerticalOptions="Center"
                    HorizontalOptions="End"/>
     </Grid>
 
