@@ -6,40 +6,42 @@
 
     <Grid Style="{StaticResource PaperRootGrid}">
 
-        <ScrollView>
-            
-            <Grid Padding="16"
-                  RowDefinitions="Auto,*,Auto"
-                  RowSpacing="12">
+        <Grid Padding="16"
+              HorizontalOptions="Fill"
+              RowDefinitions="Auto,*,Auto"
+              RowSpacing="12">
 
-                <!-- Header -->
-                <Label Grid.Row="0"
-                       Text="Note Details"
-                       Style="{StaticResource SectionTitle}"
-                       HorizontalTextAlignment="Center"/>
+            <!-- Header -->
+            <Label Grid.Row="0"
+                   Text="Note Details"
+                   Style="{StaticResource SectionTitle}"
+                   HorizontalTextAlignment="Center"/>
 
-                <!-- Form -->
-                <Grid Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+            <!-- Form -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="1"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                    <BoxView Grid.ColumnSpan="2"
-                             HeightRequest="3"
-                             BackgroundColor="{StaticResource Ink}"/>
-                    <BoxView Grid.RowSpan="2"
-                             WidthRequest="1"
-                             BackgroundColor="{StaticResource Ink}"/>
+                <BoxView Grid.ColumnSpan="2"
+                         HeightRequest="3"
+                         BackgroundColor="{StaticResource Ink}"/>
+                <BoxView Grid.RowSpan="3"
+                         WidthRequest="1"
+                         BackgroundColor="{StaticResource Ink}"/>
 
-                    <Grid Grid.Row="1"
-                          Grid.Column="1"
-                          BackgroundColor="{StaticResource WritingPaper}"
+                <ScrollView Grid.Row="1"
+                            Grid.Column="1"
+                            HorizontalOptions="Fill"
+                            VerticalOptions="Fill">
+
+                    <Grid BackgroundColor="{StaticResource WritingPaper}"
                           Padding="16"
                           RowDefinitions="*,Auto"
                           RowSpacing="8">
@@ -56,39 +58,39 @@
 
                     </Grid>
 
-                    <BoxView Grid.Row="2"
-                             Grid.ColumnSpan="2"
-                             HeightRequest="1"
-                             BackgroundColor="{StaticResource Ink}"/>
+                </ScrollView>
 
-                </Grid>
-
-                <!-- Action buttons -->
-                <Grid Grid.Row="2"
-                      ColumnDefinitions="*,*"
-                      ColumnSpacing="12"
-                      Margin="0,16,0,0">
-
-                    <Button Grid.Column="0"
-                            Text="Cancel"
-                            Clicked="OnCancelClicked"
-                            BackgroundColor="{StaticResource Ink}"
-                            TextColor="{StaticResource WritingPaper}"
-                            CornerRadius="4"
-                            HeightRequest="44"/>
-                    <Button Grid.Column="1"
-                            Text="Save"
-                            Clicked="OnSaveClicked"
-                            BackgroundColor="{StaticResource Accent}"
-                            TextColor="{StaticResource WritingPaper}"
-                            CornerRadius="4"
-                            HeightRequest="44"/>
-
-                </Grid>
+                <BoxView Grid.Row="2"
+                         Grid.ColumnSpan="2"
+                         HeightRequest="1"
+                         BackgroundColor="{StaticResource Ink}"/>
 
             </Grid>
 
-        </ScrollView>
+            <!-- Action buttons -->
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="12"
+                  Margin="0,16,0,0">
+
+                <Button Grid.Column="0"
+                        Text="Cancel"
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="{StaticResource Ink}"
+                        TextColor="{StaticResource WritingPaper}"
+                        CornerRadius="4"
+                        HeightRequest="44"/>
+                <Button Grid.Column="1"
+                        Text="Save"
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="{StaticResource Accent}"
+                        TextColor="{StaticResource WritingPaper}"
+                        CornerRadius="4"
+                        HeightRequest="44"/>
+
+            </Grid>
+
+        </Grid>
 
     </Grid>
 
