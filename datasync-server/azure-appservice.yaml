@@ -1,13 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: community-toolkit-datasync-server-aca
+name: community-toolkit-datasync-server
 metadata:
   template: community-toolkit-datasync-server@8.0.0
-
-infra:
-  provider: bicep
-  path: ./infra
-  module: main-aca
 
 workflows:
   up:
@@ -19,9 +14,4 @@ services:
   backend:
     project: ./src/Ben.Datasync.Server
     language: csharp
-    host: containerapp
-    docker:
-      # Dockerfile is at the datasync-server root; context includes both
-      # the project source and any other files needed at build time.
-      path: ./Dockerfile
-      context: .
+    host: appservice

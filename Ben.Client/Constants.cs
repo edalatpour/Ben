@@ -8,7 +8,8 @@ public class Constants
 /// <summary>
     /// The base URI for the Datasync service.
     /// </summary>
-    public static string ServiceUri = "https://app-qg762nqxq5bva.azurewebsites.net/";
+    // public static string ServiceUri = "https://app-qg762nqxq5bva.azurewebsites.net/";
+    public static string ServiceUri = "https://ca-qg762nqxq5bva.braveplant-d8d95ba6.centralus.azurecontainerapps.io";
 
     /// <summary>
     /// The application (client) ID for the native app within Microsoft Entra ID

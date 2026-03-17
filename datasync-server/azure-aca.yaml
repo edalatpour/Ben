@@ -4,6 +4,9 @@ name: community-toolkit-datasync-server-aca
 metadata:
   template: community-toolkit-datasync-server@8.0.0
 
+# Keep ACA deploys pinned to the dedicated ACA resource group.
+resourceGroup: rg-aca-${AZURE_ENV_NAME}
+
 infra:
   provider: bicep
   path: ./infra

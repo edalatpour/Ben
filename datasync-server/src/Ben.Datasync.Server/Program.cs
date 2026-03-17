@@ -6,6 +6,7 @@ using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.NSwag;
 using CommunityToolkit.Datasync.Server.OpenApi;
 using CommunityToolkit.Datasync.Server.Swashbuckle;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -89,6 +90,13 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 }
 
+// Respect X-Forwarded-Proto from ACA ingress (and any other reverse proxy).
+// This prevents UseHttpsRedirection from looping when TLS is terminated upstream.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.UseHttpsRedirection();
 
 if (nswagEnabled)
@@ -104,6 +112,7 @@ if (swashbuckleEnabled)
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" })).AllowAnonymous();
 
 if (openApiEnabled)
 {
