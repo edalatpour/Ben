@@ -56,6 +56,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
     private void OnAuthenticationStateChanged(object? sender, EventArgs e)
     {
+        OnPropertyChanged(nameof(IsAuthenticated));
         _ = UpdateStatus();
     }
 
@@ -98,6 +99,11 @@ public class DailyViewModel : INotifyPropertyChanged
         get => _isSyncClickable;
         set { _isSyncClickable = value; OnPropertyChanged(); }
     }
+
+    public bool IsAuthenticated
+    {
+        get => _authService.IsAuthenticated;
+    } 
 
     private async Task UpdateStatus()
     {
