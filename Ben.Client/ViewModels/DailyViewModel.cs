@@ -57,6 +57,7 @@ public class DailyViewModel : INotifyPropertyChanged
     private void OnAuthenticationStateChanged(object? sender, EventArgs e)
     {
         OnPropertyChanged(nameof(IsAuthenticated));
+        UserAvatarSource = BuildUserAvatarSource();
         _ = UpdateStatus();
     }
 
@@ -103,7 +104,22 @@ public class DailyViewModel : INotifyPropertyChanged
     public bool IsAuthenticated
     {
         get => _authService.IsAuthenticated;
-    } 
+    }
+
+    private ImageSource? _userAvatarSource;
+    public ImageSource UserAvatarSource
+    {
+        get => _userAvatarSource ??= BuildUserAvatarSource();
+        private set { _userAvatarSource = value; OnPropertyChanged(); }
+    }
+
+    private ImageSource BuildUserAvatarSource()
+    {
+        var path = _authService.ProfilePicturePath;
+        if (!string.IsNullOrEmpty(path) && File.Exists(path))
+            return ImageSource.FromFile(path);
+        return "microsoft.png";
+    }
 
     private async Task UpdateStatus()
     {

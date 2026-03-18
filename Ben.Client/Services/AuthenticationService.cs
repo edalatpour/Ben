@@ -14,6 +14,10 @@ public class AuthenticationService
     private const string AuthStateKey = "IsAuthenticated";
     private const string UserEmailKey = "UserEmail";
     private const string UserNameKey = "UserName";
+    private const string ProfilePicturePathKey = "ProfilePicturePath";
+
+    private static readonly string ProfilePictureFilePath = Path.Combine(FileSystem.AppDataDirectory, "profile_picture.jpg");
+    private static readonly HttpClient _httpClient = new();
 
     public AuthenticationService()
     {
@@ -73,6 +77,18 @@ public class AuthenticationService
         }
     }
 
+    public string? ProfilePicturePath
+    {
+        get => Preferences.Default.Get(ProfilePicturePathKey, (string?)null);
+        private set
+        {
+            if (value != null)
+                Preferences.Default.Set(ProfilePicturePathKey, value);
+            else
+                Preferences.Default.Remove(ProfilePicturePathKey);
+        }
+    }
+
     public async Task<AuthenticationToken> GetAuthenticationTokenAsync(CancellationToken cancellationToken = default)
     {
         var accounts = await _pca.GetAccountsAsync();
@@ -112,6 +128,9 @@ public class AuthenticationService
                         .ExecuteAsync();
 
                     UpdateAuthState(result);
+                    // Fetch profile picture if not already cached
+                    if (ProfilePicturePath == null || !File.Exists(ProfilePicturePath))
+                        _ = FetchAndStoreProfilePictureAsync(result.AccessToken);
                     return result;
                 }
                 catch (MsalUiRequiredException)
@@ -125,6 +144,7 @@ public class AuthenticationService
                 .ExecuteAsync();
 
             UpdateAuthState(authResult);
+            _ = FetchAndStoreProfilePictureAsync(authResult.AccessToken);
             return authResult;
         }
         catch (Exception ex)
@@ -151,6 +171,10 @@ public class AuthenticationService
             IsAuthenticated = false;
             UserEmail = null;
             UserName = null;
+            // Clean up cached profile picture
+            if (File.Exists(ProfilePictureFilePath))
+                File.Delete(ProfilePictureFilePath);
+            ProfilePicturePath = null;
             AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
@@ -202,6 +226,28 @@ public class AuthenticationService
         UserEmail = result.Account?.Username;
         UserName = result.Account?.Username?.Split('@')[0];
         AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private async Task FetchAndStoreProfilePictureAsync(string accessToken)
+    {
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://graph.microsoft.com/v1.0/me/photo/$value");
+            request.Headers.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var imageBytes = await response.Content.ReadAsByteArrayAsync();
+                await File.WriteAllBytesAsync(ProfilePictureFilePath, imageBytes);
+                ProfilePicturePath = ProfilePictureFilePath;
+                AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to fetch profile picture: {ex.Message}");
+        }
     }
 
     private static Task ShowAlertAsync(string title, string message, string cancel)

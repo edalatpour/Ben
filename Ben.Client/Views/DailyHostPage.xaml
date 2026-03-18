@@ -67,14 +67,22 @@
           BackgroundColor="{StaticResource Paper}"
           Padding="16,-16,16,0"
           HeightRequest="32">
-      <Image Grid.Column="0"
-             Source="microsoft.png"
-             WidthRequest="16"
-             HeightRequest="16"
-             VerticalOptions="Center"
-             HorizontalOptions="Start"
-             Margin="0,0,8,0"
-             IsVisible="{Binding IsAuthenticated}"/>
+      <Border Grid.Column="0"
+              IsVisible="{Binding IsAuthenticated}"
+              WidthRequest="20"
+              HeightRequest="20"
+              StrokeThickness="0"
+              Margin="0,0,8,0"
+              VerticalOptions="Center"
+              HorizontalOptions="Start">
+        <Border.StrokeShape>
+          <RoundRectangle CornerRadius="10"/>
+        </Border.StrokeShape>
+        <Image Source="{Binding UserAvatarSource}"
+               Aspect="AspectFill"
+               WidthRequest="20"
+               HeightRequest="20"/>
+      </Border>
       <Label Grid.Column="1"
              Text="{Binding LoginStatusText}"
              FontSize="12"
