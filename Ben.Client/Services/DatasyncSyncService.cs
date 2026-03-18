@@ -12,14 +12,20 @@ namespace Ben.Services;
 
 public sealed class DatasyncSyncService : IDisposable
 {
+    private static readonly TimeSpan AutoSyncDebounce = TimeSpan.FromMilliseconds(500);
+    private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(20);
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConnectivity _connectivity;
     private readonly AuthenticationService _authService;
     private readonly DatasyncOptions _options;
     private readonly ILogger<DatasyncSyncService> _logger;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
+    private readonly object _syncScheduleGate = new();
     private bool _started;
     private bool _disposed;
+    private CancellationTokenSource? _scheduledSyncCts;
+    private int _pendingCountSnapshot;
 
     public event EventHandler? SyncStarted;
     public event EventHandler? SyncCompleted;
@@ -64,6 +70,20 @@ public sealed class DatasyncSyncService : IDisposable
 
         _disposed = true;
         _connectivity.ConnectivityChanged -= OnConnectivityChanged;
+
+        CancellationTokenSource? scheduledSyncCts;
+        lock (_syncScheduleGate)
+        {
+            scheduledSyncCts = _scheduledSyncCts;
+            _scheduledSyncCts = null;
+        }
+
+        if (scheduledSyncCts != null)
+        {
+            scheduledSyncCts.Cancel();
+            scheduledSyncCts.Dispose();
+        }
+
         _syncLock.Dispose();
     }
 
@@ -77,7 +97,8 @@ public sealed class DatasyncSyncService : IDisposable
 
     public Task TriggerSyncAsync()
     {
-        return TrySyncAsync();
+        ScheduleSync(AutoSyncDebounce);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -94,6 +115,16 @@ public sealed class DatasyncSyncService : IDisposable
     /// </summary>
     public async Task<int> GetUnsyncedChangesCountAsync()
     {
+        if (_disposed)
+        {
+            return _pendingCountSnapshot;
+        }
+
+        if (!await _syncLock.WaitAsync(0))
+        {
+            return _pendingCountSnapshot;
+        }
+
         try
         {
             using IServiceScope scope = _scopeFactory.CreateScope();
@@ -101,6 +132,7 @@ public sealed class DatasyncSyncService : IDisposable
 
             // Query the Datasync operations queue to get pending changes
             var count = await context.DatasyncOperationsQueue.CountAsync();
+            _pendingCountSnapshot = count;
             _logger.LogInformation("Found {Count} pending operations in queue", count);
 
             return count;
@@ -108,7 +140,11 @@ public sealed class DatasyncSyncService : IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to check for unsynced changes.");
-            return 0;
+            return _pendingCountSnapshot;
+        }
+        finally
+        {
+            _syncLock.Release();
         }
     }
 
@@ -124,6 +160,66 @@ public sealed class DatasyncSyncService : IDisposable
         }
 
         return await TrySyncAsync();
+    }
+
+    private void ScheduleSync(TimeSpan delay)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        CancellationTokenSource cts = new();
+        CancellationTokenSource? previous = null;
+
+        lock (_syncScheduleGate)
+        {
+            if (_disposed)
+            {
+                cts.Dispose();
+                return;
+            }
+
+            previous = _scheduledSyncCts;
+            _scheduledSyncCts = cts;
+        }
+
+        if (previous != null)
+        {
+            previous.Cancel();
+            previous.Dispose();
+        }
+
+        _ = RunScheduledSyncAsync(cts, delay);
+    }
+
+    private async Task RunScheduledSyncAsync(CancellationTokenSource cts, TimeSpan delay)
+    {
+        try
+        {
+            if (delay > TimeSpan.Zero)
+            {
+                await Task.Delay(delay, cts.Token);
+            }
+
+            cts.Token.ThrowIfCancellationRequested();
+            await TrySyncAsync();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        finally
+        {
+            lock (_syncScheduleGate)
+            {
+                if (ReferenceEquals(_scheduledSyncCts, cts))
+                {
+                    _scheduledSyncCts = null;
+                }
+            }
+
+            cts.Dispose();
+        }
     }
 
     private async Task<bool> TrySyncAsync()
@@ -150,6 +246,7 @@ public sealed class DatasyncSyncService : IDisposable
             return false;
         }
 
+        bool shouldScheduleRetry = false;
         SyncStarted?.Invoke(this, EventArgs.Empty);
 
         try
@@ -170,6 +267,7 @@ public sealed class DatasyncSyncService : IDisposable
             }
 
             int pendingAfterPush = await context.DatasyncOperationsQueue.CountAsync();
+            _pendingCountSnapshot = pendingAfterPush;
             if (pendingAfterPush > 0)
             {
                 _logger.LogWarning(
@@ -177,6 +275,7 @@ public sealed class DatasyncSyncService : IDisposable
                     pendingAfterPush);
 
                 await LogQueueSnapshotAsync(context);
+                shouldScheduleRetry = true;
                 return false;
             }
 
@@ -190,9 +289,25 @@ public sealed class DatasyncSyncService : IDisposable
                 {
                     _logger.LogWarning("Datasync pull failure detail: {FailedRequest}", DescribeFailedRequest(failedRequest));
                 }
+
+                shouldScheduleRetry = true;
             }
 
-            return pushResult.IsSuccessful && pullResult.IsSuccessful;
+            int pendingAfterPull = await context.DatasyncOperationsQueue.CountAsync();
+            _pendingCountSnapshot = pendingAfterPull;
+
+            if (pendingAfterPull > 0)
+            {
+                shouldScheduleRetry = true;
+            }
+
+            bool success = pushResult.IsSuccessful && pullResult.IsSuccessful;
+            if (!success)
+            {
+                shouldScheduleRetry = true;
+            }
+
+            return success;
         }
         catch (DatasyncException ex)
         {
@@ -201,17 +316,40 @@ public sealed class DatasyncSyncService : IDisposable
             using IServiceScope diagnosticsScope = _scopeFactory.CreateScope();
             PlannerDbContext diagnosticsContext = diagnosticsScope.ServiceProvider.GetRequiredService<PlannerDbContext>();
             await LogQueueSnapshotAsync(diagnosticsContext);
+            shouldScheduleRetry = await RefreshPendingCountSnapshotAsync();
             return false;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Datasync synchronization failed.");
+            shouldScheduleRetry = await RefreshPendingCountSnapshotAsync();
             return false;
         }
         finally
         {
             _syncLock.Release();
             SyncCompleted?.Invoke(this, EventArgs.Empty);
+
+            if (shouldScheduleRetry)
+            {
+                ScheduleSync(RetryInterval);
+            }
+        }
+    }
+
+    private async Task<bool> RefreshPendingCountSnapshotAsync()
+    {
+        try
+        {
+            using IServiceScope scope = _scopeFactory.CreateScope();
+            PlannerDbContext context = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
+            int count = await context.DatasyncOperationsQueue.CountAsync();
+            _pendingCountSnapshot = count;
+            return count > 0;
+        }
+        catch
+        {
+            return _pendingCountSnapshot > 0;
         }
     }
 
