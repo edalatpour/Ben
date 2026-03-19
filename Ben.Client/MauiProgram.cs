@@ -71,6 +71,7 @@ public static class MauiProgram
 
             var syncService = scope.ServiceProvider.GetRequiredService<DatasyncSyncService>();
             syncService.Start();
+            _ = syncService.TrySyncNowAsync();
         }
 
         return app;

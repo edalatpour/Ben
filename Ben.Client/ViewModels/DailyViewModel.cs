@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Networking;
+using Ben.Data;
 using Ben.Models;
 using Ben.Services;
 using Ben.Views;
@@ -25,15 +26,19 @@ public class DailyViewModel : INotifyPropertyChanged
     private readonly PlannerRepository _repo;
     private readonly AuthenticationService _authService;
     private readonly DatasyncSyncService _syncService;
+    private readonly PlannerDbContext _dbContext;
+    private readonly LocalSchemaDbContext _schemaDbContext;
     private readonly IConnectivity _connectivity;
     private bool _isSyncing;
     private string _currentProjectName = string.Empty;
 
-    public DailyViewModel(PlannerRepository repo, AuthenticationService authService, DatasyncSyncService syncService, IConnectivity connectivity)
+    public DailyViewModel(PlannerRepository repo, AuthenticationService authService, DatasyncSyncService syncService, PlannerDbContext dbContext, LocalSchemaDbContext schemaDbContext, IConnectivity connectivity)
     {
         _repo = repo;
         _authService = authService;
         _syncService = syncService;
+        _dbContext = dbContext;
+        _schemaDbContext = schemaDbContext;
         _connectivity = connectivity;
 
         CurrentDate = DateTime.Today;
@@ -58,6 +63,15 @@ public class DailyViewModel : INotifyPropertyChanged
     {
         OnPropertyChanged(nameof(IsAuthenticated));
         UserAvatarSource = BuildUserAvatarSource();
+
+        // Clear all data when signing out
+        if (!_authService.IsAuthenticated)
+        {
+            CurrentDay.Tasks.Clear();
+            CurrentDay.Notes.Clear();
+            Console.WriteLine("Cleared UI data on sign-out");
+        }
+
         _ = UpdateStatus();
     }
 
@@ -139,6 +153,12 @@ public class DailyViewModel : INotifyPropertyChanged
             LoginStatusText = "Sign in with Microsoft";
         }
 
+        if (!_authService.IsAuthenticated)
+        {
+            SyncStatusText = "Not signed in";
+            return;
+        }
+
         // Update sync status
         if (_isSyncing)
         {
@@ -154,18 +174,6 @@ public class DailyViewModel : INotifyPropertyChanged
             else
             {
                 SyncStatusText = "No connectivity";
-            }
-        }
-        else if (!_authService.IsAuthenticated)
-        {
-            var pendingCount = await _syncService.GetUnsyncedChangesCountAsync();
-            if (pendingCount > 0)
-            {
-                SyncStatusText = pendingCount == 1 ? "1 pending change" : $"{pendingCount} pending changes";
-            }
-            else
-            {
-                SyncStatusText = "Not signed in";
             }
         }
         else
@@ -722,15 +730,57 @@ public class DailyViewModel : INotifyPropertyChanged
     {
         if (_authService.IsAuthenticated)
         {
-            await _authService.SignOutWithCleanupAsync(_syncService);
+            // Sign out with full cleanup for multi-user support
+            await _authService.SignOutWithCleanupAsync(_syncService, _dbContext, _schemaDbContext);
             await UpdateStatus();
             return;
         }
 
+        // Sign in and initialize for new user
         var result = await _authService.SignInAsync();
         if (result != null)
         {
-            _ = _syncService.TrySyncNowAsync();
+            try
+            {
+                // Step 1: Recreate database to match current entities
+                Console.WriteLine("Initializing database for new user");
+                bool dbRecreated = await _dbContext.RecreateAndInitializeDatabaseAsync();
+                if (!dbRecreated)
+                {
+                    Console.WriteLine("Warning: Database recreation failed, but proceeding with sync");
+                }
+
+                // Step 2: Ensure schema tracking database is initialized with migrations
+                Console.WriteLine("Applying schema migrations for new user");
+                await _schemaDbContext.Database.EnsureCreatedAsync();
+                LocalMigrationRunner.ApplyMigrations(_schemaDbContext);
+
+                // Step 3: Reinitialize Datasync client with new user's JWT
+                Console.WriteLine("Initializing Datasync client for new user");
+                bool clientInitialized = await _dbContext.ReinitializeDatasyncClientAsync();
+                if (!clientInitialized)
+                {
+                    Console.WriteLine("Warning: Datasync client reinitialization failed");
+                }
+
+                // Step 4: Pull fresh data from server
+                Console.WriteLine("Pulling initial data for new user");
+                _syncService.Start();
+                _isSyncing = true;
+                await UpdateStatus();
+
+                _ = await _syncService.TrySyncNowAsync();
+                await LoadPageAsync(CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during sign-in initialization: {ex.Message}");
+            }
+            finally
+            {
+                _isSyncing = false;
+                await UpdateStatus();
+            }
         }
 
         await UpdateStatus();
