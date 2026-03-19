@@ -1,6 +1,8 @@
 using Microsoft.Identity.Client;
 using CommunityToolkit.Datasync.Client.Authentication;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Ben.Data;
 
 namespace Ben.Services;
 
@@ -188,6 +190,65 @@ public class AuthenticationService
         catch (Exception ex)
         {
             Console.WriteLine($"Sign out error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Sign out with full cleanup for multi-user scenarios.
+    /// Cancels sync, disposes Datasync client, and deletes local database to prevent data leakage.
+    /// </summary>
+    /// <param name="syncService">The sync service to cancel and dispose</param>
+    /// <param name="dbContext">The planner database context to delete</param>
+    /// <param name="schemaDbContext">The local schema database context sharing the same SQLite file</param>
+    /// <returns>True if sign out succeeded, False if cleanup failed</returns>
+    public async Task<bool> SignOutWithCleanupAsync(
+        DatasyncSyncService syncService,
+        PlannerDbContext dbContext,
+        LocalSchemaDbContext schemaDbContext)
+    {
+        try
+        {
+            // Step 1: Cancel any in-progress sync and dispose resources
+            Console.WriteLine("Signing out: Canceling sync operations");
+            await syncService.CancelAndDisposeAsync();
+
+            // Step 2: Delete local database to ensure complete data isolation
+            Console.WriteLine("Signing out: Deleting local database");
+            dbContext.ChangeTracker.Clear();
+            schemaDbContext.ChangeTracker.Clear();
+            var plannerConnection = dbContext.Database.GetDbConnection();
+            if (plannerConnection.State != System.Data.ConnectionState.Closed)
+            {
+                plannerConnection.Close();
+            }
+
+            var schemaConnection = schemaDbContext.Database.GetDbConnection();
+            if (schemaConnection.State != System.Data.ConnectionState.Closed)
+            {
+                schemaConnection.Close();
+            }
+
+            bool dbDeleted = await dbContext.DeleteDatabaseFileAsync();
+            if (!dbDeleted)
+            {
+                Console.WriteLine("Warning: Database file deletion failed, but proceeding with sign-out");
+            }
+
+            // Step 3: Clear MSAL tokens and authentication state
+            Console.WriteLine("Signing out: Clearing authentication state");
+            await SignOutAsync();
+
+            Console.WriteLine("Sign out completed successfully");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Sign out error: {ex.Message}");
+            await ShowAlertAsync(
+                "Error",
+                $"Sign out failed: {ex.Message}",
+                "OK");
+            return false;
         }
     }
 

@@ -15,6 +15,8 @@ public sealed class DatasyncSyncService : IDisposable
     private static readonly TimeSpan AutoSyncDebounce = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(20);
 
+    private static readonly TimeSpan PendingChangesSyncInterval = TimeSpan.FromSeconds(20);
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConnectivity _connectivity;
     private readonly AuthenticationService _authService;
@@ -22,6 +24,8 @@ public sealed class DatasyncSyncService : IDisposable
     private readonly ILogger<DatasyncSyncService> _logger;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
     private readonly object _syncScheduleGate = new();
+    private CancellationTokenSource? _periodicSyncCts;
+    private Task? _periodicSyncTask;
     private bool _started;
     private bool _disposed;
     private CancellationTokenSource? _scheduledSyncCts;
@@ -46,6 +50,12 @@ public sealed class DatasyncSyncService : IDisposable
 
     public void Start()
     {
+        if (_disposed)
+        {
+            _logger.LogWarning("Cannot start sync service after disposal.");
+            return;
+        }
+
         if (_started)
         {
             return;
@@ -58,7 +68,62 @@ public sealed class DatasyncSyncService : IDisposable
 
         _started = true;
         _connectivity.ConnectivityChanged += OnConnectivityChanged;
-        _ = TrySyncAsync();
+        _periodicSyncCts = new CancellationTokenSource();
+        _periodicSyncTask = RunPendingChangesSyncLoopAsync(_periodicSyncCts.Token);
+    }
+
+    /// <summary>
+    /// Cancel any in-progress sync and pause auto-sync. Used for sign-out cleanup.
+    /// </summary>
+    public async Task CancelAndDisposeAsync()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _logger.LogInformation("Canceling active sync and pausing sync service for sign-out");
+
+        try
+        {
+            // Unsubscribe from connectivity events to prevent auto-sync attempts
+            _connectivity.ConnectivityChanged -= OnConnectivityChanged;
+            _started = false;
+            _periodicSyncCts?.Cancel();
+
+            // Try to cancel any in-progress sync operation
+            if (!await _syncLock.WaitAsync(TimeSpan.FromSeconds(5)))
+            {
+                _logger.LogWarning("Sync operation did not complete within timeout during sign-out");
+            }
+            else
+            {
+                _logger.LogInformation("Sync operation canceled for sign-out");
+                _syncLock.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during sync cancellation");
+        }
+        finally
+        {
+            if (_periodicSyncTask != null)
+            {
+                try
+                {
+                    await _periodicSyncTask;
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected when canceling sign-out loop.
+                }
+            }
+
+            _periodicSyncTask = null;
+            _periodicSyncCts?.Dispose();
+            _periodicSyncCts = null;
+        }
     }
 
     public void Dispose()
@@ -84,7 +149,46 @@ public sealed class DatasyncSyncService : IDisposable
             scheduledSyncCts.Dispose();
         }
 
+        _periodicSyncCts?.Cancel();
+        _periodicSyncCts?.Dispose();
         _syncLock.Dispose();
+    }
+
+    private async Task RunPendingChangesSyncLoopAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(PendingChangesSyncInterval);
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                if (!_started || _disposed)
+                {
+                    continue;
+                }
+
+                if (_connectivity.NetworkAccess != NetworkAccess.Internet || !_authService.IsAuthenticated)
+                {
+                    continue;
+                }
+
+                int pendingCount = await GetUnsyncedChangesCountAsync();
+                if (pendingCount <= 0)
+                {
+                    continue;
+                }
+
+                _logger.LogInformation(
+                    "Periodic sync tick found {Count} pending operations. Attempting sync.",
+                    pendingCount);
+
+                await TrySyncAsync();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when sign-out cancels the periodic loop.
+        }
     }
 
     private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
@@ -106,6 +210,11 @@ public sealed class DatasyncSyncService : IDisposable
     /// </summary>
     public async Task<bool> HasUnsyncedChangesAsync()
     {
+        if (_disposed || !_authService.IsAuthenticated)
+        {
+            return false;
+        }
+
         var count = await GetUnsyncedChangesCountAsync();
         return count > 0;
     }
@@ -123,6 +232,11 @@ public sealed class DatasyncSyncService : IDisposable
         if (!await _syncLock.WaitAsync(0))
         {
             return _pendingCountSnapshot;
+        }
+
+        if (_disposed || !_authService.IsAuthenticated)
+        {
+            return 0;
         }
 
         try

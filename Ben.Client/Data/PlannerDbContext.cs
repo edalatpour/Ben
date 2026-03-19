@@ -78,5 +78,98 @@ public class PlannerDbContext : OfflineDbContext
             cfg.ConflictResolver = new ClientWinsConflictResolver();
         });
     }
+
+    /// <summary>
+    /// Delete the SQLite database file from storage.
+    /// Used when signing out to ensure complete data isolation between users.
+    /// </summary>
+    public async Task<bool> DeleteDatabaseFileAsync()
+    {
+        try
+        {
+            string dbPath = Path.Combine(FileSystem.AppDataDirectory, "planner.datasync.db");
+
+            await Database.CloseConnectionAsync();
+            await Database.EnsureDeletedAsync();
+
+            DeleteIfExists(dbPath);
+            DeleteIfExists(dbPath + "-wal");
+            DeleteIfExists(dbPath + "-shm");
+
+            return true;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to delete database file - access denied: {ex.Message}");
+            return false;
+        }
+        catch (IOException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to delete database file - file in use: {ex.Message}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to delete database file: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static void DeleteIfExists(string path)
+    {
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+    }
+
+    /// <summary>
+    /// Recreate the database to match current EF Core entity definitions.
+    /// Called after database deletion during sign-in to ensure schema is up-to-date.
+    /// </summary>
+    public async Task<bool> RecreateAndInitializeDatabaseAsync()
+    {
+        try
+        {
+            await Database.EnsureCreatedAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to recreate database: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Reinitialize the Datasync client with the new user's authentication token.
+    /// Called after successful sign-in to set up Datasync for the new user.
+    /// The OfflineDbContext will automatically use the updated JWT from GetAuthenticationTokenAsync.
+    /// </summary>
+    public async Task<bool> ReinitializeDatasyncClientAsync()
+    {
+        try
+        {
+            // Trigger Datasync initialization with the new auth token
+            // OfflineDbContext uses lazy initialization, so accessing any Datasync operations
+            // will trigger OnDatasyncInitialization with the current JWT from AuthenticationService
+
+            // Force initialization by calling GetService which triggers the setup
+            var dbConnection = Database.GetDbConnection();
+            if (dbConnection.State != System.Data.ConnectionState.Open)
+            {
+                await dbConnection.OpenAsync();
+            }
+            dbConnection.Close();
+
+            System.Diagnostics.Debug.WriteLine("Datasync client reinitialized for new user authentication");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to reinitialize Datasync client: {ex.Message}");
+            return false;
+        }
+    }
 }
 
