@@ -5,7 +5,7 @@ namespace Ben;
 public class Constants
 {
 
-/// <summary>
+    /// <summary>
     /// The base URI for the Datasync service.
     /// </summary>
     // public static string ServiceUri = "https://app-qg762nqxq5bva.azurewebsites.net/";
@@ -16,11 +16,20 @@ public class Constants
     /// </summary>
     public static string ApplicationId = "d5a4dd1f-e90b-4c48-8031-15041bd3c02c";
 
-    public static string TenantId = "fdcad902-e900-470c-ad85-07deee47cb52";
     /// <summary>
-    /// The list of scopes to request
+    /// MSAL authority tenant segment.
+    /// "common" supports both work/school (Entra ID) and personal Microsoft accounts.
     /// </summary>
-    public static string[] Scopes = ["api://729ead08-e2b0-46ad-98e9-345c5dd2ca3b/access_as_user"];
-    // 
-    
+    public static string AuthorityTenant = "common";
+
+    /// <summary>
+    /// Scopes for the Datasync API.
+    /// </summary>
+    public static string[] ApiScopes = ["api://729ead08-e2b0-46ad-98e9-345c5dd2ca3b/access_as_user"];
+
+    /// <summary>
+    /// Scopes for Microsoft Graph.
+    /// </summary>
+    public static string[] GraphScopes = ["User.Read"];
+
 }

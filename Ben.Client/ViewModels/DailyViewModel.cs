@@ -73,7 +73,7 @@ public class DailyViewModel : INotifyPropertyChanged
         _ = UpdateStatus();
     }
 
-    private string _loginStatusText = "Sign in";
+    private string _loginStatusText = "Sign in with Microsoft";
     public string LoginStatusText
     {
         get => _loginStatusText;
@@ -136,7 +136,7 @@ public class DailyViewModel : INotifyPropertyChanged
         }
         else
         {
-            LoginStatusText = "Sign in";
+            LoginStatusText = "Sign in with Microsoft";
         }
 
         // Update sync status

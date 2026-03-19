@@ -12,7 +12,7 @@
       "value": "${SQL_CONNECTION_STRING}"
     },
     "azureAdTenantId": {
-      "value": "${AZURE_AD_TENANT_ID}"
+      "value": "common"
     },
     "azureAdClientId": {
       "value": "${AZURE_AD_CLIENT_ID}"

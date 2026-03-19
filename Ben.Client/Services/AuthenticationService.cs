@@ -1,5 +1,6 @@
 using Microsoft.Identity.Client;
 using CommunityToolkit.Datasync.Client.Authentication;
+using System.Text.Json;
 
 namespace Ben.Services;
 
@@ -7,7 +8,8 @@ public class AuthenticationService
 {
     private readonly IPublicClientApplication _pca;
     private string ClientId = Constants.ApplicationId; // "d5a4dd1f-e90b-4c48-8031-15041bd3c02c"; // TODO: Replace with actual client ID
-    private readonly string[] _scopes = Constants.Scopes; // new[] { "User.Read" };
+    private readonly string[] _apiScopes = Constants.ApiScopes;
+    private readonly string[] _graphScopes = Constants.GraphScopes;
 
     public event EventHandler? AuthenticationStateChanged;
 
@@ -24,7 +26,7 @@ public class AuthenticationService
         // Build the public client application
         var builder = PublicClientApplicationBuilder
             .Create(ClientId)
-            .WithAuthority(AzureCloudInstance.AzurePublic, Constants.TenantId);
+            .WithAuthority(AzureCloudInstance.AzurePublic, Constants.AuthorityTenant);
 
 #if WINDOWS
         // Windows: Use OS browser (system default) with loopback redirect URI
@@ -95,12 +97,12 @@ public class AuthenticationService
         AuthenticationResult? result = null;
         try
         {
-            result = await _pca.AcquireTokenSilent(_scopes, accounts.FirstOrDefault()).ExecuteAsync(cancellationToken);
+            result = await _pca.AcquireTokenSilent(_apiScopes, accounts.FirstOrDefault()).ExecuteAsync(cancellationToken);
             UpdateAuthState(result);
         }
         catch (MsalUiRequiredException)
         {
-            result = await _pca.AcquireTokenInteractive(_scopes).ExecuteAsync(cancellationToken);
+            result = await _pca.AcquireTokenInteractive(_apiScopes).ExecuteAsync(cancellationToken);
             UpdateAuthState(result);
         }
         return new AuthenticationToken
@@ -124,13 +126,16 @@ public class AuthenticationService
             {
                 try
                 {
-                    var result = await _pca.AcquireTokenSilent(_scopes, firstAccount)
+                    var result = await _pca.AcquireTokenSilent(_apiScopes, firstAccount)
                         .ExecuteAsync();
 
                     UpdateAuthState(result);
+#if DEBUG
+                    Console.WriteLine($"[Auth] API token account: Username={result.Account?.Username}, HomeAccountId={result.Account?.HomeAccountId?.Identifier}");
+#endif
                     // Fetch profile picture if not already cached
                     if (ProfilePicturePath == null || !File.Exists(ProfilePicturePath))
-                        _ = FetchAndStoreProfilePictureAsync(result.AccessToken);
+                        _ = FetchAndStoreProfilePictureAsync(allowInteractiveTokenAcquisition: true, account: result.Account);
                     return result;
                 }
                 catch (MsalUiRequiredException)
@@ -140,11 +145,14 @@ public class AuthenticationService
             }
 
             // Acquire token interactively
-            var authResult = await _pca.AcquireTokenInteractive(_scopes)
+            var authResult = await _pca.AcquireTokenInteractive(_apiScopes)
                 .ExecuteAsync();
 
             UpdateAuthState(authResult);
-            _ = FetchAndStoreProfilePictureAsync(authResult.AccessToken);
+#if DEBUG
+            Console.WriteLine($"[Auth] API token account: Username={authResult.Account?.Username}, HomeAccountId={authResult.Account?.HomeAccountId?.Identifier}");
+#endif
+            _ = FetchAndStoreProfilePictureAsync(allowInteractiveTokenAcquisition: true, account: authResult.Account);
             return authResult;
         }
         catch (Exception ex)
@@ -228,14 +236,92 @@ public class AuthenticationService
         AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    private async Task FetchAndStoreProfilePictureAsync(string accessToken)
+    private async Task<string?> AcquireGraphAccessTokenAsync(bool allowInteractiveTokenAcquisition, IAccount? account)
     {
         try
         {
+            var targetAccount = account;
+            if (targetAccount == null)
+            {
+                var accounts = await _pca.GetAccountsAsync();
+                targetAccount = accounts.FirstOrDefault();
+            }
+
+            if (targetAccount == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                var graphResult = await _pca.AcquireTokenSilent(_graphScopes, targetAccount).ExecuteAsync();
+#if DEBUG
+                LogGraphTokenDetails(graphResult.AccessToken, targetAccount, "silent");
+#endif
+                return graphResult.AccessToken;
+            }
+            catch (MsalUiRequiredException)
+            {
+                if (!allowInteractiveTokenAcquisition)
+                {
+                    return null;
+                }
+
+                var graphResult = await _pca.AcquireTokenInteractive(_graphScopes)
+                    .WithAccount(targetAccount)
+                    .ExecuteAsync();
+#if DEBUG
+                LogGraphTokenDetails(graphResult.AccessToken, targetAccount, "interactive");
+#endif
+                return graphResult.AccessToken;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to acquire Graph token: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task FetchAndStoreProfilePictureAsync(bool allowInteractiveTokenAcquisition, IAccount? account)
+    {
+        try
+        {
+            var accessToken = await AcquireGraphAccessTokenAsync(allowInteractiveTokenAcquisition, account);
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                return;
+            }
+
             using var request = new HttpRequestMessage(HttpMethod.Get, "https://graph.microsoft.com/v1.0/me/photo/$value");
             request.Headers.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             var response = await _httpClient.SendAsync(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                var notFoundBody = await response.Content.ReadAsStringAsync();
+#if DEBUG
+                Console.WriteLine($"[Graph] Photo response 404 for account {account?.Username}. Body: {notFoundBody}");
+#endif
+                var graphErrorCode = TryGetGraphErrorCode(notFoundBody);
+                if (string.Equals(graphErrorCode, "ErrorNonExistentStorage", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Graph photo unavailable: backing storage/mailbox is not provisioned for this user in the current tenant context.");
+                }
+
+#if DEBUG
+                Console.WriteLine($"[Graph] Photo error code: {graphErrorCode ?? "(none)"}");
+#endif
+                // Graph returns 404 when a user has no profile photo.
+                if (File.Exists(ProfilePictureFilePath))
+                {
+                    File.Delete(ProfilePictureFilePath);
+                }
+                ProfilePicturePath = null;
+                AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+
             if (response.IsSuccessStatusCode)
             {
                 var imageBytes = await response.Content.ReadAsByteArrayAsync();
@@ -243,11 +329,82 @@ public class AuthenticationService
                 ProfilePicturePath = ProfilePictureFilePath;
                 AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
             }
+            else
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Failed to fetch profile picture. Status: {(int)response.StatusCode} {response.ReasonPhrase}. Body: {errorBody}");
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Failed to fetch profile picture: {ex.Message}");
         }
+    }
+
+    private static void LogGraphTokenDetails(string accessToken, IAccount? account, string acquisitionMode)
+    {
+        try
+        {
+            var parts = accessToken.Split('.');
+            if (parts.Length < 2)
+            {
+                Console.WriteLine("[GraphToken] Token format is not JWT.");
+                return;
+            }
+
+            var payload = ParseJwtPayload(parts[1]);
+            payload.TryGetProperty("aud", out var aud);
+            payload.TryGetProperty("tid", out var tid);
+            payload.TryGetProperty("oid", out var oid);
+            payload.TryGetProperty("scp", out var scp);
+            payload.TryGetProperty("upn", out var upn);
+            payload.TryGetProperty("preferred_username", out var preferredUsername);
+
+            Console.WriteLine($"[GraphToken] Mode={acquisitionMode}, Account.Username={account?.Username}, Account.HomeAccountId={account?.HomeAccountId?.Identifier}, aud={aud.GetString()}, tid={tid.GetString()}, oid={oid.GetString()}, scp={scp.GetString()}, upn={upn.GetString()}, preferred_username={preferredUsername.GetString()}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[GraphToken] Failed to decode token payload: {ex.Message}");
+        }
+    }
+
+    private static JsonElement ParseJwtPayload(string base64UrlPayload)
+    {
+        var padded = base64UrlPayload.Replace('-', '+').Replace('_', '/');
+        var mod4 = padded.Length % 4;
+        if (mod4 > 0)
+        {
+            padded = padded.PadRight(padded.Length + (4 - mod4), '=');
+        }
+
+        var bytes = Convert.FromBase64String(padded);
+        using var doc = JsonDocument.Parse(bytes);
+        return doc.RootElement.Clone();
+    }
+
+    private static string? TryGetGraphErrorCode(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("error", out var error) &&
+                error.ValueKind == JsonValueKind.Object &&
+                error.TryGetProperty("code", out var code))
+            {
+                return code.GetString();
+            }
+        }
+        catch
+        {
+            // Ignore malformed response bodies.
+        }
+
+        return null;
     }
 
     private static Task ShowAlertAsync(string title, string message, string cancel)
