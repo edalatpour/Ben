@@ -462,7 +462,8 @@ public class PlannerRepository
     static string ToPageDisplay(string? key, IReadOnlyDictionary<string, string> projectNamesById)
     {
         if (KeyConvention.TryGetProjectId(key, out string projectId)
-            && projectNamesById.TryGetValue(projectId, out string projectName))
+            && projectNamesById.TryGetValue(projectId, out string? projectName)
+            && projectName is not null)
         {
             return KeyConvention.ToShortPageDisplay(key, projectName);
         }
