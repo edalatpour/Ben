@@ -1,8 +1,8 @@
-namespace Ben.Views;
+namespace Bennie.Views;
 
-using Ben.Models;
-using Ben.Services;
-using Ben.ViewModels;
+using Bennie.Models;
+using Bennie.Services;
+using Bennie.ViewModels;
 
 public partial class TaskDetailsPage : ContentPage
 {

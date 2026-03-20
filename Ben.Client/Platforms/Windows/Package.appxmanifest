@@ -6,13 +6,13 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
-  <Identity Name="maui-package-name-placeholder" Publisher="CN=User Name" Version="0.0.0.0" />
+  <Identity Name="43455TimEdalatpour.Bennie" Publisher="CN=D97AF757-910F-4AF5-BFB0-4DD7097E20CB" Version="0.8.4.0" />
 
-  <mp:PhoneIdentity PhoneProductId="42EE782F-CD84-4BFC-9E26-FF06A1FAABDE" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="467846b6-602a-465f-b652-c4564f35c998" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>$placeholder$</DisplayName>
-    <PublisherDisplayName>User Name</PublisherDisplayName>
+    <DisplayName>Bennie</DisplayName>
+    <PublisherDisplayName>Tim Edalatpour</PublisherDisplayName>
     <Logo>$placeholder$.png</Logo>
   </Properties>
 
@@ -28,13 +28,13 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="$placeholder$"
+        DisplayName="Bennie"
         Description="$placeholder$"
         Square150x150Logo="$placeholder$.png"
-        Square44x44Logo="$placeholder$.png"
+        Square44x44Logo="bennie_icon.png"
         BackgroundColor="transparent">
         <uap:DefaultTile Square71x71Logo="$placeholder$.png" Wide310x150Logo="$placeholder$.png" Square310x310Logo="$placeholder$.png" />
-        <uap:SplashScreen Image="$placeholder$.png" />
+        <uap:SplashScreen Image="bennie_splash.png"  BackgroundColor="#1F4E4B"/>
       </uap:VisualElements>
     </Application>
   </Applications>
@@ -42,5 +42,5 @@
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
   </Capabilities>
-
+  
 </Package>

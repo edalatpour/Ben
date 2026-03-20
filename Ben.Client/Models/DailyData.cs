@@ -1,7 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 
-namespace Ben.Models;
+namespace Bennie.Models;
 
 public class DailyData
 {

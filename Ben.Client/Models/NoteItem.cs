@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 #nullable enable
 
-namespace Ben.Models;
+namespace Bennie.Models;
 
 public class NoteItem : INotifyPropertyChanged
 {

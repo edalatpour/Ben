@@ -1,7 +1,7 @@
-namespace Ben.Views;
+namespace Bennie.Views;
 
-using Ben.Models;
-using Ben.ViewModels;
+using Bennie.Models;
+using Bennie.ViewModels;
 
 public partial class TaskPageView : ContentView
 {

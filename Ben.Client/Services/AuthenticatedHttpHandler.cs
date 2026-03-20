@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ben.Services;
+namespace Bennie.Services;
 
 public class AuthenticatedHttpHandler : DelegatingHandler
 {

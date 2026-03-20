@@ -1,6 +1,6 @@
 using System;
 
-namespace Ben.Services;
+namespace Bennie.Services;
 
 public interface IAlertService
 {

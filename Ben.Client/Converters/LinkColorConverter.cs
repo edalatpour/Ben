@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Ben.Converters;
+namespace Bennie.Converters;
 
 public class LinkColorConverter : IValueConverter
 {

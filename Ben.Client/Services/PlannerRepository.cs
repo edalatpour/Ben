@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
-using Ben.Data;
-using Ben.Models;
+using Bennie.Data;
+using Bennie.Models;
 
-namespace Ben.Services;
+namespace Bennie.Services;
 
 public class PlannerRepository
 {

@@ -8,14 +8,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Networking;
-using Ben.Data;
-using Ben.Models;
-using Ben.Services;
-using Ben.Views;
+using Bennie.Data;
+using Bennie.Models;
+using Bennie.Services;
+using Bennie.Views;
 
 #nullable enable
 
-namespace Ben.ViewModels;
+namespace Bennie.ViewModels;
 
 public class DailyViewModel : INotifyPropertyChanged
 {

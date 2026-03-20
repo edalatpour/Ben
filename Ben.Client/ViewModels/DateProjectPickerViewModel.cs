@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Ben.Models;
-using Ben.Services;
+using Bennie.Models;
+using Bennie.Services;
 
-namespace Ben.ViewModels;
+namespace Bennie.ViewModels;
 
 public class DateProjectPickerViewModel : INotifyPropertyChanged
 {

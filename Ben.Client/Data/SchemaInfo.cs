@@ -1,6 +1,6 @@
 using System;
 
-namespace Ben.Data;
+namespace Bennie.Data;
 
 public class SchemaInfo
 {

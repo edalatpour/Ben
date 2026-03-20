@@ -2,7 +2,7 @@ using System;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ben.Data;
+namespace Bennie.Data;
 
 public static class LocalMigrationRunner
 {

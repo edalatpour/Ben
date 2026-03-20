@@ -1,4 +1,4 @@
-namespace Ben.Services;
+namespace Bennie.Services;
 
 public sealed class DatasyncOptions
 {

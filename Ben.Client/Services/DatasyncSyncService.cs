@@ -3,12 +3,12 @@ using CommunityToolkit.Datasync.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Networking;
-using Ben.Data;
+using Bennie.Data;
 using System.Reflection;
 using System.Text;
 using System.IO;
 
-namespace Ben.Services;
+namespace Bennie.Services;
 
 public sealed class DatasyncSyncService : IDisposable
 {
