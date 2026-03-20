@@ -234,13 +234,13 @@ public sealed class DatasyncSyncService : IDisposable
             return _pendingCountSnapshot;
         }
 
-        if (_disposed || !_authService.IsAuthenticated)
-        {
-            return 0;
-        }
-
         try
         {
+            if (_disposed || !_authService.IsAuthenticated)
+            {
+                return 0;
+            }
+
             using IServiceScope scope = _scopeFactory.CreateScope();
             PlannerDbContext context = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
 

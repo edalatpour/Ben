@@ -18,6 +18,7 @@ public partial class TaskDetailsPage : ContentPage
     private int _priorityIndex;
     private string _selectedStatus = "NotStarted";
     private string? _selectedForwardKey;
+    private bool _isSaving;
 
     public TaskDetailsPage(DailyViewModel viewModel, TaskItem? task = null)
     {
@@ -180,55 +181,81 @@ public partial class TaskDetailsPage : ContentPage
 
     async void OnSaveClicked(object sender, EventArgs e)
     {
-        string title = TitleEntry.Text?.Trim() ?? string.Empty;
-        if (string.IsNullOrEmpty(title))
+        if (_isSaving)
         {
-            await DisplayAlertAsync("Validation", "Please enter a task title.", "OK");
             return;
         }
 
-        if (_selectedStatus == "Forwarded")
+        _isSaving = true;
+        if (sender is Button saveButton)
         {
-            string? destinationKey = GetForwardDestinationKey();
-            if (string.IsNullOrWhiteSpace(destinationKey))
+            saveButton.IsEnabled = false;
+        }
+
+        try
+        {
+            string title = TitleEntry.Text?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(title))
             {
-                await DisplayAlertAsync("Validation", "Please select a destination page.", "OK");
+                await DisplayAlertAsync("Validation", "Please enter a task title.", "OK");
                 return;
             }
 
-            if (string.Equals(destinationKey, _task.Key, StringComparison.Ordinal))
+            if (_selectedStatus == "Forwarded")
             {
-                await DisplayAlertAsync("Validation", "Please select a different page to forward this task to.", "OK");
-                return;
+                string? destinationKey = GetForwardDestinationKey();
+                if (string.IsNullOrWhiteSpace(destinationKey))
+                {
+                    await DisplayAlertAsync("Validation", "Please select a destination page.", "OK");
+                    return;
+                }
+
+                if (string.Equals(destinationKey, _task.Key, StringComparison.Ordinal))
+                {
+                    await DisplayAlertAsync("Validation", "Please select a different page to forward this task to.", "OK");
+                    return;
+                }
+            }
+
+            string selectedPriority = PriorityValues[_priorityIndex];
+            _order = Math.Clamp(_order, _minOrder, _maxOrder);
+
+            if (_isNewTask)
+            {
+                _task.Title = title;
+                _task.Status = _selectedStatus;
+                _task.Priority = selectedPriority;
+                _task.Order = _order;
+                await _viewModel.AddTaskItemAsync(_task);
+            }
+            else
+            {
+                await _viewModel.UpdateTaskFromDetailsAsync(_task, title, _selectedStatus, selectedPriority, _order);
+            }
+
+            if (_selectedStatus == "Forwarded")
+            {
+                string? destinationKey = GetForwardDestinationKey();
+                if (!string.IsNullOrWhiteSpace(destinationKey))
+                {
+                    await _viewModel.CreateForwardedTaskAsync(_task, destinationKey);
+                }
+            }
+
+            await Navigation.PopModalAsync();
+        }
+        catch
+        {
+            await DisplayAlertAsync("Save failed", "Could not save the task. Please try again.", "OK");
+        }
+        finally
+        {
+            _isSaving = false;
+            if (sender is Button saveButtonFinal)
+            {
+                saveButtonFinal.IsEnabled = true;
             }
         }
-
-        string selectedPriority = PriorityValues[_priorityIndex];
-        _order = Math.Clamp(_order, _minOrder, _maxOrder);
-
-        if (_isNewTask)
-        {
-            _task.Title = title;
-            _task.Status = _selectedStatus;
-            _task.Priority = selectedPriority;
-            _task.Order = _order;
-            await _viewModel.AddTaskItemAsync(_task);
-        }
-        else
-        {
-            await _viewModel.UpdateTaskFromDetailsAsync(_task, title, _selectedStatus, selectedPriority, _order);
-        }
-
-        if (_selectedStatus == "Forwarded")
-        {
-            string? destinationKey = GetForwardDestinationKey();
-            if (!string.IsNullOrWhiteSpace(destinationKey))
-            {
-                await _viewModel.CreateForwardedTaskAsync(_task, destinationKey);
-            }
-        }
-
-        await Navigation.PopModalAsync();
     }
 
     async void OnCancelClicked(object sender, EventArgs e)

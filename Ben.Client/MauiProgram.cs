@@ -62,6 +62,9 @@ public static class MauiProgram
             var pdb = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
             EnsurePlannerSchema(pdb);
             pdb.Database.EnsureCreated();
+            // Persist WAL at the file level and keep write contention waits short.
+            pdb.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+            pdb.Database.ExecuteSqlRaw("PRAGMA busy_timeout=1000;");
 
             var ldb = scope.ServiceProvider.GetRequiredService<LocalSchemaDbContext>();
             LocalMigrationRunner.ApplyMigrations(ldb);

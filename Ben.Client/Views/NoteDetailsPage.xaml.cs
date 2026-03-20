@@ -11,6 +11,7 @@ public partial class NoteDetailsPage : ContentPage
     private readonly DailyViewModel _viewModel;
     private readonly NoteItem _note;
     private readonly bool _isNewNote;
+    private bool _isSaving;
 
     public NoteDetailsPage(DailyViewModel viewModel)
         : this(viewModel, note: null)
@@ -53,33 +54,59 @@ public partial class NoteDetailsPage : ContentPage
 
     async void OnSaveClicked(object sender, EventArgs e)
     {
-        string text = NormalizeText(NoteEditor.Text);
-        if (string.IsNullOrEmpty(text))
+        if (_isSaving)
         {
-            await DisplayAlertAsync("Validation", "Please enter note text.", "OK");
             return;
         }
 
-        if (_isNewNote)
+        _isSaving = true;
+        if (sender is Button saveButton)
         {
-            await _viewModel.AddNoteAsync(text);
-        }
-        else
-        {
-            string originalText = _note.Text;
-            _note.Text = text;
-            try
-            {
-                await _viewModel.UpdateNoteAsync(_note);
-            }
-            catch
-            {
-                _note.Text = originalText;
-                throw;
-            }
+            saveButton.IsEnabled = false;
         }
 
-        await Navigation.PopModalAsync();
+        try
+        {
+            string text = NormalizeText(NoteEditor.Text);
+            if (string.IsNullOrEmpty(text))
+            {
+                await DisplayAlertAsync("Validation", "Please enter note text.", "OK");
+                return;
+            }
+
+            if (_isNewNote)
+            {
+                await _viewModel.AddNoteAsync(text);
+            }
+            else
+            {
+                string originalText = _note.Text;
+                _note.Text = text;
+                try
+                {
+                    await _viewModel.UpdateNoteAsync(_note);
+                }
+                catch
+                {
+                    _note.Text = originalText;
+                    throw;
+                }
+            }
+
+            await Navigation.PopModalAsync();
+        }
+        catch
+        {
+            await DisplayAlertAsync("Save failed", "Could not save the note. Please try again.", "OK");
+        }
+        finally
+        {
+            _isSaving = false;
+            if (sender is Button saveButtonFinal)
+            {
+                saveButtonFinal.IsEnabled = true;
+            }
+        }
     }
 
     static string NormalizeText(string text)
