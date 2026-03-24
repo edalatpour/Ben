@@ -131,8 +131,9 @@
                     <Image Grid.Row="1"
                            Grid.Column="0"
                            Source="plus.webp"
-                           HeightRequest="20"
-                           WidthRequest="20"
+                           HeightRequest="24"
+                           WidthRequest="24"
+                           Margin="8,3,0,0"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
                     <BoxView Grid.Row="1"
