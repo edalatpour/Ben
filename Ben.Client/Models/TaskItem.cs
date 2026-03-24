@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Bennie.Models;
+namespace Ben.Models;
 
 public enum StatusEnum
 {

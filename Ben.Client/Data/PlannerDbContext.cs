@@ -3,10 +3,10 @@ using CommunityToolkit.Datasync.Client.Authentication;
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
-using Bennie.Models;
-using Bennie.Services;
+using Ben.Models;
+using Ben.Services;
 
-namespace Bennie.Data;
+namespace Ben.Data;
 
 public class PlannerDbContext : OfflineDbContext
 {

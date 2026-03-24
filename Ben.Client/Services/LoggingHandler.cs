@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Bennie.Services;
+namespace Ben.Services;
 
 public class LoggingHandler : DelegatingHandler
 {

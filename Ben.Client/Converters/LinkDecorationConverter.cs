@@ -1,7 +1,7 @@
 using System.Globalization;
 using Microsoft.Maui.Controls;
 
-namespace Bennie.Converters;
+namespace Ben.Converters;
 
 public class LinkDecorationConverter : IValueConverter
 {

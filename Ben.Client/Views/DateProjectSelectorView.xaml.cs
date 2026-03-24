@@ -1,9 +1,9 @@
-using Bennie.Models;
-using Bennie.Services;
+using Ben.Models;
+using Ben.Services;
 using System.Collections;
 using System.Linq;
 
-namespace Bennie.Views;
+namespace Ben.Views;
 
 public partial class DateProjectSelectorView : ContentView
 {

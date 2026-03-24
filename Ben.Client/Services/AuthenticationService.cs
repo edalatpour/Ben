@@ -2,9 +2,9 @@ using Microsoft.Identity.Client;
 using CommunityToolkit.Datasync.Client.Authentication;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Bennie.Data;
+using Ben.Data;
 
-namespace Bennie.Services;
+namespace Ben.Services;
 
 public class AuthenticationService
 {

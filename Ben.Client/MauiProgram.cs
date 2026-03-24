@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Networking;
-using Bennie.Data;
-using Bennie.Services;
-using Bennie.Views;
-using Bennie.ViewModels;
+using Ben.Data;
+using Ben.Services;
+using Ben.Views;
+using Ben.ViewModels;
 using System.Data;
 
-namespace Bennie;
+namespace Ben;
 
 public static class MauiProgram
 {

@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace Bennie;
+namespace Ben;
 
 [Application]
 public class MainApplication : MauiApplication

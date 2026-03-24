@@ -1,6 +1,6 @@
 using System;
 
-namespace Bennie;
+namespace Ben;
 
 public class Constants
 {

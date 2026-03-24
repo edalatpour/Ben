@@ -1,7 +1,7 @@
-namespace Bennie.Views;
+namespace Ben.Views;
 
-using Bennie.Models;
-using Bennie.ViewModels;
+using Ben.Models;
+using Ben.ViewModels;
 
 public partial class NotesPageView : ContentView
 {

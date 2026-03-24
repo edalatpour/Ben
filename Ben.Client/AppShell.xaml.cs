@@ -1,4 +1,4 @@
-﻿namespace Bennie;
+﻿namespace Ben;
 
 public partial class AppShell : Shell
 {

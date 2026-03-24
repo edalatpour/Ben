@@ -1,4 +1,4 @@
-namespace Bennie.Views;
+namespace Ben.Views;
 
 public partial class ProjectManagementView : ContentView
 {

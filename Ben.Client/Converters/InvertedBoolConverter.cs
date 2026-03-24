@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Bennie.Converters;
+namespace Ben.Converters;
 
 public class InvertedBoolConverter : IValueConverter
 {

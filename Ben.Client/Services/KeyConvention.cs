@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Bennie.Services;
+namespace Ben.Services;
 
 public static class KeyConvention
 {

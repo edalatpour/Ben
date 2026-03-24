@@ -1,7 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 
-namespace Bennie.Data;
+namespace Ben.Data;
 
 public class LocalSchemaDbContext : DbContext
 {

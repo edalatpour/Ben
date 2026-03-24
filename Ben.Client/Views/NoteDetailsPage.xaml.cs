@@ -1,8 +1,8 @@
-namespace Bennie.Views;
+namespace Ben.Views;
 
-using Bennie.Models;
-using Bennie.Services;
-using Bennie.ViewModels;
+using Ben.Models;
+using Ben.Services;
+using Ben.ViewModels;
 
 #nullable enable
 

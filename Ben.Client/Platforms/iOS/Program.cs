@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace Bennie;
+namespace Ben;
 
 public class Program
 {

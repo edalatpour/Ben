@@ -1,8 +1,8 @@
-using Bennie.Models;
-using Bennie.ViewModels;
+using Ben.Models;
+using Ben.ViewModels;
 using Microsoft.Maui.Controls;
 
-namespace Bennie.Views;
+namespace Ben.Views;
 
 public partial class PageNavigationPage : ContentPage
 {
