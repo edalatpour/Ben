@@ -8,6 +8,8 @@ public partial class TaskDetailsPage : ContentPage
 {
     static readonly string[] StatusValues = { "NotStarted", "InProgress", "Completed", "Forwarded", "Deleted" };
     static readonly string[] PriorityValues = { "A", "B", "C" };
+    private const int LocalSaveRetryCount = 3;
+    private static readonly TimeSpan LocalSaveRetryDelay = TimeSpan.FromMilliseconds(350);
 
     private readonly DailyViewModel _viewModel;
     private readonly TaskItem _task;
@@ -221,16 +223,13 @@ public partial class TaskDetailsPage : ContentPage
 
             string selectedPriority = PriorityValues[_priorityIndex];
             _order = Math.Clamp(_order, _minOrder, _maxOrder);
-
-            await _viewModel.SaveTaskDetailsLocallyAsync(_task, title, _selectedStatus, selectedPriority, _order, _isNewTask);
-
             await Navigation.PopModalAsync();
 
-            _ = _viewModel.CompleteTaskSaveAfterCloseAsync(
-                _task,
+            _ = SaveTaskAfterCloseAsync(
+                title,
+                _selectedStatus,
                 selectedPriority,
                 _order,
-                _isNewTask,
                 forwardDestinationKey);
         }
         catch
@@ -245,6 +244,67 @@ public partial class TaskDetailsPage : ContentPage
                 saveButtonFinal.IsEnabled = true;
             }
         }
+    }
+
+    async Task SaveTaskAfterCloseAsync(
+        string title,
+        string status,
+        string priority,
+        int order,
+        string? forwardDestinationKey)
+    {
+        try
+        {
+            await SaveTaskLocallyWithRetryAsync(title, status, priority, order);
+            await _viewModel.CompleteTaskSaveAfterCloseAsync(
+                _task,
+                priority,
+                order,
+                _isNewTask,
+                forwardDestinationKey);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Task background save failed: {ex.Message}");
+
+            await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                if (Shell.Current != null)
+                {
+                    await Shell.Current.DisplayAlert(
+                        "Save failed",
+                        "This task was not saved locally. Please re-open it and try again.",
+                        "OK");
+                }
+            });
+        }
+    }
+
+    async Task SaveTaskLocallyWithRetryAsync(string title, string status, string priority, int order)
+    {
+        Exception? lastError = null;
+
+        for (int attempt = 1; attempt <= LocalSaveRetryCount; attempt++)
+        {
+            try
+            {
+                await _viewModel.SaveTaskDetailsLocallyAsync(_task, title, status, priority, order, _isNewTask);
+                return;
+            }
+            catch (Exception ex)
+            {
+                lastError = ex;
+
+                if (attempt == LocalSaveRetryCount)
+                {
+                    break;
+                }
+
+                await Task.Delay(LocalSaveRetryDelay);
+            }
+        }
+
+        throw lastError ?? new InvalidOperationException("Local task save failed.");
     }
 
     async void OnCancelClicked(object sender, EventArgs e)
