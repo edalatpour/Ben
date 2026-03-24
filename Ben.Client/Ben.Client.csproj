@@ -41,6 +41,7 @@
 		<EnableCodeSigning Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(RuntimeIdentifier)' == 'iossimulator-x64'">false</EnableCodeSigning>
 		<EnableCodeSigning Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(RuntimeIdentifier)' == 'iossimulator-arm64'">false</EnableCodeSigning>
 		<CodesignEntitlements Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and !$(RuntimeIdentifier.Contains('simulator'))">Platforms/iOS/Entitlements.plist</CodesignEntitlements>
+		<ValidateXcodeVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(DisableXcodeValidationForLocalDebug)' == 'true'">false</ValidateXcodeVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
