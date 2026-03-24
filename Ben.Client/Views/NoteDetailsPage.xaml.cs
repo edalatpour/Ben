@@ -74,26 +74,20 @@ public partial class NoteDetailsPage : ContentPage
                 return;
             }
 
-            if (_isNewNote)
+            string originalText = _note.Text;
+            try
             {
-                await _viewModel.AddNoteAsync(text);
+                await _viewModel.SaveNoteDetailsLocallyAsync(_note, text, _isNewNote);
             }
-            else
+            catch
             {
-                string originalText = _note.Text;
-                _note.Text = text;
-                try
-                {
-                    await _viewModel.UpdateNoteAsync(_note);
-                }
-                catch
-                {
-                    _note.Text = originalText;
-                    throw;
-                }
+                _note.Text = originalText;
+                throw;
             }
 
             await Navigation.PopModalAsync();
+
+            _ = _viewModel.CompleteNoteSaveAfterCloseAsync(_note, _isNewNote);
         }
         catch
         {

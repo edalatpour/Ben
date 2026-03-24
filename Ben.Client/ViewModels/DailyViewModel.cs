@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -29,6 +30,7 @@ public class DailyViewModel : INotifyPropertyChanged
     private readonly PlannerDbContext _dbContext;
     private readonly LocalSchemaDbContext _schemaDbContext;
     private readonly IConnectivity _connectivity;
+    private readonly SemaphoreSlim _refreshAfterSyncLock = new(1, 1);
     private bool _isSyncing;
     private string _currentProjectName = string.Empty;
 
@@ -81,10 +83,11 @@ public class DailyViewModel : INotifyPropertyChanged
         _ = UpdateStatus();
     }
 
-    private void OnSyncCompleted(object? sender, EventArgs e)
+    private async void OnSyncCompleted(object? sender, EventArgs e)
     {
         _isSyncing = false;
-        _ = UpdateStatus();
+        await RefreshCurrentPageAfterSyncAsync();
+        await UpdateStatus();
     }
 
     private string _loginStatusText = "Sign in with Microsoft";
@@ -187,6 +190,51 @@ public class DailyViewModel : INotifyPropertyChanged
             {
                 SyncStatusText = "Up to date";
             }
+        }
+    }
+
+    async Task RefreshCurrentPageAfterSyncAsync()
+    {
+        if (!await _refreshAfterSyncLock.WaitAsync(0))
+        {
+            return;
+        }
+
+        try
+        {
+            string currentKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
+            DailyData refreshed = await _repo.LoadPageAsync(currentKey);
+
+            if (CurrentDay == null)
+            {
+                CurrentDay = refreshed;
+                return;
+            }
+
+            if (!string.Equals(CurrentDay.Key, currentKey, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            ReplaceCollection(CurrentDay.Tasks, refreshed.Tasks);
+            ReplaceCollection(CurrentDay.Notes, refreshed.Notes);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to refresh current page after sync: {ex.Message}");
+        }
+        finally
+        {
+            _refreshAfterSyncLock.Release();
+        }
+    }
+
+    static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> source)
+    {
+        target.Clear();
+        foreach (T item in source)
+        {
+            target.Add(item);
         }
     }
 
@@ -339,6 +387,75 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
+    public async Task SaveTaskDetailsLocallyAsync(TaskItem task, string title, string status, string priority, int order, bool isNewTask)
+    {
+        if (task == null)
+        {
+            return;
+        }
+
+        string normalizedTitle = NormalizeTaskTitle(title);
+        if (string.IsNullOrEmpty(normalizedTitle))
+        {
+            return;
+        }
+
+        task.Key = CurrentDay?.Key ?? task.Key;
+        task.Title = normalizedTitle;
+        task.Status = string.IsNullOrWhiteSpace(status) ? "NotStarted" : status;
+        task.Priority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
+        task.Order = Math.Max(1, order);
+
+        if (isNewTask)
+        {
+            await _repo.AddTaskAsync(task, triggerSync: false);
+            return;
+        }
+
+        await _repo.UpdateTaskAsync(task, triggerSync: false);
+    }
+
+    public async Task CompleteTaskSaveAfterCloseAsync(TaskItem task, string priority, int order, bool isNewTask, string? forwardDestinationKey)
+    {
+        try
+        {
+            if (CurrentDay?.Tasks == null)
+            {
+                return;
+            }
+
+            if (isNewTask && CurrentDay.Tasks.IndexOf(task) < 0)
+            {
+                CurrentDay.Tasks.Add(task);
+            }
+
+            if (CurrentDay.Tasks.IndexOf(task) >= 0)
+            {
+                await ApplyTaskPlacementAsync(task, priority, order, triggerSync: false);
+            }
+            else
+            {
+                await SaveTaskDirectAsync(task, priority, order, triggerSync: false);
+            }
+
+            if (string.Equals(task.Status, "Forwarded", StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(forwardDestinationKey))
+            {
+                await CreateForwardedTaskAsync(task, forwardDestinationKey, triggerSync: false);
+            }
+
+            await UpdateStatus();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Task post-close save completion failed: {ex.Message}");
+        }
+        finally
+        {
+            _repo.TriggerSync();
+        }
+    }
+
     public Task<string?> GetTaskKeyByIdAsync(string taskId)
     {
         return _repo.GetTaskKeyByIdAsync(taskId);
@@ -397,7 +514,48 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
-    public async Task CreateForwardedTaskAsync(TaskItem originalTask, string destinationKey)
+    public async Task SaveNoteDetailsLocallyAsync(NoteItem note, string text, bool isNewNote)
+    {
+        if (note == null || string.IsNullOrWhiteSpace(text))
+        {
+            return;
+        }
+
+        note.Key = CurrentDay?.Key ?? note.Key;
+        note.Text = text;
+
+        if (isNewNote)
+        {
+            note.Order = note.Order > 0 ? note.Order : GetNextNoteOrder();
+            await _repo.AddNoteAsync(note, triggerSync: false);
+            return;
+        }
+
+        await _repo.UpdateNoteAsync(note, triggerSync: false);
+    }
+
+    public async Task CompleteNoteSaveAfterCloseAsync(NoteItem note, bool isNewNote)
+    {
+        try
+        {
+            if (CurrentDay?.Notes != null && isNewNote && CurrentDay.Notes.IndexOf(note) < 0)
+            {
+                CurrentDay.Notes.Add(note);
+            }
+
+            await UpdateStatus();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Note post-close save completion failed: {ex.Message}");
+        }
+        finally
+        {
+            _repo.TriggerSync();
+        }
+    }
+
+    public async Task CreateForwardedTaskAsync(TaskItem originalTask, string destinationKey, bool triggerSync = true)
     {
         if (originalTask == null || string.IsNullOrWhiteSpace(destinationKey))
         {
@@ -420,7 +578,7 @@ public class DailyViewModel : INotifyPropertyChanged
             OriginalTaskId = originalTask.OriginalTaskId ?? originalTask.Id
         };
 
-        await _repo.AddTaskAsync(forwardedTask);
+        await _repo.AddTaskAsync(forwardedTask, triggerSync);
         await UpdateStatus();
     }
 
@@ -548,7 +706,7 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
-    async Task ApplyTaskPlacementAsync(TaskItem task, string priority, int order)
+    async Task ApplyTaskPlacementAsync(TaskItem task, string priority, int order, bool triggerSync = true)
     {
         if (task == null || CurrentDay?.Tasks == null)
         {
@@ -559,15 +717,15 @@ public class DailyViewModel : INotifyPropertyChanged
         int requestedOrder = Math.Max(1, order);
 
         PlaceTaskInMemory(task, requestedPriority, requestedOrder);
-        await UpdateTaskOrderAsync(new[] { task });
+        await UpdateTaskOrderAsync(new[] { task }, triggerSync);
         SortTasksInMemory();
     }
 
-    async Task SaveTaskDirectAsync(TaskItem task, string priority, int order)
+    async Task SaveTaskDirectAsync(TaskItem task, string priority, int order, bool triggerSync = true)
     {
         task.Priority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
         task.Order = Math.Max(1, order);
-        await _repo.UpdateTaskAsync(task);
+        await _repo.UpdateTaskAsync(task, triggerSync);
         SortTasksInMemory();
     }
 
@@ -860,7 +1018,7 @@ public class DailyViewModel : INotifyPropertyChanged
         return GetSuggestedTaskOrder(key, priority, excludeTask: null);
     }
 
-    async Task UpdateTaskOrderAsync(IEnumerable<TaskItem>? additionallyChanged = null)
+    async Task UpdateTaskOrderAsync(IEnumerable<TaskItem>? additionallyChanged = null, bool triggerSync = true)
     {
         List<TaskItem> changedTasks = new();
         HashSet<string> changedIds = new(StringComparer.Ordinal);
@@ -899,7 +1057,7 @@ public class DailyViewModel : INotifyPropertyChanged
             }
         }
 
-        await _repo.UpdateTasksAsync(changedTasks);
+        await _repo.UpdateTasksAsync(changedTasks, triggerSync);
     }
 
     static int GetPriorityRank(string? priority)

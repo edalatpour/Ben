@@ -201,16 +201,18 @@ public partial class TaskDetailsPage : ContentPage
                 return;
             }
 
+            string? forwardDestinationKey = null;
+
             if (_selectedStatus == "Forwarded")
             {
-                string? destinationKey = GetForwardDestinationKey();
-                if (string.IsNullOrWhiteSpace(destinationKey))
+                forwardDestinationKey = GetForwardDestinationKey();
+                if (string.IsNullOrWhiteSpace(forwardDestinationKey))
                 {
                     await DisplayAlertAsync("Validation", "Please select a destination page.", "OK");
                     return;
                 }
 
-                if (string.Equals(destinationKey, _task.Key, StringComparison.Ordinal))
+                if (string.Equals(forwardDestinationKey, _task.Key, StringComparison.Ordinal))
                 {
                     await DisplayAlertAsync("Validation", "Please select a different page to forward this task to.", "OK");
                     return;
@@ -220,29 +222,16 @@ public partial class TaskDetailsPage : ContentPage
             string selectedPriority = PriorityValues[_priorityIndex];
             _order = Math.Clamp(_order, _minOrder, _maxOrder);
 
-            if (_isNewTask)
-            {
-                _task.Title = title;
-                _task.Status = _selectedStatus;
-                _task.Priority = selectedPriority;
-                _task.Order = _order;
-                await _viewModel.AddTaskItemAsync(_task);
-            }
-            else
-            {
-                await _viewModel.UpdateTaskFromDetailsAsync(_task, title, _selectedStatus, selectedPriority, _order);
-            }
-
-            if (_selectedStatus == "Forwarded")
-            {
-                string? destinationKey = GetForwardDestinationKey();
-                if (!string.IsNullOrWhiteSpace(destinationKey))
-                {
-                    await _viewModel.CreateForwardedTaskAsync(_task, destinationKey);
-                }
-            }
+            await _viewModel.SaveTaskDetailsLocallyAsync(_task, title, _selectedStatus, selectedPriority, _order, _isNewTask);
 
             await Navigation.PopModalAsync();
+
+            _ = _viewModel.CompleteTaskSaveAfterCloseAsync(
+                _task,
+                selectedPriority,
+                _order,
+                _isNewTask,
+                forwardDestinationKey);
         }
         catch
         {

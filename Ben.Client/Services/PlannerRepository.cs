@@ -126,10 +126,18 @@ public class PlannerRepository
         };
     }
 
-    public async Task AddTaskAsync(TaskItem task)
+    public async Task AddTaskAsync(TaskItem task, bool triggerSync = true)
     {
         _db.Tasks.Add(task);
         await _db.SaveChangesAsync();
+        if (triggerSync)
+        {
+            _ = _syncService.TriggerSyncAsync();
+        }
+    }
+
+    public void TriggerSync()
+    {
         _ = _syncService.TriggerSyncAsync();
     }
 
@@ -215,14 +223,14 @@ public class PlannerRepository
     {
         _db.Projects.Add(project);
         await _db.SaveChangesAsync();
-        _ = _syncService.TriggerSyncAsync();
+        TriggerSync();
     }
 
     public async Task UpdateProjectAsync(ProjectItem project)
     {
         _db.Projects.Update(project);
         await _db.SaveChangesAsync();
-        _ = _syncService.TriggerSyncAsync();
+        TriggerSync();
     }
 
     public async Task<string?> GetEarliestNonEmptyDateKeyAsync()
@@ -269,14 +277,17 @@ public class PlannerRepository
             .FirstOrDefault();
     }
 
-    public async Task UpdateTaskAsync(TaskItem task)
+    public async Task UpdateTaskAsync(TaskItem task, bool triggerSync = true)
     {
         _db.Tasks.Update(task);
         await _db.SaveChangesAsync();
-        _ = _syncService.TriggerSyncAsync();
+        if (triggerSync)
+        {
+            TriggerSync();
+        }
     }
 
-    public async Task UpdateTasksAsync(IEnumerable<TaskItem> tasks)
+    public async Task UpdateTasksAsync(IEnumerable<TaskItem> tasks, bool triggerSync = true)
     {
         List<TaskItem> uniqueTasks = tasks
             .Where(task => task != null)
@@ -291,35 +302,44 @@ public class PlannerRepository
 
         _db.Tasks.UpdateRange(uniqueTasks);
         await _db.SaveChangesAsync();
-        _ = _syncService.TriggerSyncAsync();
+        if (triggerSync)
+        {
+            TriggerSync();
+        }
     }
 
     public async Task DeleteTaskAsync(TaskItem task)
     {
         _db.Tasks.Remove(task);
         await _db.SaveChangesAsync();
-        _ = _syncService.TriggerSyncAsync();
+        TriggerSync();
     }
 
-    public async Task AddNoteAsync(NoteItem note)
+    public async Task AddNoteAsync(NoteItem note, bool triggerSync = true)
     {
         _db.Notes.Add(note);
         await _db.SaveChangesAsync();
-        _ = _syncService.TriggerSyncAsync();
+        if (triggerSync)
+        {
+            TriggerSync();
+        }
     }
 
-    public async Task UpdateNoteAsync(NoteItem note)
+    public async Task UpdateNoteAsync(NoteItem note, bool triggerSync = true)
     {
         _db.Notes.Update(note);
         await _db.SaveChangesAsync();
-        _ = _syncService.TriggerSyncAsync();
+        if (triggerSync)
+        {
+            TriggerSync();
+        }
     }
 
     public async Task DeleteNoteAsync(NoteItem note)
     {
         _db.Notes.Remove(note);
         await _db.SaveChangesAsync();
-        _ = _syncService.TriggerSyncAsync();
+        TriggerSync();
     }
 
     public async Task EnsureNoteOrderBackfillAsync()
