@@ -24,7 +24,10 @@ public class PlannerRepository
 
     public async Task<DailyData> LoadPageAsync(string key)
     {
+        _db.ChangeTracker.Clear();
+
         var tasks = await _db.Tasks
+            .AsNoTracking()
             .Where(t => t.Key == key)
             .OrderBy(t => t.Priority == "A" ? 0
                 : t.Priority == "B" ? 1
@@ -54,6 +57,7 @@ public class PlannerRepository
         if (allReferencedIds.Count > 0)
         {
             var referencedKeys = await _db.Tasks
+                .AsNoTracking()
                 .Where(task => allReferencedIds.Contains(task.Id))
                 .Select(task => new { task.Id, task.Key })
                 .ToListAsync();
@@ -71,6 +75,7 @@ public class PlannerRepository
         if (referencedProjectIds.Count > 0)
         {
             var referencedProjects = await _db.Projects
+                .AsNoTracking()
                 .Where(project => !project.Deleted && referencedProjectIds.Contains(project.Id))
                 .Select(project => new { project.Id, project.Name })
                 .ToListAsync();
@@ -112,6 +117,7 @@ public class PlannerRepository
         }
 
         var notes = await _db.Notes
+            .AsNoTracking()
             .Where(n => n.Key == key)
             .OrderBy(n => n.Order)
             .ThenBy(n => n.Id)
