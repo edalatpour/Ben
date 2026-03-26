@@ -4,10 +4,10 @@
              x:Class="Ben.Views.DateProjectSelectorView"
              x:Name="Root">
 
-    <Grid RowDefinitions="Auto,Auto,*"
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto"
           RowSpacing="10">
         <Label Grid.Row="0"
-               Text="Date or Project"
+               Text="Select a Date"
                HorizontalTextAlignment="Start"
                Style="{StaticResource SectionTitle}"/>
 
@@ -22,22 +22,17 @@
                         TextColor="{StaticResource Ink}"/>
         </Grid>
 
-        <Border Grid.Row="2"
-                Stroke="{StaticResource Line}"
-                StrokeThickness="1"
-                Padding="8">
-            <CollectionView x:Name="ProjectsCollectionView"
-                            SelectionMode="Single"
-                            SelectionChanged="OnProjectSelectionChanged">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="8">
-                            <Label Text="{Binding Name}"
-                                   TextColor="{StaticResource Ink}"/>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </Border>
+        <Label Grid.Row="2"
+               Text="Select a Project"
+               HorizontalTextAlignment="Start"
+               Style="{StaticResource SectionTitle}"/>
+
+
+        <Picker x:Name="ProjectsPicker"
+                Grid.Row="3"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedIndexChanged="OnProjectSelectionChanged"
+                HorizontalOptions="Fill"
+                TextColor="{StaticResource Ink}"/>
     </Grid>
 </ContentView>

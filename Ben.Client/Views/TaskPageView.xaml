@@ -35,7 +35,7 @@
         <!-- Section Titles -->
 
         <Grid Grid.Row="1"
-              ColumnDefinitions="28,40,*"
+              ColumnDefinitions="28,42,*"
               ColumnSpacing="10"
               Padding="0,4,0,0">
             <Label Text="▼"
@@ -47,7 +47,7 @@
                    Grid.Column="1"
                    Style="{StaticResource SectionTitle}"
                    HorizontalTextAlignment="Center"/>
-            <Label Text="Task List"
+            <Label Text="Tasks"
                    Grid.Column="2"
                    Style="{StaticResource SectionTitle}"
                    HorizontalTextAlignment="Center"/>

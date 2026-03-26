@@ -29,6 +29,7 @@ public partial class DateProjectSelectorView : ContentView
         defaultValue: "Selected: None");
 
     bool _isUpdating;
+    DateTime? _selectedDate;
 
     public DateProjectSelectorView()
     {
@@ -54,9 +55,9 @@ public partial class DateProjectSelectorView : ContentView
         private set => SetValue(SelectionIndicatorTextProperty, value);
     }
 
-    public ProjectItem? SelectedProject => ProjectsCollectionView.SelectedItem as ProjectItem;
+    public ProjectItem? SelectedProject => ProjectsPicker.SelectedItem as ProjectItem;
 
-    public DateTime SelectedDate => SelectorDatePicker.Date ?? DateTime.Today;
+    public DateTime SelectedDate => _selectedDate ?? SelectorDatePicker.Date ?? DateTime.Today;
 
     static void OnProjectsChanged(BindableObject bindable, object oldValue, object newValue)
     {
@@ -65,7 +66,17 @@ public partial class DateProjectSelectorView : ContentView
             return;
         }
 
-        view.ProjectsCollectionView.ItemsSource = newValue as IEnumerable;
+        IList? items = null;
+        if (newValue is IList existingList)
+        {
+            items = existingList;
+        }
+        else if (newValue is IEnumerable enumerable)
+        {
+            items = enumerable.Cast<object>().ToList();
+        }
+
+        view.ProjectsPicker.ItemsSource = items;
         view.ApplySelectedKeyToUi();
     }
 
@@ -89,7 +100,8 @@ public partial class DateProjectSelectorView : ContentView
         _isUpdating = true;
         try
         {
-            ProjectsCollectionView.SelectedItem = null;
+            _selectedDate = e.NewDate.Value.Date;
+            ProjectsPicker.SelectedItem = null;
             SelectedKey = KeyConvention.ToDateKey(e.NewDate.Value.Date);
             SelectionIndicatorText = $"Selected: Date ({e.NewDate.Value:D})";
         }
@@ -99,7 +111,7 @@ public partial class DateProjectSelectorView : ContentView
         }
     }
 
-    void OnProjectSelectionChanged(object sender, SelectionChangedEventArgs e)
+    void OnProjectSelectionChanged(object sender, EventArgs e)
     {
         if (_isUpdating)
         {
@@ -109,21 +121,23 @@ public partial class DateProjectSelectorView : ContentView
         _isUpdating = true;
         try
         {
-            if (e.CurrentSelection.FirstOrDefault() is ProjectItem project)
+            if (ProjectsPicker.SelectedItem is ProjectItem project)
             {
+                _selectedDate = null;
                 SelectedKey = KeyConvention.ToProjectKey(project.Id);
                 SelectionIndicatorText = $"Selected: Project ({project.Name})";
             }
             else if (KeyConvention.TryParseDateKey(SelectedKey, out DateTime date))
             {
+                _selectedDate = date.Date;
                 SelectedKey = KeyConvention.ToDateKey(date);
                 SelectionIndicatorText = $"Selected: Date ({date:D})";
             }
             else
             {
-                DateTime selectedDate = SelectorDatePicker.Date ?? DateTime.Today;
-                SelectedKey = KeyConvention.ToDateKey(selectedDate.Date);
-                SelectionIndicatorText = $"Selected: Date ({selectedDate:D})";
+                _selectedDate = null;
+                SelectedKey = null;
+                SelectionIndicatorText = "Selected: None";
             }
         }
         finally
@@ -144,24 +158,28 @@ public partial class DateProjectSelectorView : ContentView
         {
             if (KeyConvention.TryParseDateKey(SelectedKey, out DateTime date))
             {
+                _selectedDate = date.Date;
                 SelectorDatePicker.Date = date.Date;
-                ProjectsCollectionView.SelectedItem = null;
+                ProjectsPicker.SelectedItem = null;
                 SelectionIndicatorText = $"Selected: Date ({date:D})";
                 return;
             }
 
             if (KeyConvention.TryGetProjectId(SelectedKey, out string projectId))
             {
-                ProjectItem? selectedProject = (ProjectsCollectionView.ItemsSource as IEnumerable<ProjectItem>)?
+                ProjectItem? selectedProject = Projects?
                     .FirstOrDefault(project => string.Equals(project.Id, projectId, StringComparison.Ordinal));
 
-                ProjectsCollectionView.SelectedItem = selectedProject;
+                _selectedDate = null;
+                ProjectsPicker.SelectedItem = selectedProject;
                 SelectionIndicatorText = selectedProject == null
                     ? "Selected: Project"
                     : $"Selected: Project ({selectedProject.Name})";
                 return;
             }
 
+            _selectedDate = null;
+            ProjectsPicker.SelectedItem = null;
             SelectionIndicatorText = "Selected: None";
         }
         finally
