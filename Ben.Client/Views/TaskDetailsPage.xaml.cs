@@ -223,13 +223,19 @@ public partial class TaskDetailsPage : ContentPage
 
             string selectedPriority = PriorityValues[_priorityIndex];
             _order = Math.Clamp(_order, _minOrder, _maxOrder);
+
+            // Save to local database immediately before closing the modal
+            await SaveTaskLocallyWithRetryAsync(title, _selectedStatus, selectedPriority, _order);
+
+            // Close the modal immediately after local save
             await Navigation.PopModalAsync();
 
-            _ = SaveTaskAfterCloseAsync(
-                title,
-                _selectedStatus,
+            // Fire-and-forget: sort tasks, refresh UI, then sync in background
+            _ = _viewModel.CompleteTaskSaveAfterCloseAsync(
+                _task,
                 selectedPriority,
                 _order,
+                _isNewTask,
                 forwardDestinationKey);
         }
         catch
@@ -243,40 +249,6 @@ public partial class TaskDetailsPage : ContentPage
             {
                 saveButtonFinal.IsEnabled = true;
             }
-        }
-    }
-
-    async Task SaveTaskAfterCloseAsync(
-        string title,
-        string status,
-        string priority,
-        int order,
-        string? forwardDestinationKey)
-    {
-        try
-        {
-            await SaveTaskLocallyWithRetryAsync(title, status, priority, order);
-            await _viewModel.CompleteTaskSaveAfterCloseAsync(
-                _task,
-                priority,
-                order,
-                _isNewTask,
-                forwardDestinationKey);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Task background save failed: {ex.Message}");
-
-            await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                if (Shell.Current != null)
-                {
-                    await Shell.Current.DisplayAlert(
-                        "Save failed",
-                        "This task was not saved locally. Please re-open it and try again.",
-                        "OK");
-                }
-            });
         }
     }
 
