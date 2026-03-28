@@ -189,10 +189,8 @@ public partial class TaskDetailsPage : ContentPage
         }
 
         _isSaving = true;
-        if (sender is Button saveButton)
-        {
-            saveButton.IsEnabled = false;
-        }
+        SaveButton.IsEnabled = false;
+        SaveButton.Opacity = 0.5;
 
         try
         {
@@ -245,10 +243,8 @@ public partial class TaskDetailsPage : ContentPage
         finally
         {
             _isSaving = false;
-            if (sender is Button saveButtonFinal)
-            {
-                saveButtonFinal.IsEnabled = true;
-            }
+            SaveButton.IsEnabled = true;
+            SaveButton.Opacity = 1.0;
         }
     }
 

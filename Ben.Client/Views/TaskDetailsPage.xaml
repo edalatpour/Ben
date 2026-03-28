@@ -348,6 +348,7 @@
                         HeightRequest="44"/>
 
                 <Button Grid.Column="1"
+                        x:Name="SaveButton"
                         Text="Save"
                         Clicked="OnSaveClicked"
                         BackgroundColor="{StaticResource Accent}"
