@@ -1,4 +1,5 @@
 using Ben.Services;
+using Ben.ViewModels;
 
 namespace Ben.Views;
 
@@ -7,6 +8,7 @@ public partial class SettingsPage : ContentPage
     private string _originalTheme = "Green";
     private string _selectedTheme = "Green";
     private readonly ThemeService _themeService;
+    private readonly DailyViewModel _dailyViewModel;
     private readonly List<ThemeOption> _availableThemes = new()
     {
         new ThemeOption { Name = "Red", DisplayName = "Red" },
@@ -19,11 +21,13 @@ public partial class SettingsPage : ContentPage
     };
 
     public List<ThemeOption> AvailableThemes => _availableThemes;
+    public DailyViewModel AuthViewModel => _dailyViewModel;
 
     public SettingsPage()
     {
         InitializeComponent();
         _themeService = IPlatformApplication.Current!.Services.GetService<ThemeService>()!;
+        _dailyViewModel = IPlatformApplication.Current!.Services.GetRequiredService<DailyViewModel>();
         BindingContext = this;
 
         // Store the original theme so we can revert if user cancels
@@ -35,6 +39,11 @@ public partial class SettingsPage : ContentPage
         ThemeColorPicker.SelectedIndex = currentIndex >= 0 ? currentIndex : 3; // Default to Green
 
         UpdatePreview(_selectedTheme);
+    }
+
+    private async void OnLoginStatusTapped(object sender, TappedEventArgs e)
+    {
+        await _dailyViewModel.ToggleAuthenticationAsync();
     }
 
     private void OnThemeColorSelected(object sender, EventArgs e)

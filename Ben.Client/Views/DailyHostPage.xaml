@@ -63,7 +63,7 @@
 
     <!-- Status Bar -->
     <Grid Grid.Row="1"
-          ColumnDefinitions="Auto,*,Auto"
+          ColumnDefinitions="Auto,*"
           BackgroundColor="{DynamicResource Paper}"
           Padding="16,-16,16,0"
           HeightRequest="32">
@@ -71,6 +71,7 @@
       <Label x:Name="SettingsLabel"
              Grid.Column="0"
              Text="Settings"
+             IsVisible="{Binding IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
              FontSize="12"
              TextColor="{DynamicResource Link}"
              VerticalOptions="Center"
@@ -80,44 +81,26 @@
         </Label.GestureRecognizers>
       </Label>
 
-      <Image Grid.Column="0"
-             Source="microsoft.png"
-             IsVisible="{Binding IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
-             Aspect="AspectFit"
-             WidthRequest="20"
-             HeightRequest="20"
-             Margin="0,0,8,0"
-             VerticalOptions="Center"
-             HorizontalOptions="Start"/>
-      <!-- Signed-in: profile picture clipped to circle -->
       <Border Grid.Column="0"
               IsVisible="{Binding IsAuthenticated}"
-              WidthRequest="20"
-              HeightRequest="20"
+              WidthRequest="32"
+              HeightRequest="32"
               StrokeThickness="0"
-              Margin="0,0,8,0"
               VerticalOptions="Center"
               HorizontalOptions="Start">
         <Border.StrokeShape>
-          <RoundRectangle CornerRadius="10"/>
+          <RoundRectangle CornerRadius="16"/>
         </Border.StrokeShape>
+        <Border.GestureRecognizers>
+          <TapGestureRecognizer Tapped="OnSettingsClicked"/>
+        </Border.GestureRecognizers>
         <Image Source="{Binding UserAvatarSource}"
                Aspect="AspectFill"
-               WidthRequest="20"
-               HeightRequest="20"/>
+               WidthRequest="32"
+               HeightRequest="32"/>
       </Border>
+
       <Label Grid.Column="1"
-             Text="{Binding LoginStatusText}"
-             FontSize="12"
-             TextColor="{DynamicResource Link}"
-             TextDecorations="Underline"
-             VerticalOptions="Center"
-             HorizontalOptions="Start">
-        <Label.GestureRecognizers>
-          <TapGestureRecognizer Tapped="OnLoginStatusTapped"/>
-        </Label.GestureRecognizers>
-      </Label>
-      <Label Grid.Column="2"
              Text="{Binding SyncStatusText}"
              FontSize="12"
              TextColor="{Binding IsSyncClickable, Converter={StaticResource LinkColorConverter}}"

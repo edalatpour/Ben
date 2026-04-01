@@ -13,6 +13,7 @@ using Ben.Data;
 using Ben.Models;
 using Ben.Services;
 using Ben.Views;
+using Microsoft.UI.Xaml.Controls;
 
 #nullable enable
 
@@ -149,7 +150,7 @@ public class DailyViewModel : INotifyPropertyChanged
         // Update login status
         if (_authService.IsAuthenticated)
         {
-            LoginStatusText = _authService.UserEmail ?? "Signed in";
+            LoginStatusText = _authService.UserEmail ?? "Sign out";
         }
         else
         {

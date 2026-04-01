@@ -2,13 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Ben.Views.SettingsPage"
+             x:Name="RootSettingsPage"
              Title="Settings">
 
     <Grid Style="{DynamicResource PaperRootGrid}">
 
         <Grid Padding="16"
               HorizontalOptions="Fill"
-              RowDefinitions="Auto,*,Auto"
+              RowDefinitions="Auto,Auto,*,Auto"
               RowSpacing="12">
 
             <!-- Header -->
@@ -18,7 +19,7 @@
                    HorizontalTextAlignment="Center"/>
 
             <!-- Form -->
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3"/>
                     <RowDefinition Height="*"/>
@@ -46,12 +47,53 @@
                           RowDefinitions="Auto,Auto,Auto"
                           RowSpacing="16">
 
-                        <!-- Theme Selection -->
-                        <Label Grid.Row="0"
-                               Text="Theme:"
-                               Style="{DynamicResource SectionTitle}"
-                               FontSize="18"/>
+                        <!-- Authentication -->
+                        <Grid Grid.Row="0"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="8"
+                              HorizontalOptions="Fill"
+                              Padding="4,0,4,4">
 
+                            <Image Grid.Column="0"
+                                   Source="microsoft.png"
+                                   IsVisible="{Binding AuthViewModel.IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
+                                   Aspect="AspectFit"
+                                   WidthRequest="24"
+                                   HeightRequest="24"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start"/>
+
+                            <Border Grid.Column="0"
+                                    IsVisible="{Binding AuthViewModel.IsAuthenticated}"
+                                    WidthRequest="24"
+                                    HeightRequest="24"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Start">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <Image Source="{Binding AuthViewModel.UserAvatarSource}"
+                                       Aspect="AspectFill"
+                                       WidthRequest="24"
+                                       HeightRequest="24"/>
+                            </Border>
+
+                            <Label Grid.Column="1"
+                                   Text="{Binding AuthViewModel.LoginStatusText}"
+                                   FontSize="14"
+                                   TextColor="{DynamicResource Link}"
+                                   TextDecorations="Underline"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnLoginStatusTapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+
+                        </Grid>
+
+                        <!-- Theme Selection -->
                         <Border Grid.Row="1"
                                 Stroke="{DynamicResource Ink}"
                                 StrokeThickness="1"
@@ -60,7 +102,7 @@
                                 MinimumHeightRequest="72"
                                 Padding="12,8">
                             <Picker x:Name="ThemeColorPicker"
-                                    Title="Select Theme"
+                                    Title="Theme:"
                                     SelectedIndexChanged="OnThemeColorSelected"
                                     ItemsSource="{Binding AvailableThemes}"
                                     ItemDisplayBinding="{Binding DisplayName}"
@@ -92,7 +134,7 @@
             </Grid>
 
             <!-- Action buttons -->
-            <Grid Grid.Row="2"
+            <Grid Grid.Row="3"
                   ColumnDefinitions="*,*"
                   ColumnSpacing="12"
                   Margin="0,16,0,0">
