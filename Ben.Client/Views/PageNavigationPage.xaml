@@ -5,7 +5,7 @@
              x:Class="Ben.Views.PageNavigationPage"
              Title="Open Page">
 
-  <Grid Style="{StaticResource PaperRootGrid}">
+  <Grid Style="{DynamicResource PaperRootGrid}">
 
     <Grid Padding="16"
           HorizontalOptions="Fill"
@@ -30,17 +30,17 @@
 
         <BoxView Grid.ColumnSpan="2"
                  HeightRequest="3"
-                 BackgroundColor="{StaticResource Ink}"/>
+                 BackgroundColor="{DynamicResource Ink}"/>
         <BoxView Grid.RowSpan="3"
                  WidthRequest="1"
-                 BackgroundColor="{StaticResource Ink}"/>
+                 BackgroundColor="{DynamicResource Ink}"/>
 
         <ScrollView Grid.Row="1"
                     Grid.Column="1"
                     HorizontalOptions="Fill"
                     VerticalOptions="Fill">
 
-          <Grid BackgroundColor="{StaticResource WritingPaper}"
+          <Grid BackgroundColor="{DynamicResource WritingPaper}"
                 Padding="16"
                 RowDefinitions="Auto,Auto,Auto"
                 RowSpacing="12">
@@ -55,7 +55,7 @@
 
             <Label Grid.Row="2"
                    Text="{Binding Source={x:Reference PageSelector}, Path=SelectionIndicatorText}"
-                   TextColor="{StaticResource Ink}"
+                   TextColor="{DynamicResource Ink}"
                    HorizontalTextAlignment="Center"/>
           </Grid>
         </ScrollView>
@@ -63,7 +63,7 @@
         <BoxView Grid.Row="2"
                  Grid.ColumnSpan="2"
                  HeightRequest="1"
-                 BackgroundColor="{StaticResource Ink}"/>
+                 BackgroundColor="{DynamicResource Ink}"/>
 
       </Grid>
 
@@ -74,15 +74,15 @@
         <Button Grid.Column="0"
                 Text="Cancel"
                 Clicked="OnCancelClicked"
-                BackgroundColor="{StaticResource Ink}"
-                TextColor="{StaticResource WritingPaper}"
+                BackgroundColor="{DynamicResource Ink}"
+                TextColor="{DynamicResource WritingPaper}"
                 CornerRadius="4"
                 HeightRequest="44"/>
         <Button Grid.Column="1"
                 Text="Go"
                 Clicked="OnGoToPageClicked"
-                BackgroundColor="{StaticResource Accent}"
-                TextColor="{StaticResource WritingPaper}"
+                BackgroundColor="{DynamicResource Accent}"
+                TextColor="{DynamicResource WritingPaper}"
                 CornerRadius="4"
                 HeightRequest="44"/>
       </Grid>

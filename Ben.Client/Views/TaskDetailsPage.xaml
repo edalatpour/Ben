@@ -34,10 +34,10 @@
 
                 <BoxView Grid.ColumnSpan="2"
                          HeightRequest="3"
-                         BackgroundColor="{StaticResource Ink}"/>
+                         BackgroundColor="{DynamicResource Ink}"/>
                 <BoxView Grid.RowSpan="3"
                          WidthRequest="1"
-                         BackgroundColor="{StaticResource Ink}"/>
+                         BackgroundColor="{DynamicResource Ink}"/>
 
                 <ScrollView Grid.Row="1"
                             Grid.Column="1"
@@ -47,7 +47,7 @@
                     <Grid x:Name="TaskDetailsForm"
                           Grid.Row="1"
                           Grid.Column="1"
-                          BackgroundColor="{StaticResource WritingPaper}"
+                          BackgroundColor="{DynamicResource WritingPaper}"
                           Padding="16"
                           RowSpacing="10"
                           ColumnSpacing="16">
@@ -74,7 +74,7 @@
                                Placeholder=""
                                Style="{StaticResource Handwriting}"
                                FontSize="24"
-                               TextColor="{StaticResource Ink}"/>
+                               TextColor="{DynamicResource Ink}"/>
 
                         <Grid x:Name="ParentTaskDateRow"
                               Grid.Row="1"
@@ -85,7 +85,7 @@
                                    Style="{StaticResource Handwriting}"
                                    FontSize="16"
                                    LineBreakMode="WordWrap"
-                                   TextColor="{StaticResource Accent}"/>
+                                   TextColor="{DynamicResource Accent}"/>
                         </Grid>
 
                         <Label Grid.Row="2"
@@ -108,7 +108,7 @@
                                 Grid.Row="3"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
-                                Stroke="{StaticResource Line}"
+                                Stroke="{DynamicResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
                                 HeightRequest="46">
@@ -124,7 +124,7 @@
                                 <Label Text="Not Started"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{StaticResource Ink}"/>
+                                       TextColor="{DynamicResource Ink}"/>
                             </VerticalStackLayout>
                         </Border>
 
@@ -132,7 +132,7 @@
                                 Grid.Column="1"
                                 Grid.RowSpan="3"
                                 VerticalOptions="Fill"
-                                Stroke="{StaticResource Line}"
+                                Stroke="{DynamicResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="0">
                             <VerticalStackLayout Spacing="0">
@@ -140,27 +140,27 @@
                                         Text="▲"
                                         Clicked="OnPriorityUp"
                                         BackgroundColor="Transparent"
-                                        TextColor="{StaticResource Ink}"
+                                        TextColor="{DynamicResource Ink}"
                                         HeightRequest="44"
                                         FontSize="20"
                                         Padding="0"/>
                                 <BoxView HeightRequest="1"
-                                         BackgroundColor="{StaticResource Line}"/>
+                                         BackgroundColor="{DynamicResource Line}"/>
                                 <Label x:Name="PriorityLabel"
                                        Text="A"
                                        Style="{StaticResource Handwriting}"
                                        FontSize="24"
-                                       TextColor="{StaticResource Ink}"
+                                       TextColor="{DynamicResource Ink}"
                                        HorizontalTextAlignment="Center"
                                        VerticalTextAlignment="Center"
                                        HeightRequest="64"/>
                                 <BoxView HeightRequest="1"
-                                         BackgroundColor="{StaticResource Line}"/>
+                                         BackgroundColor="{DynamicResource Line}"/>
                                 <Button x:Name="PriorityDownButton"
                                         Text="▼"
                                         Clicked="OnPriorityDown"
                                         BackgroundColor="Transparent"
-                                        TextColor="{StaticResource Ink}"
+                                        TextColor="{DynamicResource Ink}"
                                         HeightRequest="44"
                                         FontSize="20"
                                         Padding="0"/>
@@ -171,7 +171,7 @@
                                 Grid.Column="2"
                                 Grid.RowSpan="3"
                                 VerticalOptions="Fill"
-                                Stroke="{StaticResource Line}"
+                                Stroke="{DynamicResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="0">
                             <VerticalStackLayout Spacing="0">
@@ -179,27 +179,27 @@
                                         Text="▲"
                                         Clicked="OnOrderDown"
                                         BackgroundColor="Transparent"
-                                        TextColor="{StaticResource Ink}"
+                                        TextColor="{DynamicResource Ink}"
                                         HeightRequest="44"
                                         FontSize="20"
                                         Padding="0"/>
                                 <BoxView HeightRequest="1"
-                                         BackgroundColor="{StaticResource Line}"/>
+                                         BackgroundColor="{DynamicResource Line}"/>
                                 <Label x:Name="OrderLabel"
                                        Text="1"
                                        Style="{StaticResource Handwriting}"
                                        FontSize="24"
-                                       TextColor="{StaticResource Ink}"
+                                       TextColor="{DynamicResource Ink}"
                                        HorizontalTextAlignment="Center"
                                        VerticalTextAlignment="Center"
                                        HeightRequest="64"/>
                                 <BoxView HeightRequest="1"
-                                         BackgroundColor="{StaticResource Line}"/>
+                                         BackgroundColor="{DynamicResource Line}"/>
                                 <Button x:Name="OrderUpButton"
                                         Text="▼"
                                         Clicked="OnOrderUp"
                                         BackgroundColor="Transparent"
-                                        TextColor="{StaticResource Ink}"
+                                        TextColor="{DynamicResource Ink}"
                                         HeightRequest="44"
                                         FontSize="20"
                                         Padding="0"/>
@@ -210,7 +210,7 @@
                                 Grid.Row="4"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
-                                Stroke="{StaticResource Line}"
+                                Stroke="{DynamicResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
                                 HeightRequest="46">
@@ -226,7 +226,7 @@
                                 <Label Text="In Progress"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{StaticResource Ink}"/>
+                                       TextColor="{DynamicResource Ink}"/>
                             </VerticalStackLayout>
                         </Border>
 
@@ -234,7 +234,7 @@
                                 Grid.Row="5"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
-                                Stroke="{StaticResource Line}"
+                                Stroke="{DynamicResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
                                 HeightRequest="46">
@@ -250,7 +250,7 @@
                                 <Label Text="Completed"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{StaticResource Ink}"/>
+                                       TextColor="{DynamicResource Ink}"/>
                             </VerticalStackLayout>
                         </Border>
 
@@ -258,7 +258,7 @@
                                 Grid.Row="6"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
-                                Stroke="{StaticResource Line}"
+                                Stroke="{DynamicResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
                                 HeightRequest="46"
@@ -275,7 +275,7 @@
                                 <Label Text="Forward To"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{StaticResource Ink}"/>
+                                       TextColor="{DynamicResource Ink}"/>
                             </VerticalStackLayout>
                         </Border>
 
@@ -293,7 +293,7 @@
                                                            HorizontalOptions="Fill"/>
                             <Label Grid.Row="1"
                                    Text="{Binding Source={x:Reference ForwardTargetSelector}, Path=SelectionIndicatorText}"
-                                   TextColor="{StaticResource Ink}"
+                                   TextColor="{DynamicResource Ink}"
                                    HorizontalTextAlignment="Center"/>
                         </Grid>
 
@@ -301,7 +301,7 @@
                                 Grid.Row="7"
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
-                                Stroke="{StaticResource Line}"
+                                Stroke="{DynamicResource Line}"
                                 StrokeShape="RoundRectangle 4"
                                 Padding="4"
                                 HeightRequest="46"
@@ -318,7 +318,7 @@
                                 <Label Text="Delete"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{StaticResource Ink}"/>
+                                       TextColor="{DynamicResource Ink}"/>
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
@@ -328,7 +328,7 @@
                 <BoxView Grid.Row="2"
                          Grid.ColumnSpan="2"
                          HeightRequest="1"
-                         BackgroundColor="{StaticResource Ink}"/>
+                         BackgroundColor="{DynamicResource Ink}"/>
 
             </Grid>
 
@@ -342,8 +342,8 @@
                 <Button Grid.Column="0"
                         Text="Cancel"
                         Clicked="OnCancelClicked"
-                        BackgroundColor="{StaticResource Ink}"
-                        TextColor="{StaticResource WritingPaper}"
+                        BackgroundColor="{DynamicResource Ink}"
+                        TextColor="{DynamicResource WritingPaper}"
                         CornerRadius="4"
                         HeightRequest="44"/>
 
@@ -351,8 +351,8 @@
                         x:Name="SaveButton"
                         Text="Save"
                         Clicked="OnSaveClicked"
-                        BackgroundColor="{StaticResource Accent}"
-                        TextColor="{StaticResource WritingPaper}"
+                        BackgroundColor="{DynamicResource Accent}"
+                        TextColor="{DynamicResource WritingPaper}"
                         CornerRadius="4"
                         HeightRequest="44"/>
 

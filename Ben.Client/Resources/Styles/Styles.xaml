@@ -10,7 +10,7 @@
                 <Setter Property="FontSize"
                         Value="48"/>
                 <Setter Property="TextColor"
-                        Value="{StaticResource Ink}"/>
+                        Value="{DynamicResource Ink}"/>
         </Style>
 
         <Style x:Key="Handwriting"
@@ -32,7 +32,7 @@
                 <Setter Property="FontSize"
                         Value="16"/>
                 <Setter Property="TextColor"
-                        Value="{StaticResource Ink}"/>
+                        Value="{DynamicResource Ink}"/>
         </Style>
 
         <Style x:Key="SectionTitle"
@@ -44,12 +44,12 @@
                 <Setter Property="FontAttributes"
                         Value="Bold"/>
                 <Setter Property="TextColor"
-                        Value="{StaticResource Ink}"/>
+                        Value="{DynamicResource Ink}"/>
                 <Setter Property="HorizontalTextAlignment"
                         Value="Center"/>
         </Style>
 
-        <Style TargetType="ActivityIndicator">
+        <!-- <Style TargetType="ActivityIndicator">
                 <Setter Property="Color"
                         Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}"/>
         </Style>
@@ -59,18 +59,18 @@
                         Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"/>
                 <Setter Property="SelectedIndicatorColor"
                         Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray100}}"/>
-        </Style>
+        </Style> -->
 
-        <Style TargetType="Border">
+        <!-- <Style TargetType="Border">
                 <Setter Property="Stroke"
                         Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"/>
                 <Setter Property="StrokeShape"
                         Value="Rectangle"/>
                 <Setter Property="StrokeThickness"
                         Value="1"/>
-        </Style>
+        </Style> -->
 
-        <Style TargetType="BoxView">
+        <!-- <Style TargetType="BoxView">
                 <Setter Property="BackgroundColor"
                         Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}"/>
         </Style>
@@ -110,25 +110,25 @@
                                 </VisualStateGroup>
                         </VisualStateGroupList>
                 </Setter>
-        </Style>
+        </Style> -->
 
         <Style TargetType="ContentPage">
                 <Setter Property="BackgroundColor"
-                        Value="{StaticResource Paper}"/>
+                        Value="{DynamicResource Paper}"/>
         </Style>
 
         <Style TargetType="ContentView">
                 <Setter Property="BackgroundColor"
-                        Value="{StaticResource Paper}"/>
+                        Value="{DynamicResource Paper}"/>
         </Style>
 
         <Style x:Key="PaperRootGrid"
                TargetType="Grid">
                 <Setter Property="BackgroundColor"
-                        Value="{StaticResource Paper}"/>
+                        Value="{DynamicResource Paper}"/>
         </Style>
 
-        <Style TargetType="CheckBox">
+        <!-- <Style TargetType="CheckBox">
                 <Setter Property="Color"
                         Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}"/>
                 <Setter Property="MinimumHeightRequest"
@@ -236,9 +236,9 @@
                                 </VisualStateGroup>
                         </VisualStateGroupList>
                 </Setter>
-        </Style>
+        </Style> -->
 
-        <Style TargetType="ImageButton">
+        <!-- <Style TargetType="ImageButton">
                 <Setter Property="Opacity"
                         Value="1"/>
                 <Setter Property="BorderColor"
@@ -564,7 +564,7 @@
                                 </VisualStateGroup>
                         </VisualStateGroupList>
                 </Setter>
-        </Style>
+        </Style> -->
 
         <!--
     <Style TargetType="TitleBar">
@@ -590,7 +590,7 @@
     </Style>
     -->
 
-        <Style TargetType="Page"
+        <!-- <Style TargetType="Page"
                ApplyToDerivedTypes="True">
                 <Setter Property="Padding"
                         Value="0"/>
@@ -640,6 +640,6 @@
                         Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}"/>
                 <Setter Property="SelectedTabColor"
                         Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}"/>
-        </Style>
+        </Style> -->
 
 </ResourceDictionary>

@@ -8,9 +8,17 @@ public class LinkColorConverter : IValueConverter
     {
         if (value is bool isOnline && isOnline)
         {
-            return Application.Current?.Resources["Link"] ?? Colors.Blue;
+            if (Application.Current?.Resources.TryGetValue("Link", out var link) == true)
+            {
+                return link;
+            }
+            return Colors.Blue;
         }
-        return Application.Current?.Resources["Ink"] ?? Colors.Black;
+        if (Application.Current?.Resources.TryGetValue("Ink", out var ink) == true)
+        {
+            return ink;
+        }
+        return Colors.Black;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

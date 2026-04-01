@@ -4,30 +4,30 @@
              x:Class="Ben.Views.ProjectManagementView"
              x:Name="Root">
 
-    <Grid RowDefinitions="Auto,Auto"
-          RowSpacing="10">
-        <Entry Grid.Row="0"
-               Text="{Binding Source={x:Reference Root}, Path=ProjectName, Mode=TwoWay}"
-               Placeholder="Project name"
-               TextColor="{StaticResource Ink}"/>
+        <Grid RowDefinitions="Auto,Auto"
+              RowSpacing="10">
+                <Entry Grid.Row="0"
+                       Text="{Binding Source={x:Reference Root}, Path=ProjectName, Mode=TwoWay}"
+                       Placeholder="Project name"
+                       TextColor="{DynamicResource Ink}"/>
 
-        <Grid Grid.Row="1"
-              ColumnDefinitions="*,*"
-              ColumnSpacing="12">
-            <Button Grid.Column="0"
-                    Text="Add"
-                    Clicked="OnAddClicked"
-                    BackgroundColor="{StaticResource Accent}"
-                    TextColor="{StaticResource WritingPaper}"
-                    CornerRadius="4"/>
-            <Button Grid.Column="1"
-                    Text="Edit"
-                    Clicked="OnEditClicked"
-                    BackgroundColor="Transparent"
-                    BorderColor="{StaticResource Line}"
-                    BorderWidth="1"
-                    TextColor="{StaticResource Ink}"
-                    CornerRadius="4"/>
+                <Grid Grid.Row="1"
+                      ColumnDefinitions="*,*"
+                      ColumnSpacing="12">
+                        <Button Grid.Column="0"
+                                Text="Add"
+                                Clicked="OnAddClicked"
+                                BackgroundColor="{DynamicResource Accent}"
+                                TextColor="{DynamicResource WritingPaper}"
+                                CornerRadius="4"/>
+                        <Button Grid.Column="1"
+                                Text="Edit"
+                                Clicked="OnEditClicked"
+                                BackgroundColor="Transparent"
+                                BorderColor="{DynamicResource Line}"
+                                BorderWidth="1"
+                                TextColor="{DynamicResource Ink}"
+                                CornerRadius="4"/>
+                </Grid>
         </Grid>
-    </Grid>
 </ContentView>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Ben.Resources.Themes.Yellow">
+
+    <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
+
+    <Color x:Key="Paper">#F7F4E5</Color>
+    <Color x:Key="WritingPaper">#FFFFFF</Color>
+    <Color x:Key="Ink">#6A5510</Color>
+    <Color x:Key="Line">#E4D9A8</Color>
+    <Color x:Key="Accent">#D9B32B</Color>
+    <Color x:Key="Link">#D9B32B</Color>
+    <Color x:Key="UserText">#4B4B4B</Color>
+
+</ResourceDictionary>

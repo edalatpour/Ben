@@ -2,18 +2,19 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Ben"
+             xmlns:themes="clr-namespace:Ben.Resources.Themes"
              xmlns:converters="clr-namespace:Ben.Converters"
              x:Class="Ben.App">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <themes:Green/>
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
-            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
-            <converters:LinkColorConverter x:Key="LinkColorConverter" />
-            <converters:LinkDecorationConverter x:Key="LinkDecorationConverter" />
+
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <converters:LinkColorConverter x:Key="LinkColorConverter"/>
+            <converters:LinkDecorationConverter x:Key="LinkDecorationConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

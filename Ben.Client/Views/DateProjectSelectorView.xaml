@@ -4,35 +4,35 @@
              x:Class="Ben.Views.DateProjectSelectorView"
              x:Name="Root">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto"
-          RowSpacing="10">
-        <Label Grid.Row="0"
-               Text="Select a Date"
-               HorizontalTextAlignment="Start"
-               Style="{StaticResource SectionTitle}"/>
+       <Grid RowDefinitions="Auto,Auto,Auto,Auto"
+             RowSpacing="10">
+              <Label Grid.Row="0"
+                     Text="Select a Date"
+                     HorizontalTextAlignment="Start"
+                     Style="{DynamicResource SectionTitle}"/>
 
-        <Grid x:Name="DatePickerContainer"
-              Grid.Row="1"
-              HorizontalOptions="Fill">
-            <DatePicker x:Name="SelectorDatePicker"
-                        Format="MM/dd/yyyy"
-                        HorizontalOptions="Fill"
-                        WidthRequest="{Binding Source={x:Reference DatePickerContainer}, Path=Width}"
-                        DateSelected="OnDateSelected"
-                        TextColor="{StaticResource Ink}"/>
-        </Grid>
+              <Grid x:Name="DatePickerContainer"
+                    Grid.Row="1"
+                    HorizontalOptions="Fill">
+                     <DatePicker x:Name="SelectorDatePicker"
+                                 Format="MM/dd/yyyy"
+                                 HorizontalOptions="Fill"
+                                 WidthRequest="{Binding Source={x:Reference DatePickerContainer}, Path=Width}"
+                                 DateSelected="OnDateSelected"
+                                 TextColor="{DynamicResource Ink}"/>
+              </Grid>
 
-        <Label Grid.Row="2"
-               Text="Select a Project"
-               HorizontalTextAlignment="Start"
-               Style="{StaticResource SectionTitle}"/>
+              <Label Grid.Row="2"
+                     Text="Select a Project"
+                     HorizontalTextAlignment="Start"
+                     Style="{DynamicResource SectionTitle}"/>
 
 
-        <Picker x:Name="ProjectsPicker"
-                Grid.Row="3"
-                ItemDisplayBinding="{Binding Name}"
-                SelectedIndexChanged="OnProjectSelectionChanged"
-                HorizontalOptions="Fill"
-                TextColor="{StaticResource Ink}"/>
-    </Grid>
+              <Picker x:Name="ProjectsPicker"
+                      Grid.Row="3"
+                      ItemDisplayBinding="{Binding Name}"
+                      SelectedIndexChanged="OnProjectSelectionChanged"
+                      HorizontalOptions="Fill"
+                      TextColor="{DynamicResource Ink}"/>
+       </Grid>
 </ContentView>

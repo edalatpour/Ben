@@ -167,4 +167,9 @@ public partial class DailyHostPage : ContentPage
     {
         await ViewModel.ForceSyncAsync();
     }
+
+    async void OnSettingsClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(SettingsPage));
+    }
 }

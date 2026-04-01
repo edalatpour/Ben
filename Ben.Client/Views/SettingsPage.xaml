@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Ben.Views.NoteDetailsPage"
-             Title="Note Details">
+             x:Class="Ben.Views.SettingsPage"
+             Title="Settings">
 
     <Grid Style="{DynamicResource PaperRootGrid}">
 
@@ -13,8 +13,8 @@
 
             <!-- Header -->
             <Label Grid.Row="0"
-                   Text="Note Details"
-                   Style="{StaticResource SectionTitle}"
+                   Text="Settings"
+                   Style="{DynamicResource SectionTitle}"
                    HorizontalTextAlignment="Center"/>
 
             <!-- Form -->
@@ -43,18 +43,42 @@
 
                     <Grid BackgroundColor="{DynamicResource WritingPaper}"
                           Padding="16"
-                          RowDefinitions="*,Auto"
-                          RowSpacing="8">
+                          RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="16">
 
-                        <!-- Note text editor -->
-                        <Editor x:Name="NoteEditor"
-                                Grid.Row="0"
-                                Placeholder="Enter note text..."
-                                Style="{StaticResource Handwriting}"
-                                FontSize="24"
-                                BackgroundColor="Transparent"
-                                AutoSize="TextChanges"
-                                MinimumHeightRequest="160"/>
+                        <!-- Theme Selection -->
+                        <Label Grid.Row="0"
+                               Text="Theme:"
+                               Style="{DynamicResource SectionTitle}"
+                               FontSize="18"/>
+
+                        <Border Grid.Row="1"
+                                Stroke="{DynamicResource Ink}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 4"
+                                BackgroundColor="{DynamicResource WritingPaper}"
+                                MinimumHeightRequest="72"
+                                Padding="12,8">
+                            <Picker x:Name="ThemeColorPicker"
+                                    Title="Select Theme"
+                                    SelectedIndexChanged="OnThemeColorSelected"
+                                    ItemsSource="{Binding AvailableThemes}"
+                                    ItemDisplayBinding="{Binding DisplayName}"
+                                    HorizontalOptions="Fill"
+                                    VerticalOptions="Center"
+                                    BackgroundColor="{DynamicResource WritingPaper}"
+                                    TextColor="{DynamicResource Ink}"
+                                    TitleColor="{DynamicResource Ink}"
+                                    FontSize="18"/>
+                        </Border>
+
+                        <!-- Preview of selected color -->
+                        <BoxView Grid.Row="2"
+                                 x:Name="ColorPreview"
+                                 HeightRequest="60"
+                                 BackgroundColor="{DynamicResource Ink}"
+                                 CornerRadius="4"
+                                 Margin="0,8,0,0"/>
 
                     </Grid>
 
@@ -75,18 +99,18 @@
 
                 <Button Grid.Column="0"
                         Text="Cancel"
-                        Clicked="OnCancelClicked"
                         BackgroundColor="{DynamicResource Ink}"
                         TextColor="{DynamicResource WritingPaper}"
                         CornerRadius="4"
-                        HeightRequest="44"/>
+                        HeightRequest="44"
+                        Clicked="OnCancelClicked"/>
                 <Button Grid.Column="1"
                         Text="Save"
-                        Clicked="OnSaveClicked"
                         BackgroundColor="{DynamicResource Accent}"
                         TextColor="{DynamicResource WritingPaper}"
                         CornerRadius="4"
-                        HeightRequest="44"/>
+                        HeightRequest="44"
+                        Clicked="OnSaveClicked"/>
 
             </Grid>
 

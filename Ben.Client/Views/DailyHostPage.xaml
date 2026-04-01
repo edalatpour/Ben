@@ -6,7 +6,7 @@
   <!-- SafeAreaEdges="None" -->
 
   <Grid x:Name="RootGrid"
-        Style="{StaticResource PaperRootGrid}"
+        Style="{DynamicResource PaperRootGrid}"
         RowDefinitions="*,Auto">
     <!-- SafeAreaEdges="None" -->
     <Grid.GestureRecognizers>
@@ -40,7 +40,7 @@
       <ImageButton Grid.Column="0"
                    Source="swipe_right.webp"
                    Clicked="OnPreviousClicked"
-                   BackgroundColor="{StaticResource Ink}"
+                   BackgroundColor="{DynamicResource Ink}"
                    Opacity="0.35"
                    WidthRequest="44"
                    HeightRequest="60"
@@ -51,7 +51,7 @@
       <ImageButton Grid.Column="2"
                    Source="swipe_left.webp"
                    Clicked="OnNextClicked"
-                   BackgroundColor="{StaticResource Ink}"
+                   BackgroundColor="{DynamicResource Ink}"
                    Opacity="0.35"
                    WidthRequest="44"
                    HeightRequest="60"
@@ -64,10 +64,22 @@
     <!-- Status Bar -->
     <Grid Grid.Row="1"
           ColumnDefinitions="Auto,*,Auto"
-          BackgroundColor="{StaticResource Paper}"
+          BackgroundColor="{DynamicResource Paper}"
           Padding="16,-16,16,0"
           HeightRequest="32">
-      <!-- Signed-out: plain Microsoft logo, no clipping -->
+
+      <Label x:Name="SettingsLabel"
+             Grid.Column="0"
+             Text="Settings"
+             FontSize="12"
+             TextColor="{DynamicResource Link}"
+             VerticalOptions="Center"
+             HorizontalOptions="Start">
+        <Label.GestureRecognizers>
+          <TapGestureRecognizer Tapped="OnSettingsClicked"/>
+        </Label.GestureRecognizers>
+      </Label>
+
       <Image Grid.Column="0"
              Source="microsoft.png"
              IsVisible="{Binding IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
@@ -97,7 +109,7 @@
       <Label Grid.Column="1"
              Text="{Binding LoginStatusText}"
              FontSize="12"
-             TextColor="{StaticResource Link}"
+             TextColor="{DynamicResource Link}"
              TextDecorations="Underline"
              VerticalOptions="Center"
              HorizontalOptions="Start">

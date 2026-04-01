@@ -57,14 +57,14 @@
 
             <BoxView Grid.ColumnSpan="2"
                      HeightRequest="3"
-                     BackgroundColor="{StaticResource Ink}"/>
+                     BackgroundColor="{DynamicResource Ink}"/>
             <BoxView Grid.RowSpan="2"
                      WidthRequest="1"
-                     BackgroundColor="{StaticResource Ink}"/>
+                     BackgroundColor="{DynamicResource Ink}"/>
 
             <Grid Grid.Row="1"
                   Grid.Column="1"
-                  BackgroundColor="{StaticResource WritingPaper}"
+                  BackgroundColor="{DynamicResource WritingPaper}"
                   RowDefinitions="*,Auto">
                 <ScrollView Grid.Row="0"
                             Margin="0,0,0,8"
@@ -73,7 +73,7 @@
                                          BindableLayout.ItemsSource="{Binding CurrentDay.Notes}">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate>
-                                <ContentView BackgroundColor="{StaticResource WritingPaper}">
+                                <ContentView BackgroundColor="{DynamicResource WritingPaper}">
                                     <Grid ColumnDefinitions="36,1,*"
                                           RowDefinitions="Auto"
                                           RowSpacing="0"
@@ -89,7 +89,7 @@
                                                Style="{StaticResource Handwriting}"/>
                                         <BoxView Grid.Column="1"
                                                  WidthRequest="1"
-                                                 BackgroundColor="{StaticResource Line}"
+                                                 BackgroundColor="{DynamicResource Line}"
                                                  HorizontalOptions="Center"
                                                  VerticalOptions="Fill"/>
                                         <Label Grid.Column="2"
@@ -106,7 +106,7 @@
                                         </Label>
                                         <BoxView Grid.ColumnSpan="3"
                                                  HeightRequest="1"
-                                                 BackgroundColor="{StaticResource Line}"
+                                                 BackgroundColor="{DynamicResource Line}"
                                                  VerticalOptions="End"/>
                                     </Grid>
                                 </ContentView>
@@ -127,7 +127,7 @@
                     <BoxView Grid.Row="0"
                              Grid.ColumnSpan="3"
                              HeightRequest="1"
-                             BackgroundColor="{StaticResource Line}"/>
+                             BackgroundColor="{DynamicResource Line}"/>
                     <Image Grid.Row="1"
                            Grid.Column="0"
                            Source="plus.webp"
@@ -139,7 +139,7 @@
                     <BoxView Grid.Row="1"
                              Grid.Column="1"
                              WidthRequest="1"
-                             BackgroundColor="{StaticResource Line}"
+                             BackgroundColor="{DynamicResource Line}"
                              HorizontalOptions="Center"
                              VerticalOptions="Fill"/>
                     <Label Grid.Row="1"
@@ -149,14 +149,14 @@
                            HorizontalTextAlignment="Start"
                            Style="{StaticResource Handwriting}"
                            FontAttributes="Italic"
-                           TextColor="{StaticResource Line}"/>
+                           TextColor="{DynamicResource Line}"/>
                 </Grid>
             </Grid>
 
             <BoxView Grid.Row="1"
                      Grid.ColumnSpan="2"
                      HeightRequest="1"
-                     BackgroundColor="{StaticResource Ink}"
+                     BackgroundColor="{DynamicResource Ink}"
                      VerticalOptions="End"/>
         </Grid>
     </Grid>

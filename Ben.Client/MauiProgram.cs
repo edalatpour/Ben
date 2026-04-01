@@ -35,6 +35,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
 
         builder.Services.AddSingleton<AuthenticationService>();
+        builder.Services.AddSingleton<ThemeService>();
         builder.Services.AddSingleton<DatasyncSyncService>();
 
         builder.Services.AddDbContext<LocalSchemaDbContext>(options =>
