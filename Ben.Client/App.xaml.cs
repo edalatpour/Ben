@@ -19,7 +19,9 @@ namespace Ben;
 public partial class App : Application
 {
 
+#if WINDOWS
     private static AppWindow? _appWindow;
+#endif
 
     public App()
     {
