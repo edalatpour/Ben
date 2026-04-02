@@ -144,7 +144,7 @@
                              VerticalOptions="Fill"/>
                     <Label Grid.Row="1"
                            Grid.Column="2"
-                           Text="Tap to add a new note..."
+                           Text="New note..."
                            VerticalTextAlignment="Center"
                            HorizontalTextAlignment="Start"
                            Style="{StaticResource Handwriting}"

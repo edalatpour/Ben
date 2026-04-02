@@ -169,7 +169,7 @@
                              BackgroundColor="{DynamicResource Line}"/>
                     <Label Grid.Row="1"
                            Grid.Column="4"
-                           Text="Tap to add a new task..."
+                           Text="New task..."
                            VerticalTextAlignment="Center"
                            Style="{StaticResource Handwriting}"
                            FontAttributes="Italic"
