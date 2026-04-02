@@ -96,13 +96,17 @@
                                             <TapGestureRecognizer Tapped="OnTaskTapped"/>
                                         </Grid.GestureRecognizers>
 
-                                        <Image Grid.Column="0"
-                                               Source="{Binding StatusIcon}"
+                                        <Label Grid.Column="0"
+                                               Text="{Binding StatusGlyph}"
+                                               FontSize="20"
                                                HeightRequest="24"
                                                WidthRequest="24"
-                                               Margin="8,3,0,0"
+                                               Margin="8,-2,0,0"
                                                HorizontalOptions="Center"
-                                               VerticalOptions="Start"/>
+                                               HorizontalTextAlignment="Center"
+                                               VerticalOptions="Start"
+                                               VerticalTextAlignment="Start"
+                                               TextColor="{DynamicResource Ink}"/>
 
                                         <BoxView Grid.Column="1"
                                                  WidthRequest="1"

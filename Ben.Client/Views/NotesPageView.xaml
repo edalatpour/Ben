@@ -74,7 +74,7 @@
                         <BindableLayout.ItemTemplate>
                             <DataTemplate>
                                 <ContentView BackgroundColor="{DynamicResource WritingPaper}">
-                                    <Grid ColumnDefinitions="36,1,*"
+                                    <Grid ColumnDefinitions="32,1,*"
                                           RowDefinitions="Auto"
                                           RowSpacing="0"
                                           ColumnSpacing="8"
@@ -118,7 +118,7 @@
 
                 <Grid Grid.Row="1"
                       RowDefinitions="1,Auto"
-                      ColumnDefinitions="36,1,*"
+                      ColumnDefinitions="32,1,*"
                       ColumnSpacing="8"
                       Padding="0,0,0,0">
                     <Grid.GestureRecognizers>

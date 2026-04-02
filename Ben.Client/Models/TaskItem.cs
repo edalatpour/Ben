@@ -77,10 +77,10 @@ public class TaskItem : INotifyPropertyChanged
         {
             return _status switch
             {
-                "InProgress" => "⏺️",
-                "Completed" => "✅",
-                "Forwarded" => "➡️",
-                "Deleted" => "❌",
+                "InProgress" => "•",
+                "Completed" => "✓",
+                "Forwarded" => "➝",
+                "Deleted" => "✗",
                 _ => string.Empty
             };
         }

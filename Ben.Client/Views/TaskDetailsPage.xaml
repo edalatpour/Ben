@@ -117,10 +117,12 @@
                                                       CommandParameter="NotStarted"/>
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
-                                <Image Source="not_started.webp"
+                                <Label Text=""
+                                       FontSize="20"
                                        HeightRequest="24"
-                                       WidthRequest="24"
-                                       HorizontalOptions="Center"/>
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{DynamicResource Ink}"/>
                                 <Label Text="Not Started"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
@@ -219,10 +221,12 @@
                                                       CommandParameter="InProgress"/>
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
-                                <Image Source="in_progress.webp"
+                                <Label Text="•"
+                                       FontSize="20"
                                        HeightRequest="24"
-                                       WidthRequest="24"
-                                       HorizontalOptions="Center"/>
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{DynamicResource Ink}"/>
                                 <Label Text="In Progress"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
@@ -243,10 +247,12 @@
                                                       CommandParameter="Completed"/>
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
-                                <Image Source="completed.webp"
+                                <Label Text="✓"
+                                       FontSize="20"
                                        HeightRequest="24"
-                                       WidthRequest="24"
-                                       HorizontalOptions="Center"/>
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{DynamicResource Ink}"/>
                                 <Label Text="Completed"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
@@ -268,10 +274,12 @@
                                                       CommandParameter="Forwarded"/>
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
-                                <Image Source="forwarded.webp"
+                                <Label Text="➝"
+                                       FontSize="20"
                                        HeightRequest="24"
-                                       WidthRequest="24"
-                                       HorizontalOptions="Center"/>
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{DynamicResource Ink}"/>
                                 <Label Text="Forward To"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
@@ -311,10 +319,12 @@
                                                       CommandParameter="Deleted"/>
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
-                                <Image Source="cancelled.webp"
+                                <Label Text="✗"
+                                       FontSize="20"
                                        HeightRequest="24"
-                                       WidthRequest="24"
-                                       HorizontalOptions="Center"/>
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{DynamicResource Ink}"/>
                                 <Label Text="Delete"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
