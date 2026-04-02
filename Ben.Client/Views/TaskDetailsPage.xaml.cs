@@ -125,14 +125,15 @@ public partial class TaskDetailsPage : ContentPage
             return;
         }
 
-        var accent = (Color)Application.Current.Resources["Accent"];
+        var ink = (Color)Application.Current.Resources["Ink"];
+        var writingPaper = (Color)Application.Current.Resources["WritingPaper"];
         var line = (Color)Application.Current.Resources["Line"];
 
-        StatusBorderNotStarted.Stroke = _selectedStatus == "NotStarted" ? accent : line;
-        StatusBorderInProgress.Stroke = _selectedStatus == "InProgress" ? accent : line;
-        StatusBorderCompleted.Stroke = _selectedStatus == "Completed" ? accent : line;
-        StatusBorderForwarded.Stroke = _selectedStatus == "Forwarded" ? accent : line;
-        StatusBorderDeleted.Stroke = _selectedStatus == "Deleted" ? accent : line;
+        ApplyStatusVisual(StatusBorderNotStarted, _selectedStatus == "NotStarted", ink, writingPaper, line);
+        ApplyStatusVisual(StatusBorderInProgress, _selectedStatus == "InProgress", ink, writingPaper, line);
+        ApplyStatusVisual(StatusBorderCompleted, _selectedStatus == "Completed", ink, writingPaper, line);
+        ApplyStatusVisual(StatusBorderForwarded, _selectedStatus == "Forwarded", ink, writingPaper, line);
+        ApplyStatusVisual(StatusBorderDeleted, _selectedStatus == "Deleted", ink, writingPaper, line);
 
         bool showForwardedTarget = _selectedStatus == "Forwarded";
         ForwardingTargetHost.IsVisible = showForwardedTarget;
@@ -140,6 +141,25 @@ public partial class TaskDetailsPage : ContentPage
         if (!showForwardedTarget)
         {
             _selectedForwardKey = null;
+        }
+    }
+
+    static void ApplyStatusVisual(Border border, bool isSelected, Color ink, Color writingPaper, Color line)
+    {
+        border.BackgroundColor = isSelected ? ink : writingPaper;
+        border.Stroke = line;
+
+        Color textColor = isSelected ? writingPaper : ink;
+
+        if (border.Content is Layout layout)
+        {
+            foreach (IView child in layout.Children)
+            {
+                if (child is Label label)
+                {
+                    label.TextColor = textColor;
+                }
+            }
         }
     }
 
