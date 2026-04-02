@@ -13,6 +13,7 @@ public class ThemeService
         "Green",
         "Blue",
         "Purple",
+        "Brown",
         "Gray"
     };
 
@@ -120,6 +121,7 @@ public class ThemeService
             "Blue" => new Blue(),
             "Purple" => new Purple(),
             "Gray" => new Gray(),
+            "Brown" => new Brown(),
             _ => new Green()
         };
     }

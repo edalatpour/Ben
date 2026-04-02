@@ -50,6 +50,14 @@ public partial class Purple : ResourceDictionary
     }
 }
 
+public partial class Brown : ResourceDictionary
+{
+    public Brown()
+    {
+        InitializeComponent();
+    }
+}
+
 public partial class Gray : ResourceDictionary
 {
     public Gray()

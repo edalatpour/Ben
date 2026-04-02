@@ -30,6 +30,7 @@ public partial class SettingsPage : ContentPage
         new ThemeOption { Name = "Green", DisplayName = "Green" },
         new ThemeOption { Name = "Blue", DisplayName = "Blue" },
         new ThemeOption { Name = "Purple", DisplayName = "Purple" },
+        new ThemeOption { Name = "Brown", DisplayName = "Brown" },
         new ThemeOption { Name = "Gray", DisplayName = "Gray" },
     };
 

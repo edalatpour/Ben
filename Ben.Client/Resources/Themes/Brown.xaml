@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    x:Class="Ben.Resources.Themes.Brown">
+
+    <Color x:Key="Paper">#F7EFED</Color>
+    <Color x:Key="WritingPaper">#FFFFFF</Color>
+
+    <Color x:Key="Ink">#693002</Color>
+    <Color x:Key="Line">#D9BEB3</Color>
+
+    <Color x:Key="Accent">#D9BEB3</Color>
+    <Color x:Key="Link">#D9BEB3</Color>
+
+    <Color x:Key="UserText">#000000</Color>
+
+</ResourceDictionary>
