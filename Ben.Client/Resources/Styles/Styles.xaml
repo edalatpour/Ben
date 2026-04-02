@@ -16,7 +16,7 @@
         <Style x:Key="Handwriting"
                TargetType="Label">
                 <Setter Property="FontFamily"
-                        Value="PatrickHand"/>
+                        Value="{DynamicResource UserHandwritingFont}"/>
                 <Setter Property="FontSize"
                         Value="24"/>
                 <Setter Property="VerticalTextAlignment"

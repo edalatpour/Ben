@@ -48,7 +48,7 @@
 
                     <Grid BackgroundColor="{DynamicResource WritingPaper}"
                           Padding="16"
-                          RowDefinitions="Auto,Auto"
+                          RowDefinitions="Auto,Auto,Auto"
                           RowSpacing="16">
 
                         <!-- Authentication -->
@@ -113,6 +113,31 @@
                                     Grid.Column="1"
                                     SelectedIndexChanged="OnThemeColorSelected"
                                     ItemsSource="{Binding AvailableThemes}"
+                                    ItemDisplayBinding="{Binding DisplayName}"
+                                    HorizontalOptions="Fill"
+                                    VerticalOptions="Center"
+                                    BackgroundColor="{DynamicResource WritingPaper}"
+                                    TextColor="{DynamicResource Ink}"
+                                    TitleColor="{DynamicResource Ink}"
+                                    FontSize="18"/>
+                        </Grid>
+
+                        <!-- User Font Selection -->
+                        <Grid Grid.Row="2"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="8"
+                              Padding="4,0,4,0">
+                            <Label Grid.Column="0"
+                                   Text="User Font"
+                                   FontSize="14"
+                                   TextColor="{DynamicResource Ink}"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start"/>
+
+                            <Picker x:Name="UserFontPicker"
+                                    Grid.Column="1"
+                                    SelectedIndexChanged="OnUserFontSelected"
+                                    ItemsSource="{Binding AvailableUserFonts}"
                                     ItemDisplayBinding="{Binding DisplayName}"
                                     HorizontalOptions="Fill"
                                     VerticalOptions="Center"

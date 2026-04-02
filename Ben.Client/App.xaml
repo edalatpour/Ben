@@ -15,6 +15,7 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
             <converters:LinkColorConverter x:Key="LinkColorConverter"/>
             <converters:LinkDecorationConverter x:Key="LinkDecorationConverter"/>
+            <x:String x:Key="UserHandwritingFont">PatrickHand</x:String>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -18,7 +18,9 @@ public partial class SettingsPage : ContentPage
 
     private string _originalTheme = "Green";
     private string _selectedTheme = "Green";
+    private string _selectedUserFont = "PatrickHand";
     private readonly ThemeService _themeService;
+    private readonly UserFontService _userFontService;
     private readonly DailyViewModel _dailyViewModel;
     private readonly List<ThemeOption> _availableThemes = new()
     {
@@ -32,12 +34,14 @@ public partial class SettingsPage : ContentPage
     };
 
     public List<ThemeOption> AvailableThemes => _availableThemes;
+    public IReadOnlyList<AppFontOption> AvailableUserFonts => _userFontService.AvailableFonts;
     public DailyViewModel AuthViewModel => _dailyViewModel;
 
     public SettingsPage()
     {
         InitializeComponent();
         _themeService = IPlatformApplication.Current!.Services.GetService<ThemeService>()!;
+        _userFontService = IPlatformApplication.Current!.Services.GetRequiredService<UserFontService>();
         _dailyViewModel = IPlatformApplication.Current!.Services.GetRequiredService<DailyViewModel>();
         BindingContext = this;
 
@@ -48,6 +52,14 @@ public partial class SettingsPage : ContentPage
         // Set the picker to the current theme
         var currentIndex = _availableThemes.FindIndex(t => t.Name == _originalTheme);
         ThemeColorPicker.SelectedIndex = currentIndex >= 0 ? currentIndex : 3; // Default to Green
+
+        // Set the font picker to the current selected user font.
+        _selectedUserFont = _userFontService.CurrentUserFont;
+        var currentFontIndex = AvailableUserFonts
+            .Select((font, index) => new { font, index })
+            .FirstOrDefault(x => x.font.Alias == _selectedUserFont)?.index ?? 0;
+        UserFontPicker.SelectedIndex = currentFontIndex;
+        ApplyPickerFontPreview();
 
         ApplyThemePreview(_selectedTheme);
     }
@@ -76,7 +88,23 @@ public partial class SettingsPage : ContentPage
     private void OnSaveClicked(object sender, EventArgs e)
     {
         _themeService.SetTheme(_selectedTheme);
+        _userFontService.ApplyUserFont(_selectedUserFont);
         Navigation.PopAsync();
+    }
+
+    private void OnUserFontSelected(object sender, EventArgs e)
+    {
+        if (UserFontPicker.SelectedItem is AppFontOption selectedFont)
+        {
+            _selectedUserFont = selectedFont.Alias;
+            ApplyPickerFontPreview();
+        }
+    }
+
+    private void ApplyPickerFontPreview()
+    {
+        ThemeColorPicker.FontFamily = _selectedUserFont;
+        UserFontPicker.FontFamily = _selectedUserFont;
     }
 
     private void ApplyThemePreview(string themeName)

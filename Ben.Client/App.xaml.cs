@@ -57,6 +57,9 @@ public partial class App : Application
             System.Diagnostics.Debug.WriteLine("Theme service initialized");
         }
 
+        var userFontService = IPlatformApplication.Current?.Services.GetService<UserFontService>();
+        userFontService?.InitializeUserFont();
+
         return new Window(new AppShell());
     }
 

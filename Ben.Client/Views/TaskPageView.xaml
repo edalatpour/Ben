@@ -108,7 +108,7 @@
                                                  WidthRequest="1"
                                                  BackgroundColor="{DynamicResource Line}"/>
                                         <Label Grid.Column="2"
-                                               Margin="0,3,0,0"
+                                               Margin="-5,3,-5,0"
                                                Padding="0"
                                                Text="{Binding PriorityOrder}"
                                                HorizontalTextAlignment="Center"
