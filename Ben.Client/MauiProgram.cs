@@ -18,7 +18,9 @@ public static class MauiProgram
         builder.UseMauiApp<App>()
                .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("PatrickHand-Regular.ttf", "Patrick Hand");
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("OpenSans-SemiBold.ttf", "OpenSansSemiBold");
+                    fonts.AddFont("PatrickHand-Regular.ttf", "PatrickHand");
                 });
 
 #if DEBUG

@@ -5,6 +5,17 @@ namespace Ben.Views;
 
 public partial class SettingsPage : ContentPage
 {
+    private static readonly string[] PreviewColorKeys =
+    {
+        "Paper",
+        "WritingPaper",
+        "Ink",
+        "Line",
+        "Accent",
+        "Link",
+        "UserText"
+    };
+
     private string _originalTheme = "Green";
     private string _selectedTheme = "Green";
     private readonly ThemeService _themeService;
@@ -38,7 +49,7 @@ public partial class SettingsPage : ContentPage
         var currentIndex = _availableThemes.FindIndex(t => t.Name == _originalTheme);
         ThemeColorPicker.SelectedIndex = currentIndex >= 0 ? currentIndex : 3; // Default to Green
 
-        UpdatePreview(_selectedTheme);
+        ApplyThemePreview(_selectedTheme);
     }
 
     private async void OnLoginStatusTapped(object sender, TappedEventArgs e)
@@ -52,7 +63,7 @@ public partial class SettingsPage : ContentPage
         {
             _selectedTheme = selectedTheme.Name;
 
-            UpdatePreview(_selectedTheme);
+            ApplyThemePreview(_selectedTheme);
         }
     }
 
@@ -68,12 +79,15 @@ public partial class SettingsPage : ContentPage
         Navigation.PopAsync();
     }
 
-    private void UpdatePreview(string themeName)
+    private void ApplyThemePreview(string themeName)
     {
-        var previewColor = _themeService.GetThemeColor(themeName, "Ink");
-        if (previewColor != null)
+        foreach (var resourceKey in PreviewColorKeys)
         {
-            ColorPreview.BackgroundColor = previewColor;
+            var themeColor = _themeService.GetThemeColor(themeName, resourceKey);
+            if (themeColor != null)
+            {
+                Resources[resourceKey] = themeColor;
+            }
         }
     }
 }

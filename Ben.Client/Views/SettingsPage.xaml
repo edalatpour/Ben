@@ -5,6 +5,10 @@
              x:Name="RootSettingsPage"
              Title="Settings">
 
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False"/>
+    </Shell.BackButtonBehavior>
+
     <Grid Style="{DynamicResource PaperRootGrid}">
 
         <Grid Padding="16"
@@ -44,7 +48,7 @@
 
                     <Grid BackgroundColor="{DynamicResource WritingPaper}"
                           Padding="16"
-                          RowDefinitions="Auto,Auto,Auto"
+                          RowDefinitions="Auto,Auto"
                           RowSpacing="16">
 
                         <!-- Authentication -->
@@ -94,15 +98,19 @@
                         </Grid>
 
                         <!-- Theme Selection -->
-                        <Border Grid.Row="1"
-                                Stroke="{DynamicResource Ink}"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 4"
-                                BackgroundColor="{DynamicResource WritingPaper}"
-                                MinimumHeightRequest="72"
-                                Padding="12,8">
+                        <Grid Grid.Row="1"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="8"
+                              Padding="4,0,4,0">
+                            <Label Grid.Column="0"
+                                   Text="Theme"
+                                   FontSize="14"
+                                   TextColor="{DynamicResource Ink}"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start"/>
+
                             <Picker x:Name="ThemeColorPicker"
-                                    Title="Theme:"
+                                    Grid.Column="1"
                                     SelectedIndexChanged="OnThemeColorSelected"
                                     ItemsSource="{Binding AvailableThemes}"
                                     ItemDisplayBinding="{Binding DisplayName}"
@@ -112,15 +120,7 @@
                                     TextColor="{DynamicResource Ink}"
                                     TitleColor="{DynamicResource Ink}"
                                     FontSize="18"/>
-                        </Border>
-
-                        <!-- Preview of selected color -->
-                        <BoxView Grid.Row="2"
-                                 x:Name="ColorPreview"
-                                 HeightRequest="60"
-                                 BackgroundColor="{DynamicResource Ink}"
-                                 CornerRadius="4"
-                                 Margin="0,8,0,0"/>
+                        </Grid>
 
                     </Grid>
 
