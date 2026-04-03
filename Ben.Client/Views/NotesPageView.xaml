@@ -10,27 +10,45 @@
 
         <!-- Date Header -->
 
-        <VerticalStackLayout Spacing="0"
-                             HorizontalOptions="Fill"
-                             VerticalOptions="Start">
-            <VerticalStackLayout.GestureRecognizers>
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="12"
+              HorizontalOptions="Fill"
+              VerticalOptions="Start">
+            <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnHeaderTapped"/>
-            </VerticalStackLayout.GestureRecognizers>
-            <Label Text="{Binding HeaderPrimaryText}"
-                   Style="{StaticResource DateNumber}"
-                   LineBreakMode="TailTruncation"
-                   MaxLines="1"
+            </Grid.GestureRecognizers>
+
+            <Label Grid.Column="0"
+                   Text="{Binding DailyQuote}"
+                   IsVisible="{Binding ShowDailyQuote}"
+                   Style="{StaticResource DateText}"
+                   FontSize="12"
+                   MaxLines="7"
+                   LineBreakMode="WordWrap"
                    HorizontalOptions="Fill"
-                   HorizontalTextAlignment="End"/>
-            <Label Text="{Binding HeaderSecondaryText}"
-                   IsVisible="{Binding ShowDateHeaderDetails}"
-                   Style="{StaticResource DateText}"
-                   HorizontalTextAlignment="End"/>
-            <Label Text="{Binding HeaderTertiaryText}"
-                   IsVisible="{Binding ShowDateHeaderDetails}"
-                   Style="{StaticResource DateText}"
-                   HorizontalTextAlignment="End"/>
-        </VerticalStackLayout>
+                   HorizontalTextAlignment="Start"
+                   VerticalOptions="Start"/>
+
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="0"
+                                 HorizontalOptions="End"
+                                 VerticalOptions="Start">
+                <Label Text="{Binding HeaderPrimaryText}"
+                       Style="{StaticResource DateNumber}"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="1"
+                       HorizontalOptions="Fill"
+                       HorizontalTextAlignment="End"/>
+                <Label Text="{Binding HeaderSecondaryText}"
+                       IsVisible="{Binding ShowDateHeaderDetails}"
+                       Style="{StaticResource DateText}"
+                       HorizontalTextAlignment="End"/>
+                <Label Text="{Binding HeaderTertiaryText}"
+                       IsVisible="{Binding ShowDateHeaderDetails}"
+                       Style="{StaticResource DateText}"
+                       HorizontalTextAlignment="End"/>
+            </VerticalStackLayout>
+        </Grid>
 
         <!-- Section Titles -->
 
