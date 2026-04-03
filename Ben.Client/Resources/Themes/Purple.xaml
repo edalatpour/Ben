@@ -12,8 +12,8 @@
     <Color x:Key="Ink">#3F0269</Color>
     <Color x:Key="Line">#C3B3D9</Color>
 
-    <Color x:Key="Accent">#C3B3D9</Color>
-    <Color x:Key="Link">#C3B3D9</Color>
+    <Color x:Key="Accent">#6A04B4</Color>
+    <Color x:Key="Link">#6A04B4</Color>
 
     <Color x:Key="UserText">#000000</Color>
 
