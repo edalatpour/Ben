@@ -314,6 +314,88 @@ public class PlannerRepository
         }
     }
 
+    public async Task<(int Count, List<string> SqlStatements)> BuildCatchUpForwardSqlPreviewAsync(string destinationDateKey)
+    {
+        if (!KeyConvention.TryParseDateKey(destinationDateKey, out DateTime destinationDate))
+        {
+            return (0, []);
+        }
+
+        string destinationDateValue = destinationDate.ToString(KeyConvention.DateFormat);
+
+        List<TaskItem> sourceTasks = await _db.Tasks
+            .FromSqlInterpolated($@"
+                SELECT [Id], [UpdatedAt], [Version], [Deleted], [Key], [Status], [Priority], [Order], [Title], [ParentTaskId], [OriginalTaskId]
+                FROM [Tasks]
+                WHERE [Key] LIKE {KeyConvention.DatePrefix + "%"}
+                  AND substr([Key], {KeyConvention.DatePrefix.Length + 1}) < {destinationDateValue}
+                  AND [Status] IN ('NotStarted', 'InProgress')
+                  AND [Deleted] = 0
+                ORDER BY [Key], [Priority], [Order], [Id]
+            ")
+            .AsNoTracking()
+            .ToListAsync();
+
+        Console.WriteLine($"CatchUp preview: {sourceTasks.Count} open task(s) before {destinationDateValue}.");
+
+        List<string> statements = new(capacity: sourceTasks.Count);
+
+        foreach (TaskItem task in sourceTasks)
+        {
+            string sourceTaskIdLiteral = ToSqlLiteral(task.Id);
+            string destinationKeyLiteral = ToSqlLiteral(destinationDateKey);
+            string newTaskIdLiteral = ToSqlLiteral(Guid.NewGuid().ToString("N"));
+
+            statements.Add(
+                                $@"UPDATE Tasks
+SET [Status] = 'Forwarded'
+WHERE [Id] = '{sourceTaskIdLiteral}'
+    AND [Status] IN ('NotStarted', 'InProgress')
+    AND [Deleted] = 0;
+
+INSERT INTO Tasks ([Id], [UpdatedAt], [Version], [Deleted], [Key], [Status], [Priority], [Order], [Title], [ParentTaskId], [OriginalTaskId])
+SELECT '{newTaskIdLiteral}', NULL, NULL, 0, '{destinationKeyLiteral}', 'NotStarted', 'A', 1, [Title], [Id], COALESCE([OriginalTaskId], [Id])
+FROM Tasks
+WHERE [Id] = '{sourceTaskIdLiteral}'
+    AND [Status] = 'Forwarded'
+    AND changes() > 0;");
+        }
+
+        Console.WriteLine($"CatchUp preview destination key: {destinationDateKey}, generated SQL statements: {statements.Count}.");
+
+        return (sourceTasks.Count, statements);
+    }
+
+    public async Task<(int CandidateCount, int ExecutedStatements)> ExecuteCatchUpForwardSqlAsync(string destinationDateKey)
+    {
+        var preview = await BuildCatchUpForwardSqlPreviewAsync(destinationDateKey);
+        if (preview.Count <= 0 || preview.SqlStatements.Count == 0)
+        {
+            return (preview.Count, 0);
+        }
+
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+
+        try
+        {
+            int executedStatements = 0;
+            foreach (string sql in preview.SqlStatements)
+            {
+                await _db.Database.ExecuteSqlRawAsync(sql);
+                executedStatements++;
+            }
+
+            await transaction.CommitAsync();
+            Console.WriteLine($"CatchUp execute: committed {executedStatements} statement(s) for destination {destinationDateKey}.");
+            return (preview.Count, executedStatements);
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task DeleteTaskAsync(TaskItem task)
     {
         _db.Tasks.Remove(task);
@@ -495,5 +577,10 @@ public class PlannerRepository
         }
 
         return KeyConvention.ToShortPageDisplay(key);
+    }
+
+    static string ToSqlLiteral(string? value)
+    {
+        return (value ?? string.Empty).Replace("'", "''", StringComparison.Ordinal);
     }
 }

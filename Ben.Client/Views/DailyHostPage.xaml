@@ -62,8 +62,9 @@
     </Grid>
 
     <!-- Status Bar -->
-    <Grid Grid.Row="1"
-          ColumnDefinitions="Auto,*"
+    <Grid x:Name="StatusBarGrid"
+          Grid.Row="1"
+          ColumnDefinitions="*,*,*,*"
           BackgroundColor="{DynamicResource Paper}"
           Padding="16,-16,16,0"
           HeightRequest="32">
@@ -100,7 +101,28 @@
                HeightRequest="32"/>
       </Border>
 
-      <Label Grid.Column="1"
+      <Label x:Name="CatchUpLabel"
+             Grid.Column="1"
+             Text="⇥"
+             IsVisible="{Binding ShowDateHeaderDetails}"
+             FontSize="32"
+             TextColor="{DynamicResource Link}"
+             VerticalOptions="Center"
+             HorizontalOptions="Center">
+        <Label.GestureRecognizers>
+          <TapGestureRecognizer Tapped="OnCatchUpClicked"/>
+        </Label.GestureRecognizers>
+      </Label>
+
+      <Label x:Name="CloseOutLabel"
+             Grid.Column="2"
+             Text="↦"
+             FontSize="32"
+             TextColor="{DynamicResource Link}"
+             VerticalOptions="Center"
+             HorizontalOptions="Center"/>
+
+      <Label Grid.Column="3"
              Text="{Binding SyncStatusText}"
              FontSize="12"
              TextColor="{Binding IsSyncClickable, Converter={StaticResource LinkColorConverter}}"
@@ -111,6 +133,7 @@
           <TapGestureRecognizer Tapped="OnSyncStatusTapped"/>
         </Label.GestureRecognizers>
       </Label>
+
     </Grid>
 
   </Grid>

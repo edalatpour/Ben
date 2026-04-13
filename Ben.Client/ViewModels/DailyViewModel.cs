@@ -659,6 +659,9 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task CompleteTaskSaveAfterCloseAsync(TaskItem task, string priority, int order, bool isNewTask, string? forwardDestinationKey)
     {
+        bool shouldRunPostSaveFlow = false;
+        string pageKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
+
         try
         {
             if (CurrentDay?.Tasks == null)
@@ -687,14 +690,16 @@ public class DailyViewModel : INotifyPropertyChanged
             }
 
             await UpdateStatus();
+            shouldRunPostSaveFlow = true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Task post-close save completion failed: {ex.Message}");
         }
-        finally
+
+        if (shouldRunPostSaveFlow)
         {
-            _repo.TriggerSync();
+            await RunPostLocalSaveFlowAsync(pageKey);
         }
     }
 
@@ -778,6 +783,9 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task CompleteNoteSaveAfterCloseAsync(NoteItem note, bool isNewNote)
     {
+        bool shouldRunPostSaveFlow = false;
+        string pageKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
+
         try
         {
             if (CurrentDay?.Notes != null && isNewNote && CurrentDay.Notes.IndexOf(note) < 0)
@@ -786,14 +794,16 @@ public class DailyViewModel : INotifyPropertyChanged
             }
 
             await UpdateStatus();
+            shouldRunPostSaveFlow = true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Note post-close save completion failed: {ex.Message}");
         }
-        finally
+
+        if (shouldRunPostSaveFlow)
         {
-            _repo.TriggerSync();
+            await RunPostLocalSaveFlowAsync(pageKey);
         }
     }
 
@@ -832,6 +842,62 @@ public class DailyViewModel : INotifyPropertyChanged
     public Task<string> GetPageDisplayAsync(string? key)
     {
         return _repo.GetPageDisplayAsync(key);
+    }
+
+    public Task<(int Count, List<string> SqlStatements)> BuildCatchUpForwardSqlPreviewAsync(string destinationDateKey)
+    {
+        return _repo.BuildCatchUpForwardSqlPreviewAsync(destinationDateKey);
+    }
+
+    public async Task<(int CandidateCount, int ExecutedStatements)> ExecuteCatchUpAsync(string destinationDateKey)
+    {
+        var result = await _repo.ExecuteCatchUpForwardSqlAsync(destinationDateKey);
+
+        await RunPostLocalSaveFlowAsync(destinationDateKey);
+
+        return result;
+    }
+
+    async Task RunPostLocalSaveFlowAsync(string pageKey)
+    {
+        string resolvedKey = string.IsNullOrWhiteSpace(pageKey)
+            ? (CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate))
+            : pageKey;
+
+        await LoadPageAsync(resolvedKey);
+        _repo.TriggerSync();
+        await WaitForNextSyncCompletionAsync(TimeSpan.FromSeconds(8));
+        await LoadPageAsync(resolvedKey);
+        await UpdateStatus();
+    }
+
+    async Task WaitForNextSyncCompletionAsync(TimeSpan timeout)
+    {
+        if (!_authService.IsAuthenticated || _connectivity.NetworkAccess != NetworkAccess.Internet)
+        {
+            return;
+        }
+
+        TaskCompletionSource<bool> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        void OnCompleted(object? _, EventArgs __)
+        {
+            tcs.TrySetResult(true);
+        }
+
+        _syncService.SyncCompleted += OnCompleted;
+        try
+        {
+            Task completed = await Task.WhenAny(tcs.Task, Task.Delay(timeout));
+            if (!ReferenceEquals(completed, tcs.Task))
+            {
+                Console.WriteLine($"Post-save sync wait timed out after {timeout.TotalSeconds:F0} seconds.");
+            }
+        }
+        finally
+        {
+            _syncService.SyncCompleted -= OnCompleted;
+        }
     }
 
     public async Task<(bool Success, string ErrorMessage, ProjectItem? Project)> TryCreateProjectAsync(string projectName)
@@ -1203,13 +1269,10 @@ public class DailyViewModel : INotifyPropertyChanged
             _isSyncing = true;
             await UpdateStatus();
 
-            var success = await _syncService.TrySyncNowAsync();
-
-            if (success)
-            {
-                // Reload current day to show synced data
-                await LoadPageAsync(CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate));
-            }
+            string pageKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
+            _repo.TriggerSync();
+            await WaitForNextSyncCompletionAsync(TimeSpan.FromSeconds(8));
+            await LoadPageAsync(pageKey);
         }
         finally
         {
