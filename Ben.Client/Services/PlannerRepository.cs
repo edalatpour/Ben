@@ -368,26 +368,58 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
 
     public async Task<(int CandidateCount, int ExecutedStatements)> ExecuteCatchUpForwardSqlAsync(string destinationDateKey)
     {
-        var preview = await BuildCatchUpForwardSqlPreviewAsync(destinationDateKey);
-        if (preview.Count <= 0 || preview.SqlStatements.Count == 0)
+        if (!KeyConvention.TryParseDateKey(destinationDateKey, out DateTime destinationDate))
         {
-            return (preview.Count, 0);
+            return (0, 0);
+        }
+
+        string destinationDateValue = destinationDate.ToString(KeyConvention.DateFormat);
+
+        List<TaskItem> sourceTasks = await _db.Tasks
+            .FromSqlInterpolated($@"
+                SELECT [Id], [UpdatedAt], [Version], [Deleted], [Key], [Status], [Priority], [Order], [Title], [ParentTaskId], [OriginalTaskId]
+                FROM [Tasks]
+                WHERE [Key] LIKE {KeyConvention.DatePrefix + "%"}
+                  AND substr([Key], {KeyConvention.DatePrefix.Length + 1}) < {destinationDateValue}
+                  AND [Status] IN ('NotStarted', 'InProgress')
+                  AND [Deleted] = 0
+                ORDER BY [Key], [Priority], [Order], [Id]
+            ")
+            .ToListAsync();
+
+        if (sourceTasks.Count == 0)
+        {
+            return (0, 0);
         }
 
         await using var transaction = await _db.Database.BeginTransactionAsync();
 
         try
         {
-            int executedStatements = 0;
-            foreach (string sql in preview.SqlStatements)
+            List<TaskItem> forwardedTasks = new(capacity: sourceTasks.Count);
+
+            foreach (TaskItem task in sourceTasks)
             {
-                await _db.Database.ExecuteSqlRawAsync(sql);
-                executedStatements++;
+                task.Status = "Forwarded";
+
+                forwardedTasks.Add(new TaskItem
+                {
+                    Title = task.Title,
+                    Key = destinationDateKey,
+                    Status = "NotStarted",
+                    Priority = "A",
+                    Order = 1,
+                    ParentTaskId = task.Id,
+                    OriginalTaskId = task.OriginalTaskId ?? task.Id
+                });
             }
 
+            _db.Tasks.AddRange(forwardedTasks);
+            await _db.SaveChangesAsync();
+
             await transaction.CommitAsync();
-            Console.WriteLine($"CatchUp execute: committed {executedStatements} statement(s) for destination {destinationDateKey}.");
-            return (preview.Count, executedStatements);
+            Console.WriteLine($"CatchUp execute: saved {sourceTasks.Count} source update(s) and {forwardedTasks.Count} forwarded task insert(s) for destination {destinationDateKey}.");
+            return (sourceTasks.Count, forwardedTasks.Count);
         }
         catch
         {
