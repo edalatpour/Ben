@@ -64,7 +64,7 @@
     <!-- Status Bar -->
     <Grid x:Name="StatusBarGrid"
           Grid.Row="1"
-          ColumnDefinitions="*,*,*"
+          ColumnDefinitions="*,*"
           BackgroundColor="{DynamicResource Paper}"
           Padding="16,-16,16,0"
           HeightRequest="32">
@@ -101,15 +101,7 @@
                HeightRequest="32"/>
       </Border>
 
-      <Label x:Name="CloseOutLabel"
-             Grid.Column="1"
-             Text="↦"
-             FontSize="32"
-             TextColor="{DynamicResource Link}"
-             VerticalOptions="Center"
-             HorizontalOptions="Center"/>
-
-      <Label Grid.Column="2"
+      <Label Grid.Column="1"
              Text="{Binding SyncStatusText}"
              FontSize="12"
              TextColor="{Binding IsSyncClickable, Converter={StaticResource LinkColorConverter}}"
