@@ -1,6 +1,7 @@
 namespace Ben.Views;
 
 using Ben.Models;
+using Ben.Services;
 using Ben.ViewModels;
 
 public partial class TaskPageView : ContentView
@@ -70,6 +71,60 @@ public partial class TaskPageView : ContentView
         }
 
         await page.Navigation.PushModalAsync(new PageNavigationPage(viewModel));
+    }
+
+    async void OnCatchUpClicked(object sender, TappedEventArgs e)
+    {
+        if (BindingContext is not DailyViewModel viewModel)
+        {
+            return;
+        }
+
+        string? currentKey = viewModel.CurrentDay?.Key;
+        if (string.IsNullOrWhiteSpace(currentKey)
+            || !KeyConvention.TryParseDateKey(currentKey, out DateTime destinationDate))
+        {
+            return;
+        }
+
+        string destinationDateKey = currentKey;
+        var preview = await viewModel.BuildCatchUpForwardSqlPreviewAsync(destinationDateKey);
+
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page == null)
+        {
+            return;
+        }
+
+        if (preview.Count <= 0)
+        {
+            await page.DisplayAlertAsync("", $"No open tasks to pull forward.", "OK");
+            return;
+        }
+
+
+        String word = "tasks";
+        if (preview.Count == 1)
+        {
+            word = "task";
+        }
+
+        bool shouldForward = await page.DisplayAlertAsync(
+            "",
+            $"Pull {preview.Count} open {word} forward?",
+            "Yes",
+            "No");
+
+        if (!shouldForward)
+        {
+            return;
+        }
+
+        var execution = await viewModel.ExecuteCatchUpAsync(destinationDateKey);
+        // await page.DisplayAlertAsync(
+        //     "",
+        //     $"Forwarded {execution.CandidateCount} open task(s) to {destinationDate:yyyy-MM-dd}.",
+        //     "OK");
     }
 
     void OnTaskDragStarting(object sender, DragStartingEventArgs e)

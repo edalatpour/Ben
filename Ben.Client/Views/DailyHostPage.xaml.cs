@@ -1,9 +1,8 @@
 namespace Ben.Views;
 
 using Ben.Models;
-using Ben.ViewModels;
 using Microsoft.Maui.Devices;
-using Ben.Services;
+using Ben.ViewModels;
 
 public partial class DailyHostPage : ContentPage
 {
@@ -169,38 +168,4 @@ public partial class DailyHostPage : ContentPage
         await Shell.Current.GoToAsync(nameof(SettingsPage));
     }
 
-    async void OnCatchUpClicked(object sender, TappedEventArgs e)
-    {
-        string? currentKey = ViewModel.CurrentDay?.Key;
-        if (string.IsNullOrWhiteSpace(currentKey)
-            || !KeyConvention.TryParseDateKey(currentKey, out DateTime destinationDate))
-        {
-            return;
-        }
-
-        string destinationDateKey = currentKey;
-        var preview = await ViewModel.BuildCatchUpForwardSqlPreviewAsync(destinationDateKey);
-        if (preview.Count <= 0)
-        {
-            await DisplayAlertAsync("Catch Up", $"No open tasks to forward to {destinationDate:yyyy-MM-dd}.", "OK");
-            return;
-        }
-
-        bool shouldForward = await DisplayAlertAsync(
-            "Catch Up",
-            $"Forward {preview.Count} open tasks to {destinationDate:yyyy-MM-dd}?",
-            "Yes",
-            "No");
-
-        if (!shouldForward)
-        {
-            return;
-        }
-
-        var execution = await ViewModel.ExecuteCatchUpAsync(destinationDateKey);
-        await DisplayAlertAsync(
-            "Catch Up",
-            $"Forwarded {execution.CandidateCount} open task(s) to {destinationDate:yyyy-MM-dd}.",
-            "OK");
-    }
 }
