@@ -23,7 +23,79 @@
       <ContentView x:Name="LandscapeTasksHost"/>
       <ContentView x:Name="LandscapeNotesHost"
                    Grid.Column="1"/>
+
+      <Grid x:Name="LandscapeTurnOverlay"
+            Grid.ColumnSpan="2"
+            ColumnDefinitions="*,*"
+            InputTransparent="True">
+        <Border x:Name="LeftTurnSheet"
+                Grid.Column="0"
+                IsVisible="False"
+                Opacity="0"
+                BackgroundColor="{DynamicResource Paper}"
+                StrokeThickness="0">
+          <Grid>
+            <BoxView WidthRequest="18"
+                     HorizontalOptions="End"
+                     VerticalOptions="Fill">
+              <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0"
+                                     EndPoint="1,0">
+                  <GradientStop Color="#00000000"
+                                Offset="0.0"/>
+                  <GradientStop Color="#22000000"
+                                Offset="1.0"/>
+                </LinearGradientBrush>
+              </BoxView.Background>
+            </BoxView>
+          </Grid>
+        </Border>
+
+        <Border x:Name="RightTurnSheet"
+                Grid.Column="1"
+                IsVisible="False"
+                Opacity="0"
+                BackgroundColor="{DynamicResource Paper}"
+                StrokeThickness="0">
+          <Grid>
+            <BoxView WidthRequest="18"
+                     HorizontalOptions="Start"
+                     VerticalOptions="Fill">
+              <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0"
+                                     EndPoint="1,0">
+                  <GradientStop Color="#22000000"
+                                Offset="0.0"/>
+                  <GradientStop Color="#00000000"
+                                Offset="1.0"/>
+                </LinearGradientBrush>
+              </BoxView.Background>
+            </BoxView>
+          </Grid>
+        </Border>
+      </Grid>
     </Grid>
+
+    <BoxView x:Name="LandscapeSeamShadow"
+             Grid.RowSpan="2"
+             IsVisible="False"
+             WidthRequest="34"
+             HorizontalOptions="Center"
+             VerticalOptions="Fill"
+             InputTransparent="True"
+             Opacity="0.2">
+      <BoxView.Background>
+        <LinearGradientBrush StartPoint="0,0"
+                             EndPoint="1,0">
+          <GradientStop Color="#00000000"
+                        Offset="0.0"/>
+          <GradientStop Color="#44000000"
+                        Offset="0.5"/>
+          <GradientStop Color="#00000000"
+                        Offset="1.0"/>
+        </LinearGradientBrush>
+      </BoxView.Background>
+    </BoxView>
 
     <!-- Portrait: show one page at a time -->
     <Grid x:Name="PortraitGrid"
@@ -65,7 +137,7 @@
     <Grid x:Name="StatusBarGrid"
           Grid.Row="1"
           ColumnDefinitions="*,*"
-          BackgroundColor="{DynamicResource Paper}"
+          BackgroundColor="Transparent"
           Padding="16,-16,16,0"
           HeightRequest="32">
 
