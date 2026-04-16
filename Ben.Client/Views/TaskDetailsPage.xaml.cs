@@ -222,9 +222,12 @@ public partial class TaskDetailsPage : ContentPage
             }
 
             string? forwardDestinationKey = null;
+            ForwardedTaskSeed? forwardedTaskSeed = null;
 
             if (_selectedStatus == "Forwarded")
             {
+                forwardedTaskSeed = new ForwardedTaskSeed(_task.Status, string.Empty, 0);
+
                 forwardDestinationKey = GetForwardDestinationKey();
                 if (string.IsNullOrWhiteSpace(forwardDestinationKey))
                 {
@@ -254,7 +257,8 @@ public partial class TaskDetailsPage : ContentPage
                 selectedPriority,
                 _order,
                 _isNewTask,
-                forwardDestinationKey);
+                forwardDestinationKey,
+                forwardedTaskSeed);
         }
         catch
         {

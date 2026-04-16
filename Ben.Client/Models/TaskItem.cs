@@ -107,16 +107,30 @@ public class TaskItem : INotifyPropertyChanged
     public string Priority
     {
         get => _priority;
-        set => SetField(ref _priority, value);
+        set
+        {
+            if (SetField(ref _priority, value))
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PriorityOrder)));
+            }
+        }
     }
 
     public int Order
     {
         get => _order;
-        set => SetField(ref _order, value);
+        set
+        {
+            if (SetField(ref _order, value))
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PriorityOrder)));
+            }
+        }
     }
 
-    public string PriorityOrder => string.Concat(_priority, _order.ToString());
+    public string PriorityOrder => string.IsNullOrWhiteSpace(_priority) && _order == 0
+        ? string.Empty
+        : string.Concat(_priority, _order.ToString());
 
     public string Title
     {

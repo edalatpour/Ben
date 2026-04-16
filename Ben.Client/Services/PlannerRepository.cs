@@ -314,6 +314,83 @@ public class PlannerRepository
         }
     }
 
+    public async Task ForwardTaskAsync(
+        TaskItem sourceTask,
+        string destinationKey,
+        bool triggerSync = true,
+        ForwardedTaskSeed? forwardedTaskSeed = null)
+    {
+        if (!TryQueueForwardTask(
+            sourceTask,
+            destinationKey,
+            out _,
+            forwardedTaskSeed))
+        {
+            return;
+        }
+
+        await _db.SaveChangesAsync();
+
+        if (triggerSync)
+        {
+            TriggerSync();
+        }
+    }
+
+    bool TryQueueForwardTask(
+        TaskItem sourceTask,
+        string destinationKey,
+        out TaskItem? forwardedTask,
+        ForwardedTaskSeed? forwardedTaskSeed = null)
+    {
+        forwardedTask = null;
+
+        if (sourceTask == null || string.IsNullOrWhiteSpace(destinationKey))
+        {
+            return false;
+        }
+
+        if (string.Equals(sourceTask.Key, destinationKey, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        string copiedStatus = string.IsNullOrWhiteSpace(forwardedTaskSeed?.Status)
+            ? sourceTask.Status
+            : forwardedTaskSeed.Value.Status!;
+        string copiedPriority = forwardedTaskSeed?.Priority ?? string.Empty;
+        int copiedOrder = forwardedTaskSeed?.Order ?? 0;
+        copiedOrder = Math.Max(0, copiedOrder);
+
+        sourceTask.Status = "Forwarded";
+
+        _db.Tasks.Update(sourceTask);
+
+        forwardedTask = CreateForwardedTask(sourceTask, destinationKey, copiedStatus, copiedPriority, copiedOrder);
+        _db.Tasks.Add(forwardedTask);
+
+        return true;
+    }
+
+    static TaskItem CreateForwardedTask(
+        TaskItem sourceTask,
+        string destinationKey,
+        string status,
+        string priority,
+        int order)
+    {
+        return new TaskItem
+        {
+            Title = sourceTask.Title,
+            Key = destinationKey,
+            Status = status,
+            Priority = priority,
+            Order = order,
+            ParentTaskId = sourceTask.Id,
+            OriginalTaskId = sourceTask.OriginalTaskId ?? sourceTask.Id
+        };
+    }
+
     public async Task<(int Count, List<string> SqlStatements)> BuildCatchUpForwardSqlPreviewAsync(string destinationDateKey)
     {
         if (!KeyConvention.TryParseDateKey(destinationDateKey, out DateTime destinationDate))
@@ -354,7 +431,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
     AND [Deleted] = 0;
 
 INSERT INTO Tasks ([Id], [UpdatedAt], [Version], [Deleted], [Key], [Status], [Priority], [Order], [Title], [ParentTaskId], [OriginalTaskId])
-SELECT '{newTaskIdLiteral}', NULL, NULL, 0, '{destinationKeyLiteral}', 'NotStarted', 'A', 1, [Title], [Id], COALESCE([OriginalTaskId], [Id])
+SELECT '{newTaskIdLiteral}', NULL, NULL, 0, '{destinationKeyLiteral}', '{ToSqlLiteral(task.Status)}', '', 0, [Title], [Id], COALESCE([OriginalTaskId], [Id])
 FROM Tasks
 WHERE [Id] = '{sourceTaskIdLiteral}'
     AND [Status] = 'Forwarded'
@@ -396,30 +473,21 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
 
         try
         {
-            List<TaskItem> forwardedTasks = new(capacity: sourceTasks.Count);
+            int forwardedCount = 0;
 
             foreach (TaskItem task in sourceTasks)
             {
-                task.Status = "Forwarded";
-
-                forwardedTasks.Add(new TaskItem
+                if (TryQueueForwardTask(task, destinationDateKey, out _))
                 {
-                    Title = task.Title,
-                    Key = destinationDateKey,
-                    Status = "NotStarted",
-                    Priority = "A",
-                    Order = 1,
-                    ParentTaskId = task.Id,
-                    OriginalTaskId = task.OriginalTaskId ?? task.Id
-                });
+                    forwardedCount++;
+                }
             }
 
-            _db.Tasks.AddRange(forwardedTasks);
             await _db.SaveChangesAsync();
 
             await transaction.CommitAsync();
-            Console.WriteLine($"CatchUp execute: saved {sourceTasks.Count} source update(s) and {forwardedTasks.Count} forwarded task insert(s) for destination {destinationDateKey}.");
-            return (sourceTasks.Count, forwardedTasks.Count);
+            Console.WriteLine($"CatchUp execute: saved {sourceTasks.Count} source update(s) and {forwardedCount} forwarded task insert(s) for destination {destinationDateKey}.");
+            return (sourceTasks.Count, forwardedCount);
         }
         catch
         {

@@ -657,7 +657,13 @@ public class DailyViewModel : INotifyPropertyChanged
         await _repo.UpdateTaskAsync(task, triggerSync: false);
     }
 
-    public async Task CompleteTaskSaveAfterCloseAsync(TaskItem task, string priority, int order, bool isNewTask, string? forwardDestinationKey)
+    public async Task CompleteTaskSaveAfterCloseAsync(
+        TaskItem task,
+        string priority,
+        int order,
+        bool isNewTask,
+        string? forwardDestinationKey,
+        ForwardedTaskSeed? forwardedTaskSeed = null)
     {
         bool shouldRunPostSaveFlow = false;
         string pageKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
@@ -686,7 +692,11 @@ public class DailyViewModel : INotifyPropertyChanged
             if (string.Equals(task.Status, "Forwarded", StringComparison.Ordinal)
                 && !string.IsNullOrWhiteSpace(forwardDestinationKey))
             {
-                await CreateForwardedTaskAsync(task, forwardDestinationKey, triggerSync: false);
+                await _repo.ForwardTaskAsync(
+                    task,
+                    forwardDestinationKey,
+                    triggerSync: false,
+                    forwardedTaskSeed: forwardedTaskSeed);
             }
 
             await UpdateStatus();
@@ -805,33 +815,6 @@ public class DailyViewModel : INotifyPropertyChanged
         {
             await RunPostLocalSaveFlowAsync(pageKey);
         }
-    }
-
-    public async Task CreateForwardedTaskAsync(TaskItem originalTask, string destinationKey, bool triggerSync = true)
-    {
-        if (originalTask == null || string.IsNullOrWhiteSpace(destinationKey))
-        {
-            return;
-        }
-
-        if (string.Equals(originalTask.Key, destinationKey, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        var forwardedTask = new TaskItem
-        {
-            Title = originalTask.Title,
-            Key = destinationKey,
-            Status = "NotStarted",
-            Priority = "A",
-            Order = 1,
-            ParentTaskId = originalTask.Id,
-            OriginalTaskId = originalTask.OriginalTaskId ?? originalTask.Id
-        };
-
-        await _repo.AddTaskAsync(forwardedTask, triggerSync);
-        await UpdateStatus();
     }
 
     public Task<List<ProjectItem>> GetProjectsAsync()
@@ -1004,6 +987,12 @@ public class DailyViewModel : INotifyPropertyChanged
         int sourceIndex = tasks.IndexOf(source);
         int targetIndex = tasks.IndexOf(target);
         if (sourceIndex < 0 || targetIndex < 0 || sourceIndex == targetIndex)
+        {
+            return;
+        }
+
+        // Unplanned tasks are not valid drop targets for reorder.
+        if (string.IsNullOrWhiteSpace(target.Priority) && target.Order == 0)
         {
             return;
         }
@@ -1348,6 +1337,21 @@ public class DailyViewModel : INotifyPropertyChanged
         foreach (TaskItem task in CurrentDay.Tasks)
         {
             string priorityKey = task.Priority ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(priorityKey))
+            {
+                if (task.Order != 0)
+                {
+                    task.Order = 0;
+                    if (changedIds.Add(task.Id))
+                    {
+                        changedTasks.Add(task);
+                    }
+                }
+
+                continue;
+            }
+
             orderByPriority.TryGetValue(priorityKey, out int current);
             int nextOrder = current + 1;
             orderByPriority[priorityKey] = nextOrder;
