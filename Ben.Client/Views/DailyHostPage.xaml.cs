@@ -142,10 +142,7 @@ public partial class DailyHostPage : ContentPage
 
     Task AnimatePortraitNavigationAsync(int direction, Func<Task> navigateAsync)
     {
-        bool willChangeDate = direction > 0 ? ViewModel.SubPage == 1 : ViewModel.SubPage == 0;
-        return willChangeDate
-            ? AnimatePortraitFlipAsync(direction, navigateAsync)
-            : AnimatePortraitPanAsync(direction, navigateAsync);
+        return AnimatePortraitPanAsync(direction, navigateAsync);
     }
 
     async Task AnimatePortraitPanAsync(int direction, Func<Task> navigateAsync)
@@ -188,7 +185,8 @@ public partial class DailyHostPage : ContentPage
 
         double closeShift = Math.Clamp(width * 0.035, 14d, 40d);
         double openShift = Math.Clamp(width * 0.14, 48d, 120d);
-        double closeTilt = direction > 0 ? -42d : 42d;
+        // In portrait, forward day navigation should visually lift the right edge toward the viewer.
+        double closeTilt = direction > 0 ? 42d : -42d;
         double openTilt = -closeTilt * 0.34;
 
         SinglePageHost.AnchorX = direction > 0 ? 1 : 0;
