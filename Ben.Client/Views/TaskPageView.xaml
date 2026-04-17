@@ -113,7 +113,8 @@
                                                HorizontalTextAlignment="Center"
                                                VerticalOptions="Start"
                                                VerticalTextAlignment="Start"
-                                               TextColor="{DynamicResource Ink}"/>
+                                               Style="{StaticResource Handwriting}"
+                                               FontAttributes="Bold"/>
 
                                         <BoxView Grid.Column="1"
                                                  WidthRequest="1"
