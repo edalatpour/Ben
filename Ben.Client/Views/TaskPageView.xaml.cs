@@ -13,6 +13,21 @@ public partial class TaskPageView : ContentView
         InitializeComponent();
         _viewModel = vm;
         BindingContext = _viewModel;
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+    }
+
+    void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (!string.Equals(e.PropertyName, nameof(DailyViewModel.CurrentDay), StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            TasksListView.ItemsSource = null;
+            TasksListView.ItemsSource = _viewModel.CurrentDay.Tasks;
+        });
     }
 
     async void OnTaskTapped(object sender, EventArgs e)
