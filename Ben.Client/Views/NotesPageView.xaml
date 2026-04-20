@@ -15,9 +15,6 @@
               ColumnSpacing="12"
               HorizontalOptions="Fill"
               VerticalOptions="Start">
-            <Grid.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnHeaderTapped"/>
-            </Grid.GestureRecognizers>
 
             <Label Grid.Column="0"
                    Text="{Binding DailyQuote}"
@@ -34,6 +31,9 @@
                                  Spacing="0"
                                  HorizontalOptions="End"
                                  VerticalOptions="Start">
+                <VerticalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnDateTapped"/>
+                </VerticalStackLayout.GestureRecognizers>
                 <Label Text="{Binding HeaderPrimaryText}"
                        Style="{StaticResource DateNumber}"
                        LineBreakMode="TailTruncation"

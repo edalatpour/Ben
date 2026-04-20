@@ -71,7 +71,7 @@ public partial class NotesPageView : ContentView
         await page.Navigation.PushModalAsync(new NoteDetailsPage(viewModel));
     }
 
-    async void OnHeaderTapped(object sender, TappedEventArgs e)
+    async void OnDateTapped(object sender, TappedEventArgs e)
     {
         if (BindingContext is not DailyViewModel viewModel)
         {

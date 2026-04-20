@@ -72,7 +72,7 @@ public partial class TaskPageView : ContentView
         await page.Navigation.PushModalAsync(new TaskDetailsPage(viewModel));
     }
 
-    async void OnHeaderTapped(object sender, TappedEventArgs e)
+    async void OnDateTapped(object sender, TappedEventArgs e)
     {
         if (BindingContext is not DailyViewModel viewModel)
         {

@@ -12,10 +12,10 @@
         <!-- Date Header -->
 
         <VerticalStackLayout Spacing="0"
-                             HorizontalOptions="Fill"
+                             HorizontalOptions="Start"
                              VerticalOptions="Start">
             <VerticalStackLayout.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnHeaderTapped"/>
+                <TapGestureRecognizer Tapped="OnDateTapped"/>
             </VerticalStackLayout.GestureRecognizers>
             <Label Text="{Binding HeaderPrimaryText}"
                    Style="{StaticResource DateNumber}"
