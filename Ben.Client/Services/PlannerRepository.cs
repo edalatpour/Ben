@@ -90,13 +90,13 @@ public class PlannerRepository
                 && keyById.TryGetValue(task.OriginalTaskId, out string? originalKey))
             {
                 string originalDateText = ToPageDisplay(originalKey, projectNamesById);
-                task.ForwardedFromDate = string.IsNullOrWhiteSpace(originalDateText) ? null : $"({originalDateText})";
+                task.ForwardedFromDate = string.IsNullOrWhiteSpace(originalDateText) ? null : $"{originalDateText}";
             }
             else if (!string.IsNullOrWhiteSpace(task.ParentTaskId)
                 && keyById.TryGetValue(task.ParentTaskId, out string? parentKeyFallback))
             {
                 string parentDateText = ToPageDisplay(parentKeyFallback, projectNamesById);
-                task.ForwardedFromDate = string.IsNullOrWhiteSpace(parentDateText) ? null : $"({parentDateText})";
+                task.ForwardedFromDate = string.IsNullOrWhiteSpace(parentDateText) ? null : $"{parentDateText}";
             }
             else
             {

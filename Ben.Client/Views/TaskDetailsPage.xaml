@@ -72,9 +72,7 @@
                                Grid.ColumnSpan="3"
                                x:Name="TitleEntry"
                                Placeholder=""
-                               Style="{StaticResource Handwriting}"
-                               FontSize="24"
-                               TextColor="{DynamicResource Ink}"/>
+                               Style="{StaticResource Handwriting}"/>
 
                         <Grid x:Name="ParentTaskDateRow"
                               Grid.Row="1"
@@ -118,11 +116,10 @@
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Label Text=""
-                                       FontSize="20"
                                        HeightRequest="24"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{DynamicResource Ink}"/>
+                                       Style="{StaticResource Handwriting}"/>
                                 <Label Text="Not Started"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
@@ -151,8 +148,6 @@
                                 <Label x:Name="PriorityLabel"
                                        Text="A"
                                        Style="{StaticResource Handwriting}"
-                                       FontSize="24"
-                                       TextColor="{DynamicResource Ink}"
                                        HorizontalTextAlignment="Center"
                                        VerticalTextAlignment="Center"
                                        HeightRequest="64"/>
@@ -190,8 +185,6 @@
                                 <Label x:Name="OrderLabel"
                                        Text="1"
                                        Style="{StaticResource Handwriting}"
-                                       FontSize="24"
-                                       TextColor="{DynamicResource Ink}"
                                        HorizontalTextAlignment="Center"
                                        VerticalTextAlignment="Center"
                                        HeightRequest="64"/>
@@ -222,11 +215,10 @@
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="•"
-                                       FontSize="20"
                                        HeightRequest="24"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{DynamicResource Ink}"/>
+                                       Style="{StaticResource Handwriting}"/>
                                 <Label Text="In Progress"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
@@ -248,11 +240,10 @@
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="✓"
-                                       FontSize="20"
                                        HeightRequest="24"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{DynamicResource Ink}"/>
+                                       Style="{StaticResource Handwriting}"/>
                                 <Label Text="Completed"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
@@ -275,11 +266,10 @@
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="➝"
-                                       FontSize="20"
                                        HeightRequest="24"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{DynamicResource Ink}"/>
+                                       Style="{StaticResource Handwriting}"/>
                                 <Label Text="Forward To"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"
@@ -320,11 +310,10 @@
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="✗"
-                                       FontSize="20"
                                        HeightRequest="24"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
-                                       TextColor="{DynamicResource Ink}"/>
+                                       Style="{StaticResource Handwriting}"/>
                                 <Label Text="Delete"
                                        FontSize="9"
                                        HorizontalTextAlignment="Center"

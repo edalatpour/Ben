@@ -133,7 +133,7 @@
                                     <BoxView Grid.Column="3"
                                              WidthRequest="1"
                                              BackgroundColor="{DynamicResource Line}"/>
-                                    <Label Grid.Column="4"
+                                    <!-- <Label Grid.Column="4"
                                            Margin="0,3,0,0"
                                            Padding="0"
                                            Text="{Binding TitleWithForwardedDate}"
@@ -141,7 +141,25 @@
                                            HorizontalTextAlignment="Start"
                                            VerticalTextAlignment="Start"
                                            LineHeight="1"
-                                           Style="{StaticResource Handwriting}"/>
+                                           Style="{StaticResource Handwriting}"/> -->
+                                    <Label Grid.Column="4"
+                                           Margin="0,3,0,0"
+                                           Padding="0"
+                                           LineBreakMode="WordWrap"
+                                           HorizontalTextAlignment="Start"
+                                           VerticalTextAlignment="Start"
+                                           LineHeight="1"
+                                           Style="{StaticResource Handwriting}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Title}"
+                                                      Style="{StaticResource Handwriting}"
+                                                      TextColor="Black"/>
+                                                <Span Text="{Binding ForwardedFromDate, StringFormat=' ({0})', TargetNullValue=''}"
+                                                      TextColor="{DynamicResource Accent}"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
                                     <BoxView Grid.ColumnSpan="5"
                                              HeightRequest="1"
                                              BackgroundColor="{DynamicResource Line}"

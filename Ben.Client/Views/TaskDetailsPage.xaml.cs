@@ -144,12 +144,12 @@ public partial class TaskDetailsPage : ContentPage
         }
     }
 
-    static void ApplyStatusVisual(Border border, bool isSelected, Color ink, Color writingPaper, Color line)
+    static void ApplyStatusVisual(Border border, bool isSelected, Color darkColor, Color lightColor, Color line)
     {
-        border.BackgroundColor = isSelected ? ink : writingPaper;
+        border.BackgroundColor = isSelected ? darkColor : lightColor;
         border.Stroke = line;
 
-        Color textColor = isSelected ? writingPaper : ink;
+        Color textColor = isSelected ? lightColor : Colors.Black;
 
         if (border.Content is Layout layout)
         {
