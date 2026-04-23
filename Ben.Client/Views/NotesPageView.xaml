@@ -54,13 +54,21 @@
         <!-- Section Titles -->
 
         <Grid Grid.Row="1"
-              ColumnDefinitions="*"
+              ColumnDefinitions="*,Auto,*"
               ColumnSpacing="10"
               Padding="0,4,0,0">
-            <Label Grid.Column="0"
+            <Label Grid.Column="1"
                    Text="Notes"
                    Style="{StaticResource SectionTitle}"
                    HorizontalTextAlignment="Center"/>
+            <Label Grid.Column="2"
+                   Text="⌕"
+                   Style="{StaticResource SectionTitle}"
+                   HorizontalTextAlignment="End">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnSearchTapped"/>
+                </Label.GestureRecognizers>
+            </Label>
         </Grid>
 
         <Grid Grid.Row="2">

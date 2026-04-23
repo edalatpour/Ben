@@ -822,6 +822,11 @@ public class DailyViewModel : INotifyPropertyChanged
         return _repo.GetProjectsAsync();
     }
 
+    public Task<List<NoteSearchResult>> SearchNotesAsync(string searchText)
+    {
+        return _repo.SearchNotesAsync(searchText);
+    }
+
     public Task<string> GetPageDisplayAsync(string? key)
     {
         return _repo.GetPageDisplayAsync(key);

@@ -530,6 +530,49 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
         TriggerSync();
     }
 
+    public async Task<List<NoteSearchResult>> SearchNotesAsync(string searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            return [];
+        }
+
+        string normalizedSearch = searchText.Trim().ToLowerInvariant();
+
+        List<NoteItem> matchingNotes = await _db.Notes
+            .AsNoTracking()
+            .Where(note =>
+                !note.Deleted
+                && note.Key.StartsWith(KeyConvention.DatePrefix)
+                && note.Text != null
+                && note.Text.ToLower().Contains(normalizedSearch))
+            .OrderBy(note => note.Key)
+            .ThenBy(note => note.Order)
+            .ThenBy(note => note.Id)
+            .ToListAsync();
+
+        List<NoteSearchResult> results = [];
+
+        foreach (NoteItem note in matchingNotes)
+        {
+            if (!KeyConvention.TryParseDateKey(note.Key, out DateTime date))
+            {
+                continue;
+            }
+
+            results.Add(new NoteSearchResult
+            {
+                NoteId = note.Id,
+                DateKey = note.Key,
+                Date = date,
+                Order = note.Order,
+                Text = note.Text
+            });
+        }
+
+        return results;
+    }
+
     public async Task EnsureNoteOrderBackfillAsync()
     {
         if (!await TableExistsAsync("Notes"))

@@ -86,5 +86,21 @@ public partial class NotesPageView : ContentView
 
         await page.Navigation.PushModalAsync(new PageNavigationPage(viewModel));
     }
+
+    async void OnSearchTapped(object sender, TappedEventArgs e)
+    {
+        if (BindingContext is not DailyViewModel viewModel)
+        {
+            return;
+        }
+
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page == null)
+        {
+            return;
+        }
+
+        await page.Navigation.PushModalAsync(new SearchPage(viewModel));
+    }
 }
 
