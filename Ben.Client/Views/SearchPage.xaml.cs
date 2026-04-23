@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 using Ben.Models;
-using Ben.Services;
 using Ben.ViewModels;
 
 namespace Ben.Views;
@@ -8,9 +8,8 @@ namespace Ben.Views;
 public partial class SearchPage : ContentPage
 {
     private readonly DailyViewModel _viewModel;
-    private readonly SearchSettingsService _searchSettingsService = new();
-    private bool _isSearching;
-    private SearchResultRow? _selectedResult;
+    private CancellationTokenSource? _searchDebounceCts;
+    private int _searchRequestId;
     private string _searchText = string.Empty;
 
     public SearchPage(DailyViewModel viewModel)
@@ -21,21 +20,6 @@ public partial class SearchPage : ContentPage
     }
 
     public ObservableCollection<SearchResultRow> SearchResults { get; } = [];
-
-    public SearchResultRow? SelectedResult
-    {
-        get => _selectedResult;
-        set
-        {
-            if (ReferenceEquals(_selectedResult, value))
-            {
-                return;
-            }
-
-            _selectedResult = value;
-            OnPropertyChanged();
-        }
-    }
 
     public string SearchText
     {
@@ -49,6 +33,7 @@ public partial class SearchPage : ContentPage
 
             _searchText = value;
             OnPropertyChanged();
+            ScheduleSearch();
         }
     }
 
@@ -64,17 +49,37 @@ public partial class SearchPage : ContentPage
 
     async void OnSearchSubmitted(object sender, EventArgs e)
     {
-        await PerformSearchAsync(SearchActionButton);
+        _searchDebounceCts?.Cancel();
+        int requestId = ++_searchRequestId;
+        await PerformSearchCoreAsync(requestId, CancellationToken.None);
     }
 
-    async void OnSearchClicked(object sender, EventArgs e)
+    void ScheduleSearch()
     {
-        await PerformSearchAsync(sender as Button);
+        _searchDebounceCts?.Cancel();
+        CancellationTokenSource debounceCts = new();
+        _searchDebounceCts = debounceCts;
+        int requestId = ++_searchRequestId;
+        _ = PerformSearchDebouncedAsync(requestId, debounceCts.Token);
     }
 
-    async Task PerformSearchAsync(Button? searchButton)
+    async Task PerformSearchDebouncedAsync(int requestId, CancellationToken cancellationToken)
     {
-        if (_isSearching)
+        try
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(220), cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        await PerformSearchCoreAsync(requestId, cancellationToken);
+    }
+
+    async Task PerformSearchCoreAsync(int requestId, CancellationToken cancellationToken)
+    {
+        if (requestId != _searchRequestId || cancellationToken.IsCancellationRequested)
         {
             return;
         }
@@ -83,40 +88,30 @@ public partial class SearchPage : ContentPage
         if (string.IsNullOrWhiteSpace(normalizedSearch))
         {
             SearchResults.Clear();
-            SelectedResult = null;
             return;
-        }
-
-        _isSearching = true;
-        if (searchButton != null)
-        {
-            searchButton.IsEnabled = false;
         }
 
         try
         {
             List<NoteSearchResult> results = await _viewModel.SearchNotesAsync(normalizedSearch);
-            await _searchSettingsService.SaveRecentSearchAsync(normalizedSearch);
+
+            if (requestId != _searchRequestId || cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
 
             SearchResults.Clear();
             foreach (NoteSearchResult result in results)
             {
-                SearchResults.Add(SearchResultRow.From(result, normalizedSearch));
+                SearchResults.Add(SearchResultRow.From(result, normalizedSearch, NavigateToSearchResultAsync));
             }
-
-            SelectedResult = SearchResults.FirstOrDefault();
+        }
+        catch (OperationCanceledException)
+        {
         }
         catch
         {
             await DisplayAlertAsync("Search failed", "Could not search notes. Please try again.", "OK");
-        }
-        finally
-        {
-            _isSearching = false;
-            if (searchButton != null)
-            {
-                searchButton.IsEnabled = true;
-            }
         }
     }
 
@@ -125,17 +120,15 @@ public partial class SearchPage : ContentPage
         await Navigation.PopModalAsync();
     }
 
-    async void OnGoClicked(object sender, EventArgs e)
+    async Task NavigateToSearchResultAsync(string dateKey)
     {
-        if (SelectedResult == null)
+        if (string.IsNullOrWhiteSpace(dateKey))
         {
-            await DisplayAlertAsync("Selection required", "Select a note result before tapping Go.", "OK");
             return;
         }
 
-        string destinationKey = SelectedResult.DateKey;
         await Navigation.PopModalAsync();
-        await _viewModel.NavigateToPageAsync(destinationKey);
+        await _viewModel.NavigateToPageAsync(dateKey);
     }
 
     static string NormalizeText(string text)
@@ -158,53 +151,106 @@ public partial class SearchPage : ContentPage
 
         public string DateOrder { get; init; } = string.Empty;
 
-        public FormattedString HighlightedText { get; init; } = new();
+        public FormattedString RowText { get; init; } = new();
 
-        public static SearchResultRow From(NoteSearchResult result, string searchText)
+        public static SearchResultRow From(NoteSearchResult result, string searchText, Func<string, Task> navigateToDateKey)
         {
+            string dateOrder = $"{result.Date.Month}/{result.Date.Day}.{result.Order}";
             return new SearchResultRow
             {
                 DateKey = result.DateKey,
-                DateOrder = $"{result.Date.Month}/{result.Date.Day}.{result.Order}",
-                HighlightedText = BuildHighlightedText(result.Text ?? string.Empty, searchText)
+                DateOrder = dateOrder,
+                RowText = BuildRowText(result.Text ?? string.Empty, searchText, dateOrder, result.DateKey, navigateToDateKey)
             };
         }
 
-        static FormattedString BuildHighlightedText(string text, string searchText)
+        static FormattedString BuildRowText(
+            string text,
+            string searchText,
+            string dateOrder,
+            string dateKey,
+            Func<string, Task> navigateToDateKey)
         {
             FormattedString formatted = new();
+            Color accent = ResolveColor("Accent", Colors.Blue);
+            Color link = ResolveColor("Link", accent);
+            Color normalText = ResolveColor("UserText", Colors.Black);
+
+            Span dateSpan = new()
+            {
+                Text = $"({dateOrder}):",
+                TextColor = link,
+                TextDecorations = TextDecorations.Underline
+            };
+
+            dateSpan.GestureRecognizers.Add(new TapGestureRecognizer
+            {
+                Command = new Command(async () => await navigateToDateKey(dateKey))
+            });
+
+            formatted.Spans.Add(dateSpan);
+            formatted.Spans.Add(new Span
+            {
+                Text = " ",
+                TextColor = normalText
+            });
+
             if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(searchText))
             {
-                formatted.Spans.Add(new Span { Text = text });
+                formatted.Spans.Add(new Span
+                {
+                    Text = text,
+                    TextColor = normalText
+                });
                 return formatted;
             }
 
-            Color highlightForeground = ResolveColor("WritingPaper", Colors.White);
-            Color highlightBackground = ResolveColor("Accent", Colors.Blue);
+            Regex matchRegex = new(Regex.Escape(searchText), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            MatchCollection matches = matchRegex.Matches(text);
+            if (matches.Count == 0)
+            {
+                formatted.Spans.Add(new Span
+                {
+                    Text = text,
+                    TextColor = normalText
+                });
+                return formatted;
+            }
 
             int current = 0;
-            while (current < text.Length)
+            foreach (Match match in matches)
             {
-                int matchIndex = text.IndexOf(searchText, current, StringComparison.OrdinalIgnoreCase);
-                if (matchIndex < 0)
+                if (!match.Success || match.Index < current)
                 {
-                    formatted.Spans.Add(new Span { Text = text[current..] });
-                    break;
+                    continue;
                 }
 
-                if (matchIndex > current)
+                if (match.Index > current)
                 {
-                    formatted.Spans.Add(new Span { Text = text[current..matchIndex] });
+                    formatted.Spans.Add(new Span
+                    {
+                        Text = text[current..match.Index],
+                        TextColor = normalText
+                    });
                 }
 
                 formatted.Spans.Add(new Span
                 {
-                    Text = text.Substring(matchIndex, searchText.Length),
-                    TextColor = highlightForeground,
-                    BackgroundColor = highlightBackground
+                    Text = match.Value,
+                    TextColor = accent,
+                    FontAttributes = FontAttributes.Bold
                 });
 
-                current = matchIndex + searchText.Length;
+                current = match.Index + match.Length;
+            }
+
+            if (current < text.Length)
+            {
+                formatted.Spans.Add(new Span
+                {
+                    Text = text[current..],
+                    TextColor = normalText
+                });
             }
 
             return formatted;

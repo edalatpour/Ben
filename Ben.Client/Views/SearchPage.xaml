@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:sfListView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+             x:Name="RootPage"
              x:Class="Ben.Views.SearchPage"
              Title="Search Notes">
 
@@ -14,25 +15,25 @@
             <Label Grid.Row="0"
                    Text="Search Notes"
                    Style="{StaticResource SectionTitle}"
-                   HorizontalTextAlignment="Center" />
+                   HorizontalTextAlignment="Center"/>
 
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="3" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="1" />
+                    <RowDefinition Height="3"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="1"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <BoxView Grid.ColumnSpan="2"
                          HeightRequest="3"
-                         BackgroundColor="{DynamicResource Ink}" />
+                         BackgroundColor="{DynamicResource Ink}"/>
                 <BoxView Grid.RowSpan="3"
                          WidthRequest="1"
-                         BackgroundColor="{DynamicResource Ink}" />
+                         BackgroundColor="{DynamicResource Ink}"/>
 
                 <Grid Grid.Row="1"
                       Grid.Column="1"
@@ -42,41 +43,30 @@
                                            BackgroundColor="Transparent"
                                            ItemsSource="{Binding SearchResults}"
                                            AutoFitMode="DynamicHeight"
-                                           SelectionMode="Single"
-                                           SelectedItem="{Binding SelectedResult, Mode=TwoWay}">
+                                           SelectionMode="None">
                         <sfListView:SfListView.ItemTemplate>
                             <DataTemplate>
                                 <ContentView BackgroundColor="{DynamicResource WritingPaper}">
-                                    <Grid ColumnDefinitions="72,1,*"
-                                          RowDefinitions="Auto"
+                                    <Grid ColumnDefinitions="*"
+                                          RowDefinitions="Auto,6,1"
                                           RowSpacing="0"
                                           ColumnSpacing="8"
-                                          Padding="0,0,0,0"
+                                          Padding="0"
                                           VerticalOptions="Start">
-                                        <Label Grid.Column="0"
-                                               Text="{Binding DateOrder}"
-                                               Margin="0,3,0,0"
-                                               HorizontalTextAlignment="Center"
-                                               VerticalTextAlignment="Start"
-                                               LineHeight="1"
-                                               Style="{StaticResource Handwriting}" />
-                                        <BoxView Grid.Column="1"
-                                                 WidthRequest="1"
-                                                 BackgroundColor="{DynamicResource Line}"
-                                                 HorizontalOptions="Center"
-                                                 VerticalOptions="Fill" />
-                                        <Label Grid.Column="2"
+                                        <Label Grid.Row="0"
+                                               Grid.Column="0"
                                                Margin="0,3,0,0"
                                                LineBreakMode="WordWrap"
                                                HorizontalTextAlignment="Start"
                                                VerticalTextAlignment="Start"
                                                LineHeight="1"
                                                Style="{StaticResource Handwriting}"
-                                               FormattedText="{Binding HighlightedText}" />
-                                        <BoxView Grid.ColumnSpan="3"
+                                               FormattedText="{Binding RowText}"/>
+                                        <BoxView Grid.Row="2"
+                                                 Grid.ColumnSpan="1"
                                                  HeightRequest="1"
                                                  BackgroundColor="{DynamicResource Line}"
-                                                 VerticalOptions="End" />
+                                                 VerticalOptions="End"/>
                                     </Grid>
                                 </ContentView>
                             </DataTemplate>
@@ -87,15 +77,15 @@
                 <BoxView Grid.Row="2"
                          Grid.ColumnSpan="2"
                          HeightRequest="1"
-                         BackgroundColor="{DynamicResource Ink}" />
+                         BackgroundColor="{DynamicResource Ink}"/>
             </Grid>
 
             <Grid Grid.Row="2"
                   RowDefinitions="Auto,Auto"
-                  RowSpacing="12"
+                  RowSpacing="0"
                   Margin="0,16,0,0">
                 <Grid Grid.Row="0"
-                      ColumnDefinitions="*,Auto"
+                      ColumnDefinitions="*"
                       ColumnSpacing="12">
                     <Entry x:Name="SearchEntry"
                            Grid.Column="0"
@@ -106,34 +96,19 @@
                            FontFamily="{DynamicResource UserHandwritingFont}"
                            FontSize="24"
                            TextColor="{DynamicResource UserText}"
-                           BackgroundColor="Transparent" />
-                    <Button x:Name="SearchActionButton"
-                            Grid.Column="1"
-                            Text="Search"
-                            Clicked="OnSearchClicked"
-                            BackgroundColor="{DynamicResource Accent}"
-                            TextColor="{DynamicResource WritingPaper}"
-                            CornerRadius="4"
-                            HeightRequest="44" />
+                           BackgroundColor="Transparent"/>
                 </Grid>
 
                 <Grid Grid.Row="1"
-                      ColumnDefinitions="*,*"
+                      ColumnDefinitions="*"
                       ColumnSpacing="12">
                     <Button Grid.Column="0"
-                            Text="Cancel"
+                            Text="Close"
                             Clicked="OnCancelClicked"
                             BackgroundColor="{DynamicResource Ink}"
                             TextColor="{DynamicResource WritingPaper}"
                             CornerRadius="4"
-                            HeightRequest="44" />
-                    <Button Grid.Column="1"
-                            Text="Go"
-                            Clicked="OnGoClicked"
-                            BackgroundColor="{DynamicResource Accent}"
-                            TextColor="{DynamicResource WritingPaper}"
-                            CornerRadius="4"
-                            HeightRequest="44" />
+                            HeightRequest="44"/>
                 </Grid>
             </Grid>
         </Grid>

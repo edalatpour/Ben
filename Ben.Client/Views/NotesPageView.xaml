@@ -104,7 +104,7 @@
                         <DataTemplate>
                             <ContentView BackgroundColor="{DynamicResource WritingPaper}">
                                 <Grid ColumnDefinitions="32,1,*"
-                                      RowDefinitions="Auto"
+                                      RowDefinitions="Auto,6,1"
                                       RowSpacing="0"
                                       ColumnSpacing="8"
                                       Padding="0,0,0,0"
@@ -112,19 +112,23 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnNoteTapped"/>
                                     </Grid.GestureRecognizers>
-                                    <Label Grid.Column="0"
+                                    <Label Grid.Row="0"
+                                           Grid.Column="0"
                                            Text="{Binding Order}"
                                            Margin="-5,3,-5,0"
                                            HorizontalTextAlignment="Center"
                                            VerticalTextAlignment="Start"
                                            LineHeight="1"
                                            Style="{StaticResource Handwriting}"/>
-                                    <BoxView Grid.Column="1"
+                                    <BoxView Grid.Row="0"
+                                             Grid.Column="1"
+                                             Grid.RowSpan="2"
                                              WidthRequest="1"
                                              BackgroundColor="{DynamicResource Line}"
                                              HorizontalOptions="Center"
                                              VerticalOptions="Fill"/>
-                                    <Label Grid.Column="2"
+                                    <Label Grid.Row="0"
+                                           Grid.Column="2"
                                            Text="{Binding Text}"
                                            Margin="0,3,0,0"
                                            LineBreakMode="WordWrap"
@@ -132,7 +136,8 @@
                                            VerticalTextAlignment="Start"
                                            LineHeight="1"
                                            Style="{StaticResource Handwriting}"/>
-                                    <BoxView Grid.ColumnSpan="3"
+                                    <BoxView Grid.Row="2"
+                                             Grid.ColumnSpan="3"
                                              HeightRequest="1"
                                              BackgroundColor="{DynamicResource Line}"
                                              VerticalOptions="End"/>
