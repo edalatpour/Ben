@@ -285,8 +285,24 @@ public class PlannerRepository
 
     public async Task UpdateTaskAsync(TaskItem task, bool triggerSync = true)
     {
-        _db.Tasks.Update(task);
-        await _db.SaveChangesAsync();
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            // Delete any child tasks (tasks that were forwarded from this parent)
+            // to prevent duplicate forwarding if the task is edited and forwarded again
+            await DeleteChildTasksInternalAsync(task.Id);
+
+            _db.Tasks.Update(task);
+            await _db.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
         if (triggerSync)
         {
             TriggerSync();
@@ -306,8 +322,26 @@ public class PlannerRepository
             return;
         }
 
-        _db.Tasks.UpdateRange(uniqueTasks);
-        await _db.SaveChangesAsync();
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            // Delete any child tasks for each parent task being updated
+            foreach (TaskItem task in uniqueTasks)
+            {
+                await DeleteChildTasksInternalAsync(task.Id);
+            }
+
+            _db.Tasks.UpdateRange(uniqueTasks);
+            await _db.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
         if (triggerSync)
         {
             TriggerSync();
@@ -320,16 +354,37 @@ public class PlannerRepository
         bool triggerSync = true,
         ForwardedTaskSeed? forwardedTaskSeed = null)
     {
-        if (!TryQueueForwardTask(
-            sourceTask,
-            destinationKey,
-            out _,
-            forwardedTaskSeed))
+        // Quick validation before starting transaction
+        if (sourceTask == null || string.IsNullOrWhiteSpace(destinationKey) ||
+            string.Equals(sourceTask.Key, destinationKey, StringComparison.Ordinal))
         {
             return;
         }
 
-        await _db.SaveChangesAsync();
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            // Delete any existing child tasks to prevent duplicates
+            // when a previously forwarded task is edited and forwarded again
+            await DeleteChildTasksInternalAsync(sourceTask.Id);
+
+            if (!TryQueueForwardTask(
+                sourceTask,
+                destinationKey,
+                out _,
+                forwardedTaskSeed))
+            {
+                return;
+            }
+
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
 
         if (triggerSync)
         {
@@ -498,9 +553,49 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
 
     public async Task DeleteTaskAsync(TaskItem task)
     {
-        _db.Tasks.Remove(task);
-        await _db.SaveChangesAsync();
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            // Clean up any child tasks (forwarded tasks) before deleting the parent
+            await DeleteChildTasksInternalAsync(task.Id);
+
+            _db.Tasks.Remove(task);
+            await _db.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
         TriggerSync();
+    }
+
+    /// <summary>
+    /// Deletes all child tasks (tasks where ParentTaskId == parentTaskId) from the database.
+    /// This is used to clean up forwarded tasks when a parent task is updated or re-forwarded.
+    /// Should be called within a transaction to ensure consistency.
+    /// </summary>
+    private async Task DeleteChildTasksInternalAsync(string parentTaskId)
+    {
+        if (string.IsNullOrWhiteSpace(parentTaskId))
+        {
+            return;
+        }
+
+        List<TaskItem> childTasks = await _db.Tasks
+            .Where(task => task.ParentTaskId == parentTaskId)
+            .ToListAsync();
+
+        if (childTasks.Count == 0)
+        {
+            return;
+        }
+
+        _db.Tasks.RemoveRange(childTasks);
+        await _db.SaveChangesAsync();
     }
 
     public async Task AddNoteAsync(NoteItem note, bool triggerSync = true)
