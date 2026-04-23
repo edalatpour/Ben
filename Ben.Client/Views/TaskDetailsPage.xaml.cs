@@ -14,6 +14,7 @@ public partial class TaskDetailsPage : ContentPage
     private readonly DailyViewModel _viewModel;
     private readonly TaskItem _task;
     private readonly bool _isNewTask;
+    private readonly bool _useSuggestedOrderDefaults;
     private int _minOrder = 1;
     private int _maxOrder = 1;
     private int _order;
@@ -43,6 +44,8 @@ public partial class TaskDetailsPage : ContentPage
             _isNewTask = false;
             _task = task;
         }
+
+        _useSuggestedOrderDefaults = _isNewTask || IsUnplannedTask(_task);
 
         // Populate form fields
         TitleEntry.Text = _task.Title;
@@ -304,6 +307,11 @@ public partial class TaskDetailsPage : ContentPage
         await Navigation.PopModalAsync();
     }
 
+    static bool IsUnplannedTask(TaskItem task)
+    {
+        return string.IsNullOrWhiteSpace(task.Priority) && task.Order == 0;
+    }
+
     void RefreshOrderForPriority()
     {
         string selectedPriority = PriorityValues[_priorityIndex];
@@ -315,7 +323,7 @@ public partial class TaskDetailsPage : ContentPage
         _minOrder = min;
         _maxOrder = max;
 
-        if (_isNewTask)
+        if (_useSuggestedOrderDefaults)
         {
             _order = _maxOrder;
         }
