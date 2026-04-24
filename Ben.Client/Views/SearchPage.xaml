@@ -47,7 +47,7 @@
                                            AutoFitMode="DynamicHeight"
                                            SelectionMode="None">
                         <sfListView:SfListView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="views:SearchPage+SearchResultRow">
                                 <ContentView BackgroundColor="{DynamicResource WritingPaper}">
                                     <Grid ColumnDefinitions="*"
                                           RowDefinitions="Auto,6,1"

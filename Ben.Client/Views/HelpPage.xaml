@@ -7,6 +7,10 @@
              x:Name="RootHelpPage"
              Title="Help">
 
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False"/>
+    </Shell.BackButtonBehavior>
+
     <Grid Style="{DynamicResource PaperRootGrid}">
         <Grid Padding="16"
               HorizontalOptions="Fill"
