@@ -70,6 +70,11 @@ public partial class SettingsPage : ContentPage
         await _dailyViewModel.ToggleAuthenticationAsync();
     }
 
+    private async void OnHelpTapped(object sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(HelpPage));
+    }
+
     private void OnThemeColorSelected(object sender, EventArgs e)
     {
         if (ThemeColorPicker.SelectedItem is ThemeOption selectedTheme)

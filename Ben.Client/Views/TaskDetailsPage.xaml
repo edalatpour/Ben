@@ -290,7 +290,7 @@
                                                            Grid.Row="0"
                                                            HorizontalOptions="Fill"/>
                             <Label Grid.Row="1"
-                                   Text="{Binding Source={x:Reference ForwardTargetSelector}, Path=SelectionIndicatorText}"
+                                   Text="{Binding Source={x:Reference ForwardTargetSelector}, Path=SelectionIndicatorText, x:DataType=views:DateProjectSelectorView}"
                                    TextColor="{DynamicResource Ink}"
                                    HorizontalTextAlignment="Center"/>
                         </Grid>

@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:Ben.Views"
+             x:Class="Ben.Views.HelpPage"
+             x:DataType="views:HelpPage"
+             x:Name="RootHelpPage"
+             Title="Help">
+
+    <Grid Style="{DynamicResource PaperRootGrid}">
+        <Grid Padding="16"
+              HorizontalOptions="Fill"
+              RowDefinitions="Auto,*,Auto"
+              RowSpacing="12">
+
+            <Label Grid.Row="0"
+                   Text="How to use Ben"
+                   Style="{DynamicResource SectionTitle}"
+                   HorizontalTextAlignment="Center"/>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="1"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <BoxView Grid.ColumnSpan="2"
+                         HeightRequest="3"
+                         BackgroundColor="{DynamicResource Ink}"/>
+                <BoxView Grid.RowSpan="3"
+                         WidthRequest="1"
+                         BackgroundColor="{DynamicResource Ink}"/>
+
+                <ScrollView Grid.Row="1"
+                            Grid.Column="1"
+                            BackgroundColor="{DynamicResource WritingPaper}">
+                    <VerticalStackLayout Padding="16"
+                                         Spacing="24"
+                                         BackgroundColor="{DynamicResource WritingPaper}">
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="What Is Ben?"
+                                   Style="{DynamicResource Handwriting}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Style="{DynamicResource Handwriting}"
+                                   LineBreakMode="WordWrap"
+                                   Text="Ben is a modern, digital interpretation of the classic Franklin planning method. Instead of scattering your life across sticky notes, apps, and inboxes, Ben gives you a single place to plan your day, capture your notes, track your progress, and stay aligned with what matters most.&#x0a;&#x0a;Each day in Ben has its own dedicated page with a prioritized task list, a flexible notes section, and tools for forwarding, organizing, and reviewing your work.&#x0a;&#x0a;Ben is not just a to-do list. It is a daily planning ritual designed to help you think, act, and follow through with clarity."/>
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1"
+                                 BackgroundColor="{DynamicResource Line}"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Why Ben Is Better"
+                                   Style="{DynamicResource Handwriting}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Style="{DynamicResource Handwriting}"
+                                   LineBreakMode="WordWrap"
+                                   Text="Most to-do apps encourage you to accumulate tasks, not complete them. Lists get long, priorities blur, and important items get buried.&#x0a;&#x0a;Ben solves that:&#x0a;&#x0a;- Daily focus: plan one day at a time, not an endless backlog.&#x0a;- Prioritization: A/B/C levels identify what is essential vs. optional.&#x0a;- Forwarding with intention: tasks move forward with context so nothing slips.&#x0a;- Integrated notes: thoughts and ideas live right next to your tasks.&#x0a;- A planning rhythm: review, prioritize, execute every day.&#x0a;&#x0a;The result: fewer forgotten commitments, clearer priorities, and a calmer mind."/>
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1"
+                                 BackgroundColor="{DynamicResource Line}"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Your Daily Task List"
+                                   Style="{DynamicResource Handwriting}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Style="{DynamicResource Handwriting}"
+                                   LineBreakMode="WordWrap"
+                                   Text="Each day begins with a clean page. Open today's page, tap Add Task, enter a clear title, assign an A/B/C priority, and save.&#x0a;&#x0a;Tips:&#x0a;- Keep tasks actionable. Write &quot;Email Sarah about budget&quot; not just &quot;Sarah&quot;.&#x0a;- Break large items into smaller steps.&#x0a;- Limit A-priority tasks to what you can realistically finish today.&#x0a;&#x0a;Your daily list becomes the backbone of your plan."/>
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1"
+                                 BackgroundColor="{DynamicResource Line}"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Task Statuses"
+                                   Style="{DynamicResource Handwriting}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Style="{DynamicResource Handwriting}"
+                                   LineBreakMode="WordWrap"
+                                   Text="Update any task with a single tap:&#x0a;&#x0a;- Open: not started yet&#x0a;- In Progress: you have begun&#x0a;- Completed: finished today&#x0a;- Forwarded: moved to a future date&#x0a;- Dropped: no longer needed&#x0a;&#x0a;Statuses tell the story of your day at a glance."/>
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1"
+                                 BackgroundColor="{DynamicResource Line}"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Forwarding Tasks"
+                                   Style="{DynamicResource Handwriting}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Style="{DynamicResource Handwriting}"
+                                   LineBreakMode="WordWrap"
+                                   Text="Tap a task, choose Forward, and pick a new date. Ben marks the original as Forwarded and creates a fresh copy on that date.&#x0a;&#x0a;Missed a few days? Use Catch-Up Mode. Open any past date and forward unfinished tasks in bulk or one by one. Nothing gets lost, even when life gets busy."/>
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1"
+                                 BackgroundColor="{DynamicResource Line}"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Notes"
+                                   Style="{DynamicResource Handwriting}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Style="{DynamicResource Handwriting}"
+                                   LineBreakMode="WordWrap"
+                                   Text="Every day includes a free-form notes area for meeting notes, ideas, journaling, or anything that is not quite a task. Notes stay tied to the day they were created.&#x0a;&#x0a;To turn a note into a task, highlight the text, tap Create Task, assign a priority, and save. Important ideas never get lost."/>
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1"
+                                 BackgroundColor="{DynamicResource Line}"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Your Daily Planning Session"
+                                   Style="{DynamicResource Handwriting}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Style="{DynamicResource Handwriting}"
+                                   LineBreakMode="WordWrap"
+                                   Text="Step 1: Review yesterday. Mark completed items, forward unfinished tasks, review notes for follow-ups.&#x0a;&#x0a;Step 2: Build today's list. Add forwarded tasks, add new ones, assign priorities. Keep the A-list short.&#x0a;&#x0a;Step 3: Focus. Start with A-priority tasks, capture thoughts in notes, update statuses as you go.&#x0a;&#x0a;This daily ritual keeps you aligned and ensures nothing falls through the cracks."/>
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1"
+                                 BackgroundColor="{DynamicResource Line}"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Projects"
+                                   Style="{DynamicResource Handwriting}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Style="{DynamicResource Handwriting}"
+                                   LineBreakMode="WordWrap"
+                                   Text="Not everything belongs on a daily page. Projects give structure to work that spans weeks or months: initiatives, home renovations, vacations, events, or long-term goals.&#x0a;&#x0a;Each project has its own task list and notes section. Pull tasks from a project into your daily plan whenever you are ready to act on them."/>
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <BoxView Grid.Row="2"
+                         Grid.ColumnSpan="2"
+                         HeightRequest="1"
+                         BackgroundColor="{DynamicResource Ink}"/>
+            </Grid>
+
+            <Button Grid.Row="2"
+                    Text="Back"
+                    BackgroundColor="{DynamicResource Ink}"
+                    TextColor="{DynamicResource WritingPaper}"
+                    CornerRadius="4"
+                    HeightRequest="44"
+                    Clicked="OnBackClicked"/>
+        </Grid>
+    </Grid>
+
+</ContentPage>

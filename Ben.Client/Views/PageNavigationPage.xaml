@@ -2,7 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:Ben.Views"
+             xmlns:viewModels="clr-namespace:Ben.ViewModels"
              x:Class="Ben.Views.PageNavigationPage"
+             x:DataType="viewModels:DateProjectPickerViewModel"
              Title="Open Page">
 
   <Grid Style="{DynamicResource PaperRootGrid}">
@@ -54,7 +56,7 @@
                                          EditRequested="OnEditProjectClicked"/>
 
             <Label Grid.Row="2"
-                   Text="{Binding Source={x:Reference PageSelector}, Path=SelectionIndicatorText}"
+                   Text="{Binding Source={x:Reference PageSelector}, Path=SelectionIndicatorText, x:DataType=views:DateProjectSelectorView}"
                    TextColor="{DynamicResource Ink}"
                    HorizontalTextAlignment="Center"/>
           </Grid>

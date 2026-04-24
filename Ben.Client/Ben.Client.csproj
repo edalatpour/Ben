@@ -18,7 +18,11 @@
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-  		<LangVersion>preview</LangVersion>
+		<LangVersion>preview</LangVersion>
+		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+
+		<!-- Disable ReadyToRun by default to avoid runtime package errors during restore -->
+		<PublishReadyToRun>false</PublishReadyToRun>
 
 		<!-- Display name -->
 		<ApplicationTitle>Ben</ApplicationTitle>
@@ -53,14 +57,25 @@
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
 
-    <!-- Windows runtime identifiers for Store certification: both x64 and arm64 -->
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(Configuration)' == 'Release'">
-        <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
-    </PropertyGroup>
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(Configuration)' != 'Release'">
-        <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
-    </PropertyGroup>
-	
+	<!-- Windows runtime identifiers for Store certification: both x64 and arm64 -->
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(Platform)' != 'x64' and '$(Platform)' != 'ARM64'">
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	</PropertyGroup>
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(Configuration)' == 'Release'">
+		<RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+	</PropertyGroup>
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(Configuration)' != 'Release'">
+		<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<!-- iOS runtime identifiers -->
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(Configuration)' == 'Release'">
+		<RuntimeIdentifiers>ios-arm64</RuntimeIdentifiers>
+	</PropertyGroup>
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(Configuration)' != 'Release'">
+		<RuntimeIdentifier>iossimulator-x64</RuntimeIdentifier>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<!-- <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" /> -->
