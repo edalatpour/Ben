@@ -6,14 +6,6 @@
       "type": "maui",
       "request": "launch",
       "preLaunchTask": "maui: Build"
-    },
-
-    {
-      "name": "Ben.Client (Windows)",
-      "type": "dotnet",
-      "request": "launch",
-      "projectPath": "${workspaceFolder}/Ben.Client/Ben.Client.csproj",
-      "preLaunchTask": "build-windows-debug"
     }
   ]
 }
