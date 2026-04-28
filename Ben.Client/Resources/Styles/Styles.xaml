@@ -19,6 +19,8 @@
                         Value="{DynamicResource UserHandwritingFont}"/>
                 <Setter Property="FontSize"
                         Value="24"/>
+                <Setter Property="FontAutoScalingEnabled"
+                        Value="False"/>
                 <Setter Property="VerticalTextAlignment"
                         Value="Center"/>
                 <Setter Property="TextColor"

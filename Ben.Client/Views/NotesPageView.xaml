@@ -108,16 +108,23 @@
                   Grid.Column="1"
                   BackgroundColor="{DynamicResource WritingPaper}"
                   RowDefinitions="*,Auto">
-                <ScrollView Grid.Row="0"
-                            Margin="0,0,0,8"
-                            BackgroundColor="Transparent">
-                    <VerticalStackLayout Spacing="0"
-                                         BindableLayout.ItemsSource="{Binding CurrentDay.Notes}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:NoteItem">
+                 <!-- iOS workaround: retained ListView is used here because CollectionView row measurement
+                     and separator rendering became unstable across repeated date navigation. -->
+                 <ListView x:Name="NotesCollectionView"
+                          Grid.Row="0"
+                          Margin="0,0,0,8"
+                          BackgroundColor="Transparent"
+                          CachingStrategy="RetainElement"
+                          HasUnevenRows="True"
+                          SeparatorVisibility="None"
+                          VerticalScrollBarVisibility="Never"
+                          ItemsSource="{Binding CurrentDay.Notes}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:NoteItem">
+                            <ViewCell>
                                 <ContentView BackgroundColor="{DynamicResource WritingPaper}">
                                     <Grid ColumnDefinitions="32,1,*"
-                                          RowDefinitions="Auto"
+                                          RowDefinitions="Auto,1"
                                           RowSpacing="0"
                                           ColumnSpacing="8"
                                           Padding="0,0,0,0"
@@ -130,7 +137,6 @@
                                                Margin="{OnPlatform iOS='-5,1,-5,0', Default='-5,3,-5,0'}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Start"
-                                               LineHeight="1"
                                                Style="{StaticResource Handwriting}"/>
                                         <BoxView Grid.Column="1"
                                                  WidthRequest="1"
@@ -143,19 +149,18 @@
                                                LineBreakMode="WordWrap"
                                                HorizontalTextAlignment="Start"
                                                VerticalTextAlignment="Start"
-                                               LineHeight="1"
                                                Style="{StaticResource Handwriting}"/>
-                                        <BoxView Grid.ColumnSpan="3"
+                                        <BoxView Grid.Row="1"
+                                                 Grid.ColumnSpan="3"
                                                  HeightRequest="1"
                                                  BackgroundColor="{DynamicResource Line}"
                                                  VerticalOptions="End"/>
                                     </Grid>
                                 </ContentView>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-
-                    </VerticalStackLayout>
-                </ScrollView>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
                 <Grid Grid.Row="1"
                       RowDefinitions="1,Auto"
