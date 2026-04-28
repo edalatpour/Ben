@@ -39,28 +39,42 @@
         <!-- Section Titles -->
 
         <Grid Grid.Row="1"
-              ColumnDefinitions="28,42,*"
+              ColumnDefinitions="36,34,*"
               ColumnSpacing="10"
               Padding="0,4,0,0">
-            <Label x:Name="CatchUpLabel"
-                   Text="⬇︎"
-                   Grid.Column="0"
-                   Margin="7,0,0,0"
-                   IsVisible="{Binding ShowDateHeaderDetails}"
-                   Style="{StaticResource SectionTitle}"
-                   FontAttributes="Bold"
-                   HorizontalTextAlignment="Center">
-                <Label.GestureRecognizers>
+            <Border Grid.Column="0"
+                    Margin="0"
+                    HeightRequest="32"
+                    WidthRequest="32"
+                    IsVisible="{Binding ShowDateHeaderDetails}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Stroke="{DynamicResource Ink}"
+                    StrokeThickness="3">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="999"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnCatchUpClicked"/>
-                </Label.GestureRecognizers>
-            </Label>
+                </Border.GestureRecognizers>
+                <Label x:Name="CatchUpLabel"
+                       Text="⬇︎"
+                       Style="{StaticResource SectionTitle}"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"/>
+            </Border>
             <Label Text="ABC"
                    Grid.Column="1"
                    Style="{StaticResource SectionTitle}"
+                   VerticalOptions="Center"
                    HorizontalTextAlignment="Center"/>
             <Label Text="Tasks"
                    Grid.Column="2"
                    Style="{StaticResource SectionTitle}"
+                   VerticalOptions="Center"
                    HorizontalTextAlignment="Center"/>
         </Grid>
 
