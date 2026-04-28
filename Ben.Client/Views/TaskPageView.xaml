@@ -115,6 +115,7 @@
                                            HeightRequest="24"
                                            WidthRequest="24"
                                            Margin="8,-2,0,0"
+                                           TranslationY="{OnPlatform iOS=3, Default=0}"
                                            HorizontalOptions="Center"
                                            HorizontalTextAlignment="Center"
                                            VerticalOptions="Start"
