@@ -764,9 +764,15 @@
       root.style.setProperty("--accent", theme.accent);
       root.style.setProperty("--user-font", `"${font}"`);
 
+      const viewLabel = ({
+        landscape: "Landscape spread",
+        tasks: "Portrait tasks",
+        notes: "Portrait notes"
+      })[view] || "Landscape spread";
+
       const shell = document.getElementById("mockup-shell");
       const metaPill = document.getElementById("meta-pill");
-      metaPill.textContent = `Ben · ${view === "landscape" ? "Landscape spread" : view === "tasks" ? "Portrait tasks" : "Portrait notes"} · ${themeName} · ${font}`;
+      metaPill.textContent = `Ben · ${viewLabel} · ${themeName} · ${font}`;
 
       if (view === "landscape") {
         renderLandscape(shell);
