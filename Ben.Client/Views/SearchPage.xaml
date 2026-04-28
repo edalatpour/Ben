@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:sfListView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
              xmlns:views="clr-namespace:Ben.Views"
              x:Name="RootPage"
              x:Class="Ben.Views.SearchPage"
@@ -40,40 +39,39 @@
                 <Grid Grid.Row="1"
                       Grid.Column="1"
                       BackgroundColor="{DynamicResource WritingPaper}">
-                    <sfListView:SfListView x:Name="SearchResultsList"
-                                           Margin="0"
-                                           BackgroundColor="Transparent"
-                                           ItemsSource="{Binding SearchResults}"
-                                           AutoFitMode="DynamicHeight"
-                                           SelectionMode="None">
-                        <sfListView:SfListView.ItemTemplate>
-                            <DataTemplate x:DataType="views:SearchPage+SearchResultRow">
-                                <ContentView BackgroundColor="{DynamicResource WritingPaper}">
-                                    <Grid ColumnDefinitions="*"
-                                          RowDefinitions="Auto,6,1"
-                                          RowSpacing="0"
-                                          ColumnSpacing="8"
-                                          Padding="0"
-                                          VerticalOptions="Start">
-                                        <Label Grid.Row="0"
-                                               Grid.Column="0"
-                                               Margin="0,3,0,0"
-                                               LineBreakMode="WordWrap"
-                                               HorizontalTextAlignment="Start"
-                                               VerticalTextAlignment="Start"
-                                               LineHeight="1"
-                                               Style="{StaticResource Handwriting}"
-                                               FormattedText="{Binding RowText}"/>
-                                        <BoxView Grid.Row="2"
-                                                 Grid.ColumnSpan="1"
-                                                 HeightRequest="1"
-                                                 BackgroundColor="{DynamicResource Line}"
-                                                 VerticalOptions="End"/>
-                                    </Grid>
-                                </ContentView>
-                            </DataTemplate>
-                        </sfListView:SfListView.ItemTemplate>
-                    </sfListView:SfListView>
+                    <ScrollView Margin="0"
+                                BackgroundColor="Transparent">
+                        <VerticalStackLayout Spacing="0"
+                                             BindableLayout.ItemsSource="{Binding SearchResults}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="views:SearchPage+SearchResultRow">
+                                    <ContentView BackgroundColor="{DynamicResource WritingPaper}">
+                                        <Grid ColumnDefinitions="*"
+                                              RowDefinitions="Auto,6,1"
+                                              RowSpacing="0"
+                                              ColumnSpacing="8"
+                                              Padding="0"
+                                              VerticalOptions="Start">
+                                            <Label Grid.Row="0"
+                                                   Grid.Column="0"
+                                                   Margin="{OnPlatform iOS='0,1,0,0', Default='0,3,0,0'}"
+                                                   LineBreakMode="WordWrap"
+                                                   HorizontalTextAlignment="Start"
+                                                   VerticalTextAlignment="Start"
+                                                   LineHeight="1"
+                                                   Style="{StaticResource Handwriting}"
+                                                   FormattedText="{Binding RowText}"/>
+                                            <BoxView Grid.Row="2"
+                                                     Grid.ColumnSpan="1"
+                                                     HeightRequest="1"
+                                                     BackgroundColor="{DynamicResource Line}"
+                                                     VerticalOptions="End"/>
+                                        </Grid>
+                                    </ContentView>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </ScrollView>
                 </Grid>
 
                 <BoxView Grid.Row="2"

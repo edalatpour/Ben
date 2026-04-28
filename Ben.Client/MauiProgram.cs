@@ -6,7 +6,6 @@ using Ben.Services;
 using Ben.Views;
 using Ben.ViewModels;
 using System.Data;
-using Syncfusion.Maui.Core.Hosting;
 
 namespace Ben;
 
@@ -17,7 +16,6 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
 
         builder.UseMauiApp<App>()
-               .ConfigureSyncfusionCore()
                .ConfigureFonts(fonts =>
                 {
                     AppFontCatalog.ConfigureFonts(fonts);

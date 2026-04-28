@@ -2,7 +2,6 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:Ben.Views"
-             xmlns:sfListView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
              xmlns:viewModels="clr-namespace:Ben.ViewModels"
              xmlns:models="clr-namespace:Ben.Models"
              x:Class="Ben.Views.TaskPageView"
@@ -101,92 +100,83 @@
                   Grid.Column="1"
                   BackgroundColor="{DynamicResource WritingPaper}"
                   RowDefinitions="*,Auto">
-                <sfListView:SfListView x:Name="TasksListView"
-                                       Grid.Row="0"
-                                       Margin="0,0,0,8"
-                                       BackgroundColor="Transparent"
-                                       ItemsSource="{Binding CurrentDay.Tasks}"
-                                       AutoFitMode="DynamicHeight"
-                                       SelectionMode="None">
-                    <sfListView:SfListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:TaskItem">
-                            <ContentView BackgroundColor="{DynamicResource WritingPaper}">
-                                <Grid ColumnDefinitions="24,1,38,1,*"
-                                      RowDefinitions="Auto"
-                                      RowSpacing="0"
-                                      ColumnSpacing="8"
-                                      Padding="0,0,0,0"
-                                      VerticalOptions="Start">
-                                    <Grid.GestureRecognizers>
-                                        <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
-                                        <DropGestureRecognizer Drop="OnTaskDrop"/>
-                                        <TapGestureRecognizer Tapped="OnTaskTapped"/>
-                                    </Grid.GestureRecognizers>
+                <ScrollView Grid.Row="0"
+                            Margin="0,0,0,8"
+                            BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="0"
+                                         BindableLayout.ItemsSource="{Binding CurrentDay.Tasks}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:TaskItem">
+                                <ContentView BackgroundColor="{DynamicResource WritingPaper}">
+                                    <Grid ColumnDefinitions="24,1,38,1,*"
+                                          RowDefinitions="Auto"
+                                          RowSpacing="0"
+                                          ColumnSpacing="8"
+                                          Padding="0,0,0,0"
+                                          VerticalOptions="Start">
+                                        <Grid.GestureRecognizers>
+                                            <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
+                                            <DropGestureRecognizer Drop="OnTaskDrop"/>
+                                            <TapGestureRecognizer Tapped="OnTaskTapped"/>
+                                        </Grid.GestureRecognizers>
 
-                                    <Label Grid.Column="0"
-                                           Text="{Binding StatusGlyph}"
-                                           FontSize="20"
-                                           HeightRequest="24"
-                                           WidthRequest="24"
-                                           Margin="8,-2,0,0"
-                                           TranslationY="{OnPlatform iOS=9, Default=0}"
-                                           HorizontalOptions="Center"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalOptions="Start"
-                                           VerticalTextAlignment="Start"
-                                           Style="{StaticResource Handwriting}"
-                                           FontAttributes="Bold"/>
+                                        <Label Grid.Column="0"
+                                               Text="{Binding StatusGlyph}"
+                                               FontSize="20"
+                                               HeightRequest="24"
+                                               WidthRequest="24"
+                                               Margin="8,-2,0,0"
+                                               TranslationY="{OnPlatform iOS=6, Default=0}"
+                                               HorizontalOptions="Center"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalOptions="Start"
+                                               VerticalTextAlignment="Start"
+                                               Style="{StaticResource Handwriting}"
+                                               FontAttributes="Bold"/>
 
-                                    <BoxView Grid.Column="1"
-                                             WidthRequest="1"
-                                             BackgroundColor="{DynamicResource Line}"/>
-                                    <Label Grid.Column="2"
-                                           Margin="-5,3,-5,0"
-                                           Padding="0"
-                                           Text="{Binding PriorityOrder}"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Start"
-                                           LineHeight="1"
-                                           Style="{StaticResource Handwriting}"/>
-                                    <BoxView Grid.Column="3"
-                                             WidthRequest="1"
-                                             BackgroundColor="{DynamicResource Line}"/>
-                                    <!-- <Label Grid.Column="4"
-                                           Margin="0,3,0,0"
-                                           Padding="0"
-                                           Text="{Binding TitleWithForwardedDate}"
-                                           LineBreakMode="WordWrap"
-                                           HorizontalTextAlignment="Start"
-                                           VerticalTextAlignment="Start"
-                                           LineHeight="1"
-                                           Style="{StaticResource Handwriting}"/> -->
-                                    <Label Grid.Column="4"
-                                           Margin="0,3,0,0"
-                                           Padding="0"
-                                           LineBreakMode="WordWrap"
-                                           HorizontalTextAlignment="Start"
-                                           VerticalTextAlignment="Start"
-                                           LineHeight="1"
-                                           Style="{StaticResource Handwriting}">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="{Binding Title}"
-                                                      Style="{StaticResource Handwriting}"
-                                                      TextColor="Black"/>
-                                                <Span Text="{Binding ForwardedFromDate, StringFormat=' ({0})', TargetNullValue=''}"
-                                                      TextColor="{DynamicResource Accent}"/>
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>
-                                    <BoxView Grid.ColumnSpan="5"
-                                             HeightRequest="1"
-                                             BackgroundColor="{DynamicResource Line}"
-                                             VerticalOptions="End"/>
-                                </Grid>
-                            </ContentView>
-                        </DataTemplate>
-                    </sfListView:SfListView.ItemTemplate>
-                </sfListView:SfListView>
+                                        <BoxView Grid.Column="1"
+                                                 WidthRequest="1"
+                                                 BackgroundColor="{DynamicResource Line}"/>
+                                        <Label Grid.Column="2"
+                                               Margin="{OnPlatform iOS='-5,1,-5,0', Default='-5,3,-5,0'}"
+                                               Padding="0"
+                                               Text="{Binding PriorityOrder}"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Start"
+                                               LineHeight="1"
+                                               Style="{StaticResource Handwriting}"/>
+                                        <BoxView Grid.Column="3"
+                                                 WidthRequest="1"
+                                                 BackgroundColor="{DynamicResource Line}"/>
+                                        <Label Grid.Column="4"
+                                               Margin="{OnPlatform iOS='0,1,0,0', Default='0,3,0,0'}"
+                                               Padding="0"
+                                               LineBreakMode="WordWrap"
+                                               HorizontalTextAlignment="Start"
+                                               VerticalTextAlignment="Start"
+                                               LineHeight="1"
+                                               Style="{StaticResource Handwriting}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Title}"
+                                                          Style="{StaticResource Handwriting}"
+                                                          TextColor="Black"/>
+                                                    <Span Text="{Binding ForwardedFromDate, StringFormat=' ({0})', TargetNullValue=''}"
+                                                          TextColor="{DynamicResource Accent}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <BoxView Grid.ColumnSpan="5"
+                                                 HeightRequest="1"
+                                                 BackgroundColor="{DynamicResource Line}"
+                                                 VerticalOptions="End"/>
+                                    </Grid>
+                                </ContentView>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+
+                    </VerticalStackLayout>
+                </ScrollView>
 
                 <Grid Grid.Row="1"
                       RowDefinitions="1,Auto"

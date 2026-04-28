@@ -2,7 +2,6 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:Ben.Views"
-             xmlns:sfListView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
              xmlns:viewModels="clr-namespace:Ben.ViewModels"
              xmlns:models="clr-namespace:Ben.Models"
              x:Class="Ben.Views.NotesPageView"
@@ -109,59 +108,54 @@
                   Grid.Column="1"
                   BackgroundColor="{DynamicResource WritingPaper}"
                   RowDefinitions="*,Auto">
-                <sfListView:SfListView x:Name="NotesListView"
-                                       Grid.Row="0"
-                                       Margin="0,0,0,8"
-                                       BackgroundColor="Transparent"
-                                       ItemsSource="{Binding CurrentDay.Notes}"
-                                       AutoFitMode="DynamicHeight"
-                                       SelectionMode="None">
-                    <sfListView:SfListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:NoteItem">
-                            <ContentView BackgroundColor="{DynamicResource WritingPaper}">
-                                <Grid ColumnDefinitions="32,1,*"
-                                      RowDefinitions="Auto,6,1"
-                                      RowSpacing="0"
-                                      ColumnSpacing="8"
-                                      Padding="0,0,0,0"
-                                      VerticalOptions="Start">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnNoteTapped"/>
-                                    </Grid.GestureRecognizers>
-                                    <Label Grid.Row="0"
-                                           Grid.Column="0"
-                                           Text="{Binding Order}"
-                                           Margin="-5,3,-5,0"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Start"
-                                           LineHeight="1"
-                                           Style="{StaticResource Handwriting}"/>
-                                    <BoxView Grid.Row="0"
-                                             Grid.Column="1"
-                                             Grid.RowSpan="2"
-                                             WidthRequest="1"
-                                             BackgroundColor="{DynamicResource Line}"
-                                             HorizontalOptions="Center"
-                                             VerticalOptions="Fill"/>
-                                    <Label Grid.Row="0"
-                                           Grid.Column="2"
-                                           Text="{Binding Text}"
-                                           Margin="0,3,0,0"
-                                           LineBreakMode="WordWrap"
-                                           HorizontalTextAlignment="Start"
-                                           VerticalTextAlignment="Start"
-                                           LineHeight="1"
-                                           Style="{StaticResource Handwriting}"/>
-                                    <BoxView Grid.Row="2"
-                                             Grid.ColumnSpan="3"
-                                             HeightRequest="1"
-                                             BackgroundColor="{DynamicResource Line}"
-                                             VerticalOptions="End"/>
-                                </Grid>
-                            </ContentView>
-                        </DataTemplate>
-                    </sfListView:SfListView.ItemTemplate>
-                </sfListView:SfListView>
+                <ScrollView Grid.Row="0"
+                            Margin="0,0,0,8"
+                            BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="0"
+                                         BindableLayout.ItemsSource="{Binding CurrentDay.Notes}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:NoteItem">
+                                <ContentView BackgroundColor="{DynamicResource WritingPaper}">
+                                    <Grid ColumnDefinitions="32,1,*"
+                                          RowDefinitions="Auto"
+                                          RowSpacing="0"
+                                          ColumnSpacing="8"
+                                          Padding="0,0,0,0"
+                                          VerticalOptions="Start">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnNoteTapped"/>
+                                        </Grid.GestureRecognizers>
+                                        <Label Grid.Column="0"
+                                               Text="{Binding Order}"
+                                               Margin="{OnPlatform iOS='-5,1,-5,0', Default='-5,3,-5,0'}"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Start"
+                                               LineHeight="1"
+                                               Style="{StaticResource Handwriting}"/>
+                                        <BoxView Grid.Column="1"
+                                                 WidthRequest="1"
+                                                 BackgroundColor="{DynamicResource Line}"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Fill"/>
+                                        <Label Grid.Column="2"
+                                               Text="{Binding Text}"
+                                               Margin="{OnPlatform iOS='0,1,0,0', Default='0,3,0,0'}"
+                                               LineBreakMode="WordWrap"
+                                               HorizontalTextAlignment="Start"
+                                               VerticalTextAlignment="Start"
+                                               LineHeight="1"
+                                               Style="{StaticResource Handwriting}"/>
+                                        <BoxView Grid.ColumnSpan="3"
+                                                 HeightRequest="1"
+                                                 BackgroundColor="{DynamicResource Line}"
+                                                 VerticalOptions="End"/>
+                                    </Grid>
+                                </ContentView>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+
+                    </VerticalStackLayout>
+                </ScrollView>
 
                 <Grid Grid.Row="1"
                       RowDefinitions="1,Auto"

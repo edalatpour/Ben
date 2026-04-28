@@ -12,21 +12,6 @@ public partial class NotesPageView : ContentView
         InitializeComponent();
         _viewModel = vm;
         BindingContext = _viewModel;
-        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
-    }
-
-    void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        if (!string.Equals(e.PropertyName, nameof(DailyViewModel.CurrentDay), StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            NotesListView.ItemsSource = null;
-            NotesListView.ItemsSource = _viewModel.CurrentDay.Notes;
-        });
     }
 
     async void OnNoteTapped(object sender, EventArgs e)
