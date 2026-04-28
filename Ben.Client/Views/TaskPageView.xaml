@@ -65,7 +65,7 @@
                        HorizontalTextAlignment="Center"
                        VerticalTextAlignment="Center"/>
             </Border>
-            <Label Text="ABC"
+            <Label Text="Abc"
                    Grid.Column="1"
                    Style="{StaticResource SectionTitle}"
                    VerticalOptions="Center"
