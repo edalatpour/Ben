@@ -641,7 +641,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
                 && note.Key.StartsWith(KeyConvention.DatePrefix)
                 && note.Text != null
                 && note.Text.ToLower().Contains(normalizedSearch))
-            .OrderBy(note => note.Key)
+            .OrderByDescending(note => note.Key)
             .ThenBy(note => note.Order)
             .ThenBy(note => note.Id)
             .ToListAsync();
