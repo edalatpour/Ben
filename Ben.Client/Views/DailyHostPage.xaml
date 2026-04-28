@@ -105,8 +105,9 @@
       <ContentView x:Name="SinglePageHost"/>
     </Grid>
 
-    <Grid ColumnDefinitions="Auto,*,Auto"
-          IsVisible="{Binding Source={x:Reference HostPage}, Path=ShowDesktopArrows}"
+    <Grid x:Name="DesktopNavigationButtons"
+          ColumnDefinitions="Auto,*,Auto"
+          IsVisible="False"
           VerticalOptions="Fill"
           HorizontalOptions="Fill"
           InputTransparent="True"

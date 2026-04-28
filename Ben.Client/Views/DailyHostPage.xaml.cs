@@ -18,6 +18,7 @@ public partial class DailyHostPage : ContentPage
     public DailyHostPage(DailyViewModel vm)
     {
         InitializeComponent();
+        DesktopNavigationButtons.IsVisible = ShowDesktopArrows;
         _viewModel = vm;
         BindingContext = vm;
         _tasksView = new TaskPageView(_viewModel);
