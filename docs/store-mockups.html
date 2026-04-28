@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ben Store Mockups</title>
+  <style>
+    @font-face {
+      font-family: "Caveat";
+      src: url("../Ben.Client/Resources/Fonts/Caveat-Regular.ttf") format("truetype");
+    }
+
+    @font-face {
+      font-family: "Comic Relief";
+      src: url("../Ben.Client/Resources/Fonts/ComicRelief-Regular.ttf") format("truetype");
+    }
+
+    @font-face {
+      font-family: "Delius";
+      src: url("../Ben.Client/Resources/Fonts/Delius-Regular.ttf") format("truetype");
+    }
+
+    @font-face {
+      font-family: "Loved By The King";
+      src: url("../Ben.Client/Resources/Fonts/LovedbytheKing-Regular.ttf") format("truetype");
+    }
+
+    @font-face {
+      font-family: "Open Sans";
+      src: url("../Ben.Client/Resources/Fonts/OpenSans-Regular.ttf") format("truetype");
+    }
+
+    @font-face {
+      font-family: "Patrick Hand";
+      src: url("../Ben.Client/Resources/Fonts/PatrickHand-Regular.ttf") format("truetype");
+    }
+
+    @font-face {
+      font-family: "Roboto";
+      src: url("../Ben.Client/Resources/Fonts/Roboto-Regular.ttf") format("truetype");
+    }
+
+    :root {
+      --paper: #e6f1ee;
+      --writing-paper: #ffffff;
+      --ink: #026964;
+      --line: #b9d4cf;
+      --accent: #049b8f;
+      --user-font: "Patrick Hand";
+      --app-serif: "Times New Roman", Georgia, serif;
+      --device-bg: #eef4f3;
+      --shadow: 0 26px 60px rgba(17, 29, 34, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.92), transparent 36%),
+        linear-gradient(180deg, #f7faf9 0%, #ecf4f2 100%);
+      color: #102326;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+
+    .mockup-shell {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.8), transparent 32%),
+        linear-gradient(180deg, color-mix(in srgb, var(--paper) 70%, white) 0%, color-mix(in srgb, var(--paper) 45%, white) 100%);
+    }
+
+    .meta-pill {
+      position: absolute;
+      top: 28px;
+      left: 28px;
+      z-index: 10;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(16, 35, 38, 0.08);
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(16, 35, 38, 0.86);
+      letter-spacing: 0.02em;
+      box-shadow: 0 10px 25px rgba(16, 35, 38, 0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .landscape-stage {
+      width: 100%;
+      height: 100%;
+      padding: 92px 56px 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spread {
+      position: relative;
+      width: 100%;
+      max-width: 1460px;
+      height: 100%;
+      max-height: 760px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-radius: 28px;
+      padding: 28px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.18));
+      box-shadow: var(--shadow);
+    }
+
+    .spread::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 22px;
+      border: 1px solid rgba(16, 35, 38, 0.06);
+      pointer-events: none;
+    }
+
+    .page {
+      position: relative;
+      background: var(--writing-paper);
+      overflow: hidden;
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5), transparent 180px),
+        repeating-linear-gradient(
+          180deg,
+          transparent 0,
+          transparent 39px,
+          color-mix(in srgb, var(--line) 72%, white) 39px,
+          color-mix(in srgb, var(--line) 72%, white) 40px
+        );
+      opacity: 0.32;
+      pointer-events: none;
+    }
+
+    .left-page {
+      border-radius: 22px 0 0 22px;
+      box-shadow: inset -18px 0 30px rgba(0, 0, 0, 0.04);
+    }
+
+    .right-page {
+      border-radius: 0 22px 22px 0;
+      box-shadow: inset 18px 0 30px rgba(0, 0, 0, 0.04);
+    }
+
+    .seam {
+      position: absolute;
+      top: 42px;
+      bottom: 42px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.02));
+      filter: blur(2px);
+      opacity: 0.22;
+      pointer-events: none;
+    }
+
+    .page-inner {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      padding: 28px 26px 20px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 10px;
+      color: var(--ink);
+    }
+
+    .date-block,
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .date-number {
+      font-family: var(--app-serif);
+      font-size: 74px;
+      line-height: 0.88;
+      color: var(--ink);
+    }
+
+    .date-meta {
+      margin-top: 6px;
+      font-family: var(--app-serif);
+      font-size: 22px;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .quote {
+      max-width: 320px;
+      margin-top: 8px;
+      font-family: var(--app-serif);
+      font-size: 19px;
+      line-height: 1.35;
+      color: color-mix(in srgb, var(--ink) 86%, white);
+    }
+
+    .section-heading {
+      display: grid;
+      align-items: end;
+      color: var(--ink);
+      font-family: var(--app-serif);
+      font-weight: 700;
+      font-size: 27px;
+      line-height: 1;
+    }
+
+    .task-headings {
+      grid-template-columns: 44px 74px 1fr;
+      column-gap: 10px;
+      padding-top: 8px;
+    }
+
+    .task-headings .down-arrow {
+      text-align: center;
+      font-size: 28px;
+    }
+
+    .notes-headings {
+      grid-template-columns: 1fr auto;
+      padding-top: 8px;
+    }
+
+    .paper-panel {
+      position: relative;
+      border-top: 4px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .paper-panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--ink);
+    }
+
+    .paper-content {
+      padding-left: 1px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.88));
+      min-height: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .task-list,
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .task-row,
+    .note-row,
+    .new-row {
+      display: grid;
+      align-items: start;
+      min-height: 64px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .task-row,
+    .new-row.task-new-row {
+      grid-template-columns: 44px 1px 74px 1px 1fr;
+      column-gap: 10px;
+    }
+
+    .note-row,
+    .new-row.note-new-row {
+      grid-template-columns: 46px 1px 1fr;
+      column-gap: 10px;
+    }
+
+    .divider {
+      width: 1px;
+      background: var(--line);
+      align-self: stretch;
+    }
+
+    .status-glyph,
+    .note-order,
+    .priority-order,
+    .task-text,
+    .note-text,
+    .placeholder {
+      font-family: var(--user-font), "Segoe Print", "Comic Sans MS", cursive;
+      font-size: 31px;
+      line-height: 1.08;
+      padding-top: 9px;
+    }
+
+    .status-glyph {
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .priority-order,
+    .note-order {
+      text-align: center;
+    }
+
+    .task-text,
+    .note-text {
+      color: #000;
+      padding-right: 12px;
+    }
+
+    .forwarded-date {
+      color: var(--accent);
+    }
+
+    .placeholder {
+      opacity: 0.45;
+      font-style: italic;
+      color: var(--ink);
+    }
+
+    .search-mark {
+      font-size: 28px;
+    }
+
+    .phone-stage {
+      width: 100%;
+      height: 100%;
+      padding: 98px 58px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone-frame {
+      width: min(720px, 100%);
+      height: min(1450px, 100%);
+      border-radius: 64px;
+      padding: 18px;
+      background:
+        linear-gradient(180deg, #1e2025 0%, #090a0d 100%);
+      box-shadow:
+        0 34px 80px rgba(6, 8, 12, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .phone-frame::before {
+      content: "";
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 138px;
+      height: 28px;
+      border-radius: 999px;
+      background: #050608;
+      z-index: 2;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 48px;
+      background: var(--paper);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 28px 12px;
+      font-weight: 700;
+      font-size: 26px;
+      color: #101418;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      letter-spacing: 0.08em;
+    }
+
+    .battery {
+      border-radius: 999px;
+      background: #0a0d10;
+      color: #fff;
+      padding: 5px 11px 4px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .portrait-page {
+      padding: 12px 22px 24px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    .portrait-page .date-number {
+      font-size: 64px;
+    }
+
+    .portrait-page .date-meta {
+      font-size: 19px;
+    }
+
+    .portrait-page .quote {
+      font-size: 17px;
+      max-width: 270px;
+    }
+
+    .portrait-page .section-heading {
+      font-size: 23px;
+    }
+
+    .portrait-page .task-headings {
+      grid-template-columns: 36px 62px 1fr;
+      column-gap: 8px;
+    }
+
+    .portrait-page .task-row,
+    .portrait-page .new-row.task-new-row {
+      grid-template-columns: 36px 1px 62px 1px 1fr;
+      column-gap: 8px;
+      min-height: 58px;
+    }
+
+    .portrait-page .note-row,
+    .portrait-page .new-row.note-new-row {
+      grid-template-columns: 38px 1px 1fr;
+      column-gap: 8px;
+      min-height: 58px;
+    }
+
+    .portrait-page .status-glyph,
+    .portrait-page .note-order,
+    .portrait-page .priority-order,
+    .portrait-page .task-text,
+    .portrait-page .note-text,
+    .portrait-page .placeholder {
+      font-size: 26px;
+      padding-top: 10px;
+    }
+
+    .portrait-page .paper-panel {
+      min-height: 0;
+    }
+
+    .footer-caption {
+      position: absolute;
+      right: 30px;
+      bottom: 24px;
+      z-index: 10;
+      font-size: 15px;
+      color: rgba(16, 35, 38, 0.64);
+      letter-spacing: 0.03em;
+    }
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="mockup-shell" id="mockup-shell">
+      <div class="meta-pill" id="meta-pill"></div>
+      <div class="footer-caption" id="footer-caption">ben planner • microsoft store mockup</div>
+    </div>
+  </div>
+
+  <template id="landscape-template">
+    <div class="landscape-stage">
+      <div class="spread">
+        <div class="page left-page">
+          <div class="page-inner">
+            <div class="date-block">
+              <div>
+                <div class="date-number">28</div>
+                <div class="date-meta">Monday<br />April 2026</div>
+              </div>
+            </div>
+
+            <div class="section-heading task-headings">
+              <div class="down-arrow">⬇︎</div>
+              <div>ABC</div>
+              <div>Tasks</div>
+            </div>
+
+            <div class="paper-panel">
+              <div class="paper-content">
+                <div class="task-list" id="landscape-task-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="page right-page">
+          <div class="page-inner">
+            <div class="notes-header">
+              <div class="quote">
+                “Dost thou love life? Then do not squander time, for that is the stuff life is made of.”
+              </div>
+              <div style="text-align:right">
+                <div class="date-number">28</div>
+                <div class="date-meta">Monday<br />April 2026</div>
+              </div>
+            </div>
+
+            <div class="section-heading notes-headings">
+              <div>Notes</div>
+              <div class="search-mark">⌕</div>
+            </div>
+
+            <div class="paper-panel">
+              <div class="paper-content">
+                <div class="notes-list" id="landscape-note-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="seam"></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="portrait-template">
+    <div class="phone-stage">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="status-bar">
+            <div>10:47</div>
+            <div class="status-icons">
+              <span>▂▃▅▇</span>
+              <span>◉</span>
+              <span class="battery">98%</span>
+            </div>
+          </div>
+          <div class="portrait-page" id="portrait-page"></div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const themes = {
+      Red: { paper: "#F7EDEF", writingPaper: "#FFFFFF", ink: "#690202", line: "#D9B3B8", accent: "#B4040A" },
+      Orange: { paper: "#F7F0ED", writingPaper: "#FFFFFF", ink: "#693402", line: "#D9BEB3", accent: "#B46A04" },
+      Yellow: { paper: "#F7F5ED", writingPaper: "#FFFFFF", ink: "#696402", line: "#D9D4B3", accent: "#B4A704" },
+      Green: { paper: "#E6F1EE", writingPaper: "#FFFFFF", ink: "#026964", line: "#B9D4CF", accent: "#049B8F" },
+      Blue: { paper: "#EDF1F7", writingPaper: "#FFFFFF", ink: "#022069", line: "#B3C1D9", accent: "#0440B4" },
+      Purple: { paper: "#F3EDF7", writingPaper: "#FFFFFF", ink: "#3F0269", line: "#C3B3D9", accent: "#6A04B4" },
+      Brown: { paper: "#F7EFED", writingPaper: "#FFFFFF", ink: "#693002", line: "#D9BEB3", accent: "#B46A04" },
+      Gray: { paper: "#EDEDED", writingPaper: "#FFFFFF", ink: "#363636", line: "#C7C7C7", accent: "#525252" }
+    };
+
+    const fonts = {
+      Caveat: "Caveat",
+      ComicRelief: "Comic Relief",
+      Delius: "Delius",
+      LovedByTheKing: "Loved By The King",
+      OpenSans: "Open Sans",
+      PatrickHand: "Patrick Hand",
+      Roboto: "Roboto"
+    };
+
+    const taskItems = [
+      { status: "○", order: "A1", text: "Finalize the Franklin-inspired launch copy for the store listing" },
+      { status: "◐", order: "A2", text: "Review task forwarding behavior with the latest desktop polish" },
+      { status: "✓", order: "B1", text: "Reply to early access feedback from planners and note recurring asks" },
+      { status: "➜", order: "B2", text: "Move search refinements into tomorrow’s pass", forwarded: "(Apr 29)" },
+      { status: "✓", order: "C1", text: "Capture ideas for onboarding notes and daily ritual tips" },
+      { status: "○", order: "C2", text: "Plan a calm review block before the end of the day" }
+    ];
+
+    const noteItems = [
+      { order: "1", text: "Two-page landscape makes the planner feel like an open book, especially on desktop." },
+      { order: "2", text: "Tasks stay anchored to the day they belong to, with handwriting fonts keeping the paper feel." },
+      { order: "3", text: "Forwarded work is visible without taking over the rest of the list." },
+      { order: "4", text: "Notes capture why the task matters, not just what needs to be done." },
+      { order: "5", text: "Theme colors shift the personality of the planner without sacrificing contrast." }
+    ];
+
+    function buildTaskRow(item) {
+      const row = document.createElement("div");
+      row.className = "task-row";
+      row.innerHTML = `
+        <div class="status-glyph">${item.status}</div>
+        <div class="divider"></div>
+        <div class="priority-order">${item.order}</div>
+        <div class="divider"></div>
+        <div class="task-text">${item.text} ${item.forwarded ? `<span class="forwarded-date">${item.forwarded}</span>` : ""}</div>
+      `;
+      return row;
+    }
+
+    function buildTaskPlaceholder() {
+      const row = document.createElement("div");
+      row.className = "new-row task-new-row";
+      row.innerHTML = `
+        <div class="status-glyph">＋</div>
+        <div class="divider"></div>
+        <div></div>
+        <div class="divider"></div>
+        <div class="placeholder">New task...</div>
+      `;
+      return row;
+    }
+
+    function buildNoteRow(item) {
+      const row = document.createElement("div");
+      row.className = "note-row";
+      row.innerHTML = `
+        <div class="note-order">${item.order}</div>
+        <div class="divider"></div>
+        <div class="note-text">${item.text}</div>
+      `;
+      return row;
+    }
+
+    function buildNotePlaceholder() {
+      const row = document.createElement("div");
+      row.className = "new-row note-new-row";
+      row.innerHTML = `
+        <div class="note-order">＋</div>
+        <div class="divider"></div>
+        <div class="placeholder">New note...</div>
+      `;
+      return row;
+    }
+
+    function createTaskPage() {
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `
+        <div class="date-block">
+          <div>
+            <div class="date-number">28</div>
+            <div class="date-meta">Monday<br />April 2026</div>
+          </div>
+        </div>
+        <div class="section-heading task-headings">
+          <div class="down-arrow">⬇︎</div>
+          <div>ABC</div>
+          <div>Tasks</div>
+        </div>
+        <div class="paper-panel">
+          <div class="paper-content">
+            <div class="task-list"></div>
+          </div>
+        </div>
+      `;
+
+      const list = wrapper.querySelector(".task-list");
+      taskItems.forEach(item => list.appendChild(buildTaskRow(item)));
+      list.appendChild(buildTaskPlaceholder());
+      return wrapper;
+    }
+
+    function createNotesPage() {
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `
+        <div class="notes-header">
+          <div class="quote">
+            “Dost thou love life? Then do not squander time, for that is the stuff life is made of.”
+          </div>
+          <div style="text-align:right">
+            <div class="date-number">28</div>
+            <div class="date-meta">Monday<br />April 2026</div>
+          </div>
+        </div>
+        <div class="section-heading notes-headings">
+          <div>Notes</div>
+          <div class="search-mark">⌕</div>
+        </div>
+        <div class="paper-panel">
+          <div class="paper-content">
+            <div class="notes-list"></div>
+          </div>
+        </div>
+      `;
+
+      const list = wrapper.querySelector(".notes-list");
+      noteItems.forEach(item => list.appendChild(buildNoteRow(item)));
+      list.appendChild(buildNotePlaceholder());
+      return wrapper;
+    }
+
+    function renderLandscape(shell) {
+      const template = document.getElementById("landscape-template").content.cloneNode(true);
+      const taskList = template.getElementById("landscape-task-list");
+      const noteList = template.getElementById("landscape-note-list");
+
+      taskItems.forEach(item => taskList.appendChild(buildTaskRow(item)));
+      taskList.appendChild(buildTaskPlaceholder());
+
+      noteItems.forEach(item => noteList.appendChild(buildNoteRow(item)));
+      noteList.appendChild(buildNotePlaceholder());
+
+      shell.appendChild(template);
+    }
+
+    function renderPortrait(shell, view) {
+      const template = document.getElementById("portrait-template").content.cloneNode(true);
+      const portraitPage = template.getElementById("portrait-page");
+      portraitPage.appendChild(view === "tasks" ? createTaskPage() : createNotesPage());
+      shell.appendChild(template);
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const themeName = params.get("theme") || "Green";
+      const fontName = params.get("font") || "PatrickHand";
+      const view = params.get("view") || "landscape";
+
+      const theme = themes[themeName] || themes.Green;
+      const font = fonts[fontName] || fonts.PatrickHand;
+
+      const root = document.documentElement;
+      root.style.setProperty("--paper", theme.paper);
+      root.style.setProperty("--writing-paper", theme.writingPaper);
+      root.style.setProperty("--ink", theme.ink);
+      root.style.setProperty("--line", theme.line);
+      root.style.setProperty("--accent", theme.accent);
+      root.style.setProperty("--user-font", `"${font}"`);
+
+      const shell = document.getElementById("mockup-shell");
+      const metaPill = document.getElementById("meta-pill");
+      metaPill.textContent = `Ben · ${view === "landscape" ? "Landscape spread" : view === "tasks" ? "Portrait tasks" : "Portrait notes"} · ${themeName} · ${font}`;
+
+      if (view === "landscape") {
+        renderLandscape(shell);
+      } else {
+        renderPortrait(shell, view);
+      }
+
+      await document.fonts.ready;
+      document.body.dataset.ready = "true";
+    }
+
+    init();
+  </script>
+</body>
+</html>
