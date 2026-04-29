@@ -100,16 +100,15 @@
                   Grid.Column="1"
                   BackgroundColor="{DynamicResource WritingPaper}"
                   RowDefinitions="*,Auto">
-                 <!-- iOS workaround: retained ListView is used here because CollectionView row measurement
+                <!-- iOS workaround: retained ListView is used here because CollectionView row measurement
                      and separator rendering became unstable across repeated date navigation. -->
-                 <ListView x:Name="TasksCollectionView"
+                <ListView x:Name="TasksCollectionView"
                           Grid.Row="0"
                           Margin="0,0,0,8"
                           BackgroundColor="Transparent"
                           CachingStrategy="RetainElement"
                           HasUnevenRows="True"
                           SeparatorVisibility="None"
-                          VerticalScrollBarVisibility="Never"
                           ItemsSource="{Binding CurrentDay.Tasks}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:TaskItem">

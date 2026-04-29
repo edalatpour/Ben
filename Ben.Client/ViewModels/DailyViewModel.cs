@@ -854,38 +854,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         await LoadPageAsync(resolvedKey);
         _repo.TriggerSync();
-        await WaitForNextSyncCompletionAsync(TimeSpan.FromSeconds(8));
-        await LoadPageAsync(resolvedKey);
         await UpdateStatus();
-    }
-
-    async Task WaitForNextSyncCompletionAsync(TimeSpan timeout)
-    {
-        if (!_authService.IsAuthenticated || _connectivity.NetworkAccess != NetworkAccess.Internet)
-        {
-            return;
-        }
-
-        TaskCompletionSource<bool> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        void OnCompleted(object? _, EventArgs __)
-        {
-            tcs.TrySetResult(true);
-        }
-
-        _syncService.SyncCompleted += OnCompleted;
-        try
-        {
-            Task completed = await Task.WhenAny(tcs.Task, Task.Delay(timeout));
-            if (!ReferenceEquals(completed, tcs.Task))
-            {
-                Console.WriteLine($"Post-save sync wait timed out after {timeout.TotalSeconds:F0} seconds.");
-            }
-        }
-        finally
-        {
-            _syncService.SyncCompleted -= OnCompleted;
-        }
     }
 
     public async Task<(bool Success, string ErrorMessage, ProjectItem? Project)> TryCreateProjectAsync(string projectName)
@@ -1262,16 +1231,11 @@ public class DailyViewModel : INotifyPropertyChanged
         {
             _isSyncing = true;
             await UpdateStatus();
-
-            string pageKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
             _repo.TriggerSync();
-            await WaitForNextSyncCompletionAsync(TimeSpan.FromSeconds(8));
-            await LoadPageAsync(pageKey);
         }
         finally
         {
-            _isSyncing = false;
-            await UpdateStatus();
+            // SyncCompleted event will clear status and refresh data when sync actually ends.
         }
     }
 
