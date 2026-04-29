@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Ben.Models;
@@ -21,7 +22,7 @@ public partial class SearchPage : ContentPage
         BindingContext = this;
     }
 
-    public ObservableCollection<SearchResultRow> SearchResults { get; } = [];
+    public BulkObservableCollection<SearchResultRow> SearchResults { get; } = [];
 
     public string SearchText
     {
@@ -108,18 +109,32 @@ public partial class SearchPage : ContentPage
                 return;
             }
 
-            var publishStopwatch = Stopwatch.StartNew();
-            SearchResults.Clear();
-            foreach (NoteSearchResult result in results)
+            var buildStopwatch = Stopwatch.StartNew();
+            List<SearchResultRow> rows = await Task.Run(() =>
             {
-                SearchResults.Add(SearchResultRow.From(result, normalizedSearch, NavigateToSearchResultAsync));
+                List<SearchResultRow> builtRows = new(results.Count);
+                foreach (NoteSearchResult result in results)
+                {
+                    builtRows.Add(SearchResultRow.From(result, normalizedSearch, NavigateToSearchResultAsync));
+                }
+
+                return builtRows;
+            }, cancellationToken);
+            buildStopwatch.Stop();
+
+            if (requestId != _searchRequestId || cancellationToken.IsCancellationRequested)
+            {
+                return;
             }
+
+            var publishStopwatch = Stopwatch.StartNew();
+            SearchResults.ReplaceWith(rows);
 
             publishStopwatch.Stop();
             totalStopwatch.Stop();
 
             Debug.WriteLine(
-                $"SearchPage search completed: termLength={normalizedSearch.Length}, results={results.Count}, queryMs={queryStopwatch.ElapsedMilliseconds}, publishMs={publishStopwatch.ElapsedMilliseconds}, totalMs={totalStopwatch.ElapsedMilliseconds}");
+                $"SearchPage search completed: termLength={normalizedSearch.Length}, results={results.Count}, queryMs={queryStopwatch.ElapsedMilliseconds}, buildMs={buildStopwatch.ElapsedMilliseconds}, publishMs={publishStopwatch.ElapsedMilliseconds}, totalMs={totalStopwatch.ElapsedMilliseconds}");
         }
         catch (OperationCanceledException)
         {
@@ -282,4 +297,41 @@ public partial class SearchPage : ContentPage
             return fallback;
         }
     }
+
+    public sealed class BulkObservableCollection<T> : ObservableCollection<T>
+    {
+        bool _suppressNotifications;
+
+        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            if (_suppressNotifications)
+            {
+                return;
+            }
+
+            base.OnCollectionChanged(e);
+        }
+
+        public void ReplaceWith(IEnumerable<T> items)
+        {
+            _suppressNotifications = true;
+            try
+            {
+                ClearItems();
+                foreach (T item in items)
+                {
+                    Add(item);
+                }
+            }
+            finally
+            {
+                _suppressNotifications = false;
+            }
+
+            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(Count)));
+            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs("Item[]"));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+    }
+
 }
