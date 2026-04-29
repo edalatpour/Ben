@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Ben.Models;
 using Ben.ViewModels;
@@ -7,6 +8,7 @@ namespace Ben.Views;
 
 public partial class SearchPage : ContentPage
 {
+    private const int LiveSearchResultLimit = 100;
     private readonly DailyViewModel _viewModel;
     private CancellationTokenSource? _searchDebounceCts;
     private int _searchRequestId;
@@ -93,18 +95,31 @@ public partial class SearchPage : ContentPage
 
         try
         {
-            List<NoteSearchResult> results = await _viewModel.SearchNotesAsync(normalizedSearch);
+            var totalStopwatch = Stopwatch.StartNew();
+            var queryStopwatch = Stopwatch.StartNew();
+            List<NoteSearchResult> results = await _viewModel.SearchNotesAsync(
+                normalizedSearch,
+                cancellationToken,
+                LiveSearchResultLimit);
+            queryStopwatch.Stop();
 
             if (requestId != _searchRequestId || cancellationToken.IsCancellationRequested)
             {
                 return;
             }
 
+            var publishStopwatch = Stopwatch.StartNew();
             SearchResults.Clear();
             foreach (NoteSearchResult result in results)
             {
                 SearchResults.Add(SearchResultRow.From(result, normalizedSearch, NavigateToSearchResultAsync));
             }
+
+            publishStopwatch.Stop();
+            totalStopwatch.Stop();
+
+            Debug.WriteLine(
+                $"SearchPage search completed: termLength={normalizedSearch.Length}, results={results.Count}, queryMs={queryStopwatch.ElapsedMilliseconds}, publishMs={publishStopwatch.ElapsedMilliseconds}, totalMs={totalStopwatch.ElapsedMilliseconds}");
         }
         catch (OperationCanceledException)
         {

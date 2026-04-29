@@ -822,9 +822,12 @@ public class DailyViewModel : INotifyPropertyChanged
         return _repo.GetProjectsAsync();
     }
 
-    public Task<List<NoteSearchResult>> SearchNotesAsync(string searchText)
+    public Task<List<NoteSearchResult>> SearchNotesAsync(
+        string searchText,
+        CancellationToken cancellationToken = default,
+        int maxResults = 100)
     {
-        return _repo.SearchNotesAsync(searchText);
+        return _repo.SearchNotesAsync(searchText, cancellationToken, maxResults);
     }
 
     public Task<string> GetPageDisplayAsync(string? key)

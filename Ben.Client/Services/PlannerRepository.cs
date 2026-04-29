@@ -625,13 +625,17 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
         TriggerSync();
     }
 
-    public async Task<List<NoteSearchResult>> SearchNotesAsync(string searchText)
+    public async Task<List<NoteSearchResult>> SearchNotesAsync(
+        string searchText,
+        CancellationToken cancellationToken = default,
+        int maxResults = 100)
     {
         if (string.IsNullOrWhiteSpace(searchText))
         {
             return [];
         }
 
+        int cappedResults = Math.Clamp(maxResults, 1, 500);
         string normalizedSearch = searchText.Trim().ToLowerInvariant();
 
         List<NoteItem> matchingNotes = await _db.Notes
@@ -644,7 +648,8 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
             .OrderByDescending(note => note.Key)
             .ThenBy(note => note.Order)
             .ThenBy(note => note.Id)
-            .ToListAsync();
+            .Take(cappedResults)
+            .ToListAsync(cancellationToken);
 
         List<NoteSearchResult> results = [];
 
