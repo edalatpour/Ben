@@ -112,7 +112,7 @@
                      and separator rendering became unstable across repeated date navigation. -->
                 <ListView x:Name="NotesCollectionView"
                           Grid.Row="0"
-                          Margin="0,0,0,8"
+                          Margin="0"
                           BackgroundColor="Transparent"
                           CachingStrategy="RetainElement"
                           HasUnevenRows="True"
@@ -133,7 +133,7 @@
                                         </Grid.GestureRecognizers>
                                         <Label Grid.Column="0"
                                                Text="{Binding Order}"
-                                               Margin="{OnPlatform iOS='-5,1,-5,0', Default='-5,3,-5,0'}"
+                                               Margin="{OnPlatform iOS='-5,1,-5,3', Default='-5,0,-5,3'}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Start"
                                                Style="{StaticResource Handwriting}"/>
@@ -144,7 +144,7 @@
                                                  VerticalOptions="Fill"/>
                                         <Label Grid.Column="2"
                                                Text="{Binding Text}"
-                                               Margin="{OnPlatform iOS='0,1,0,0', Default='0,3,0,0'}"
+                                               Margin="{OnPlatform iOS='0,1,0,3', Default='0,0,0,3'}"
                                                LineBreakMode="WordWrap"
                                                HorizontalTextAlignment="Start"
                                                VerticalTextAlignment="Start"

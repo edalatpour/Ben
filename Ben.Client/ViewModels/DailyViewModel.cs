@@ -220,8 +220,8 @@ public class DailyViewModel : INotifyPropertyChanged
                 return;
             }
 
-            ReplaceCollection(CurrentDay.Tasks, refreshed.Tasks);
-            ReplaceCollection(CurrentDay.Notes, refreshed.Notes);
+            MergeTaskCollection(CurrentDay.Tasks, refreshed.Tasks);
+            MergeNoteCollection(CurrentDay.Notes, refreshed.Notes);
         }
         catch (Exception ex)
         {
@@ -233,12 +233,170 @@ public class DailyViewModel : INotifyPropertyChanged
         }
     }
 
-    static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> source)
+    static void MergeTaskCollection(ObservableCollection<TaskItem> target, IEnumerable<TaskItem> source)
     {
-        target.Clear();
-        foreach (T item in source)
+        List<TaskItem> sourceList = source.ToList();
+        if (AreTaskRowsEquivalent(target, sourceList))
         {
-            target.Add(item);
+            return;
+        }
+
+        Dictionary<string, TaskItem> existingById = target
+            .Where(item => !string.IsNullOrWhiteSpace(item.Id))
+            .ToDictionary(item => item.Id, StringComparer.Ordinal);
+
+        List<TaskItem> desiredOrder = new();
+        foreach (TaskItem incoming in sourceList)
+        {
+            if (!string.IsNullOrWhiteSpace(incoming.Id)
+                && existingById.TryGetValue(incoming.Id, out TaskItem? existing))
+            {
+                existing.UpdatedAt = incoming.UpdatedAt;
+                existing.Version = incoming.Version;
+                existing.Deleted = incoming.Deleted;
+                existing.Key = incoming.Key;
+                existing.Status = incoming.Status;
+                existing.Priority = incoming.Priority;
+                existing.Order = incoming.Order;
+                existing.Title = incoming.Title;
+                existing.ForwardedFromDate = incoming.ForwardedFromDate;
+                existing.ParentTaskDate = incoming.ParentTaskDate;
+                existing.ParentTaskId = incoming.ParentTaskId;
+                existing.OriginalTaskId = incoming.OriginalTaskId;
+                desiredOrder.Add(existing);
+                continue;
+            }
+
+            desiredOrder.Add(incoming);
+        }
+
+        ApplyDesiredOrder(target, desiredOrder);
+    }
+
+    static void MergeNoteCollection(ObservableCollection<NoteItem> target, IEnumerable<NoteItem> source)
+    {
+        List<NoteItem> sourceList = source.ToList();
+        if (AreNoteRowsEquivalent(target, sourceList))
+        {
+            return;
+        }
+
+        Dictionary<string, NoteItem> existingById = target
+            .Where(item => !string.IsNullOrWhiteSpace(item.Id))
+            .ToDictionary(item => item.Id, StringComparer.Ordinal);
+
+        List<NoteItem> desiredOrder = new();
+        foreach (NoteItem incoming in sourceList)
+        {
+            if (!string.IsNullOrWhiteSpace(incoming.Id)
+                && existingById.TryGetValue(incoming.Id, out NoteItem? existing))
+            {
+                existing.UpdatedAt = incoming.UpdatedAt;
+                existing.Version = incoming.Version;
+                existing.Deleted = incoming.Deleted;
+                existing.Key = incoming.Key;
+                existing.Text = incoming.Text;
+                existing.Order = incoming.Order;
+                desiredOrder.Add(existing);
+                continue;
+            }
+
+            desiredOrder.Add(incoming);
+        }
+
+        ApplyDesiredOrder(target, desiredOrder);
+    }
+
+    static bool AreTaskRowsEquivalent(IList<TaskItem> current, IList<TaskItem> incoming)
+    {
+        if (current.Count != incoming.Count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < current.Count; i++)
+        {
+            TaskItem left = current[i];
+            TaskItem right = incoming[i];
+
+            if (!string.Equals(left.Id, right.Id, StringComparison.Ordinal)
+                || left.UpdatedAt != right.UpdatedAt
+                || !string.Equals(left.Version, right.Version, StringComparison.Ordinal)
+                || left.Deleted != right.Deleted
+                || !string.Equals(left.Key, right.Key, StringComparison.Ordinal)
+                || !string.Equals(left.Status, right.Status, StringComparison.Ordinal)
+                || !string.Equals(left.Priority, right.Priority, StringComparison.Ordinal)
+                || left.Order != right.Order
+                || !string.Equals(left.Title, right.Title, StringComparison.Ordinal)
+                || !string.Equals(left.ForwardedFromDate, right.ForwardedFromDate, StringComparison.Ordinal)
+                || !string.Equals(left.ParentTaskDate, right.ParentTaskDate, StringComparison.Ordinal)
+                || !string.Equals(left.ParentTaskId, right.ParentTaskId, StringComparison.Ordinal)
+                || !string.Equals(left.OriginalTaskId, right.OriginalTaskId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static bool AreNoteRowsEquivalent(IList<NoteItem> current, IList<NoteItem> incoming)
+    {
+        if (current.Count != incoming.Count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < current.Count; i++)
+        {
+            NoteItem left = current[i];
+            NoteItem right = incoming[i];
+
+            if (!string.Equals(left.Id, right.Id, StringComparison.Ordinal)
+                || left.UpdatedAt != right.UpdatedAt
+                || !string.Equals(left.Version, right.Version, StringComparison.Ordinal)
+                || left.Deleted != right.Deleted
+                || !string.Equals(left.Key, right.Key, StringComparison.Ordinal)
+                || !string.Equals(left.Text, right.Text, StringComparison.Ordinal)
+                || left.Order != right.Order)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static void ApplyDesiredOrder<T>(ObservableCollection<T> target, List<T> desiredOrder)
+    {
+        for (int i = 0; i < desiredOrder.Count; i++)
+        {
+            T desiredItem = desiredOrder[i];
+            if (i >= target.Count)
+            {
+                target.Add(desiredItem);
+                continue;
+            }
+
+            if (ReferenceEquals(target[i], desiredItem))
+            {
+                continue;
+            }
+
+            int existingIndex = target.IndexOf(desiredItem);
+            if (existingIndex >= 0)
+            {
+                target.Move(existingIndex, i);
+            }
+            else
+            {
+                target.Insert(i, desiredItem);
+            }
+        }
+
+        while (target.Count > desiredOrder.Count)
+        {
+            target.RemoveAt(target.Count - 1);
         }
     }
 
@@ -709,7 +867,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         if (shouldRunPostSaveFlow)
         {
-            await RunPostLocalSaveFlowAsync(pageKey);
+            await RunPostLocalSaveFlowAsync(pageKey, reloadCurrentPage: false);
         }
     }
 
@@ -813,7 +971,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         if (shouldRunPostSaveFlow)
         {
-            await RunPostLocalSaveFlowAsync(pageKey);
+            await RunPostLocalSaveFlowAsync(pageKey, reloadCurrentPage: false);
         }
     }
 
@@ -844,18 +1002,23 @@ public class DailyViewModel : INotifyPropertyChanged
     {
         var result = await _repo.ExecuteCatchUpForwardSqlAsync(destinationDateKey);
 
-        await RunPostLocalSaveFlowAsync(destinationDateKey);
+        await RunPostLocalSaveFlowAsync(destinationDateKey, reloadCurrentPage: true);
 
         return result;
     }
 
-    async Task RunPostLocalSaveFlowAsync(string pageKey)
+    async Task RunPostLocalSaveFlowAsync(string pageKey, bool reloadCurrentPage)
     {
         string resolvedKey = string.IsNullOrWhiteSpace(pageKey)
             ? (CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate))
             : pageKey;
 
-        await LoadPageAsync(resolvedKey);
+        bool isCurrentPage = string.Equals(CurrentDay?.Key, resolvedKey, StringComparison.Ordinal);
+        if (reloadCurrentPage || !isCurrentPage)
+        {
+            await LoadPageAsync(resolvedKey);
+        }
+
         _repo.TriggerSync();
         await UpdateStatus();
     }
@@ -1040,11 +1203,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         orderedWithoutTask.Insert(insertionIndex, task);
 
-        CurrentDay.Tasks.Clear();
-        foreach (TaskItem item in orderedWithoutTask)
-        {
-            CurrentDay.Tasks.Add(item);
-        }
+        ApplyDesiredOrder(CurrentDay.Tasks, orderedWithoutTask);
     }
 
     public async Task DeleteNoteAsync(TaskItem task)
@@ -1365,11 +1524,7 @@ public class DailyViewModel : INotifyPropertyChanged
             .ThenBy(task => task.Id)
             .ToList();
 
-        CurrentDay.Tasks.Clear();
-        foreach (TaskItem task in sorted)
-        {
-            CurrentDay.Tasks.Add(task);
-        }
+        ApplyDesiredOrder(CurrentDay.Tasks, sorted);
     }
 }
 
