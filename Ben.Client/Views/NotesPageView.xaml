@@ -133,7 +133,7 @@
                                         </Grid.GestureRecognizers>
                                         <Label Grid.Column="0"
                                                Text="{Binding Order}"
-                                               Margin="{OnPlatform iOS='-5,1,-5,3', Default='-5,0,-5,3'}"
+                                               Margin="{OnPlatform iOS='-5,0,-5,3', Default='-5,0,-5,3'}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Start"
                                                Style="{StaticResource Handwriting}"/>
@@ -144,7 +144,7 @@
                                                  VerticalOptions="Fill"/>
                                         <Label Grid.Column="2"
                                                Text="{Binding Text}"
-                                               Margin="{OnPlatform iOS='0,1,0,3', Default='0,0,0,3'}"
+                                               Margin="{OnPlatform iOS='0,0,0,3', Default='0,0,0,3'}"
                                                LineBreakMode="WordWrap"
                                                HorizontalTextAlignment="Start"
                                                VerticalTextAlignment="Start"
