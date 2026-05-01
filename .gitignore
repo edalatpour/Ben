@@ -10,3 +10,5 @@ Ben.Client/Properties/launchSettings.json
 Xcode Stubs/Ben/Ben.xcodeproj/project.xcworkspace/xcuserdata/timedalatpour.xcuserdatad/UserInterfaceState.xcuserstate
 Xcode Stubs/Ben/Ben.xcodeproj/xcuserdata/timedalatpour.xcuserdatad/xcschemes/xcschememanagement.plist
 *.binlog
+publish/Ben.Client.ipa
+publish/Packaging.log

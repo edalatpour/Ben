@@ -6,6 +6,7 @@ using Ben.Services;
 using Ben.Views;
 using Ben.ViewModels;
 using System.Data;
+using System.Text;
 
 namespace Ben;
 
@@ -58,9 +59,19 @@ public static class MauiProgram
 
         var app = builder.Build();
 
-        // Ensure database is created
-        using (var scope = app.Services.CreateScope())
+        // Startup initialization must never crash app launch in TestFlight/App Store builds.
+        InitializeStartupServicesSafely(app);
+
+        return app;
+
+    }
+
+    static void InitializeStartupServicesSafely(MauiApp app)
+    {
+        try
         {
+            using var scope = app.Services.CreateScope();
+
             var pdb = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
             EnsurePlannerSchema(pdb);
             pdb.Database.EnsureCreated();
@@ -78,9 +89,26 @@ public static class MauiProgram
             syncService.Start();
             _ = syncService.TrySyncNowAsync();
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Startup] Initialization failed: {ex}");
+            Console.WriteLine($"[Startup] Initialization failed: {ex}");
+            TryWriteStartupExceptionToFile(ex);
+        }
+    }
 
-        return app;
-
+    static void TryWriteStartupExceptionToFile(Exception ex)
+    {
+        try
+        {
+            string path = Path.Combine(FileSystem.AppDataDirectory, "startup-init-errors.log");
+            string line = $"[{DateTime.UtcNow:O}] {ex}\n";
+            File.AppendAllText(path, line, Encoding.UTF8);
+        }
+        catch
+        {
+            // Never throw from diagnostics.
+        }
     }
 
     static void EnsurePlannerSchema(PlannerDbContext db)

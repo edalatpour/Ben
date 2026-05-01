@@ -45,10 +45,31 @@ public class AuthenticationService
             .WithRedirectUri("msauth://com.edalatpour.ben/YOUR_SIGNATURE_HASH"); // TODO: Replace with actual signature hash
 #endif
 
-        _pca = builder.Build();
+        _pca = BuildPublicClientApplicationWithFallback(builder);
 
         // Enable token cache serialization for persistence
         TokenCacheHelper.EnableSerialization(_pca.UserTokenCache);
+    }
+
+    private static IPublicClientApplication BuildPublicClientApplicationWithFallback(PublicClientApplicationBuilder builder)
+    {
+        try
+        {
+            return builder.Build();
+        }
+        catch (Exception ex)
+        {
+#if IOS || MACCATALYST
+            Console.WriteLine($"MSAL initialization failed with keychain settings; retrying without explicit keychain group. Error: {ex.Message}");
+            return PublicClientApplicationBuilder
+                .Create(Constants.ApplicationId)
+                .WithAuthority(AzureCloudInstance.AzurePublic, Constants.AuthorityTenant)
+                .WithRedirectUri("msauth.com.edalatpour.Ben://auth")
+                .Build();
+#else
+            throw;
+#endif
+        }
     }
 
     public bool IsAuthenticated
