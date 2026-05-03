@@ -95,6 +95,9 @@ public class ExternalIdAuthService
     /// </returns>
     public async Task<UnifiedIdentity?> AuthenticateAsync(string provider)
     {
+        if (string.IsNullOrWhiteSpace(provider))
+            throw new ArgumentException("Provider name must not be empty.", nameof(provider));
+
         try
         {
             // Build the full authorize URL for the requested identity provider
@@ -242,7 +245,9 @@ public class ExternalIdAuthService
         }
 
         // Capitalize the provider name for display consistency ("Apple", "Google")
-        var displayProvider = char.ToUpperInvariant(provider[0]) + provider[1..].ToLowerInvariant();
+        var displayProvider = provider.Length > 0
+            ? char.ToUpperInvariant(provider[0]) + (provider.Length > 1 ? provider[1..].ToLowerInvariant() : string.Empty)
+            : provider;
 
         var identity = new UnifiedIdentity
         {

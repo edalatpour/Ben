@@ -1408,12 +1408,15 @@ public class DailyViewModel : INotifyPropertyChanged
             var identity = await _externalIdAuthService.AuthenticateAsync("apple");
             if (identity == null)
             {
-                Console.WriteLine("[Auth] Sign in with Apple cancelled or failed.");
+                // Null is returned when the user cancels the browser or an error
+                // is handled inside ExternalIdAuthService (already logged there).
+                Console.WriteLine("[Auth] Sign in with Apple did not complete (cancelled or handled error).");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Auth] Sign in with Apple error: {ex.Message}");
+            // Unexpected unhandled error (e.g. ArgumentException from misconfiguration)
+            Console.WriteLine($"[Auth] Unexpected error during Sign in with Apple: {ex.Message}");
         }
         finally
         {
@@ -1433,12 +1436,15 @@ public class DailyViewModel : INotifyPropertyChanged
             var identity = await _externalIdAuthService.AuthenticateAsync("google");
             if (identity == null)
             {
-                Console.WriteLine("[Auth] Sign in with Google cancelled or failed.");
+                // Null is returned when the user cancels the browser or an error
+                // is handled inside ExternalIdAuthService (already logged there).
+                Console.WriteLine("[Auth] Sign in with Google did not complete (cancelled or handled error).");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Auth] Sign in with Google error: {ex.Message}");
+            // Unexpected unhandled error (e.g. ArgumentException from misconfiguration)
+            Console.WriteLine($"[Auth] Unexpected error during Sign in with Google: {ex.Message}");
         }
         finally
         {
