@@ -65,9 +65,28 @@ public partial class SettingsPage : ContentPage
         ApplyThemePreview(_selectedTheme);
     }
 
-    private async void OnLoginStatusTapped(object sender, TappedEventArgs e)
+    private async void OnSignOutTapped(object sender, TappedEventArgs e)
     {
+        // Handles sign-out when the user is already authenticated (any provider)
         await _dailyViewModel.ToggleAuthenticationAsync();
+    }
+
+    private async void OnSignInMicrosoftTapped(object sender, TappedEventArgs e)
+    {
+        // Launches the existing Microsoft MSAL sign-in flow
+        await _dailyViewModel.ToggleAuthenticationAsync();
+    }
+
+    private async void OnSignInAppleTapped(object sender, TappedEventArgs e)
+    {
+        // Launches the External ID sign-in flow for Apple via WebAuthenticator
+        await _dailyViewModel.SignInWithAppleAsync();
+    }
+
+    private async void OnSignInGoogleTapped(object sender, TappedEventArgs e)
+    {
+        // Launches the External ID sign-in flow for Google via WebAuthenticator
+        await _dailyViewModel.SignInWithGoogleAsync();
     }
 
     private async void OnHelpTapped(object sender, TappedEventArgs e)

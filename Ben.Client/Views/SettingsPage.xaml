@@ -54,50 +54,119 @@
                           RowSpacing="16">
 
                         <!-- Authentication -->
-                        <Grid Grid.Row="0"
-                              ColumnDefinitions="Auto,*"
-                              ColumnSpacing="8"
-                              HorizontalOptions="Fill"
-                              Padding="4,0,4,4">
+                        <StackLayout Grid.Row="0" Spacing="8" Padding="4,0,4,4">
 
-                            <Image Grid.Column="0"
-                                   Source="microsoft.png"
-                                   IsVisible="{Binding AuthViewModel.IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
-                                   Aspect="AspectFit"
-                                   WidthRequest="24"
-                                   HeightRequest="24"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="Start"/>
+                            <!-- Authenticated state: user avatar + email/name (tap = sign out) -->
+                            <Grid IsVisible="{Binding AuthViewModel.IsAuthenticated}"
+                                  ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="8"
+                                  HorizontalOptions="Fill">
 
-                            <Border Grid.Column="0"
-                                    IsVisible="{Binding AuthViewModel.IsAuthenticated}"
-                                    WidthRequest="24"
-                                    HeightRequest="24"
-                                    StrokeThickness="0"
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="Start">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="12"/>
-                                </Border.StrokeShape>
-                                <Image Source="{Binding AuthViewModel.UserAvatarSource}"
-                                       Aspect="AspectFill"
-                                       WidthRequest="24"
-                                       HeightRequest="24"/>
-                            </Border>
+                                <Border Grid.Column="0"
+                                        WidthRequest="24"
+                                        HeightRequest="24"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="Start">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12"/>
+                                    </Border.StrokeShape>
+                                    <Image Source="{Binding AuthViewModel.UserAvatarSource}"
+                                           Aspect="AspectFill"
+                                           WidthRequest="24"
+                                           HeightRequest="24"/>
+                                </Border>
 
-                            <Label Grid.Column="1"
-                                   Text="{Binding AuthViewModel.LoginStatusText}"
-                                   FontSize="14"
-                                   TextColor="{DynamicResource Link}"
-                                   TextDecorations="Underline"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="Start">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnLoginStatusTapped"/>
-                                </Label.GestureRecognizers>
-                            </Label>
+                                <Label Grid.Column="1"
+                                       Text="{Binding AuthViewModel.LoginStatusText}"
+                                       FontSize="14"
+                                       TextColor="{DynamicResource Link}"
+                                       TextDecorations="Underline"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Start">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignOutTapped"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
 
-                        </Grid>
+                            </Grid>
+
+                            <!-- Not-authenticated state: three sign-in options -->
+                            <StackLayout IsVisible="{Binding AuthViewModel.IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
+                                         Spacing="10">
+
+                                <!-- Continue with Microsoft (existing MSAL flow) -->
+                                <Grid ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="8"
+                                      HorizontalOptions="Start">
+                                    <Image Grid.Column="0"
+                                           Source="microsoft.png"
+                                           Aspect="AspectFit"
+                                           WidthRequest="20"
+                                           HeightRequest="20"
+                                           VerticalOptions="Center"/>
+                                    <Label Grid.Column="1"
+                                           Text="Continue with Microsoft"
+                                           FontSize="14"
+                                           TextColor="{DynamicResource Link}"
+                                           TextDecorations="Underline"
+                                           VerticalOptions="Center">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnSignInMicrosoftTapped"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+
+                                <!-- Continue with Apple (External ID flow) -->
+                                <Grid ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="8"
+                                      HorizontalOptions="Start">
+                                    <Label Grid.Column="0"
+                                           Text="&#xF8FF;"
+                                           FontSize="18"
+                                           WidthRequest="20"
+                                           VerticalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{DynamicResource Ink}"/>
+                                    <Label Grid.Column="1"
+                                           Text="Continue with Apple"
+                                           FontSize="14"
+                                           TextColor="{DynamicResource Link}"
+                                           TextDecorations="Underline"
+                                           VerticalOptions="Center">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnSignInAppleTapped"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+
+                                <!-- Continue with Google (External ID flow) -->
+                                <Grid ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="8"
+                                      HorizontalOptions="Start">
+                                    <Label Grid.Column="0"
+                                           Text="G"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           WidthRequest="20"
+                                           VerticalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="#4285F4"/>
+                                    <Label Grid.Column="1"
+                                           Text="Continue with Google"
+                                           FontSize="14"
+                                           TextColor="{DynamicResource Link}"
+                                           TextDecorations="Underline"
+                                           VerticalOptions="Center">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnSignInGoogleTapped"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+
+                            </StackLayout>
+
+                        </StackLayout>
 
                         <!-- Theme Selection -->
                         <Grid Grid.Row="1"

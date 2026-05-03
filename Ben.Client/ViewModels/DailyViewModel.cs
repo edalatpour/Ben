@@ -28,6 +28,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
     private readonly PlannerRepository _repo;
     private readonly AuthenticationService _authService;
+    private readonly ExternalIdAuthService _externalIdAuthService;
     private readonly DatasyncSyncService _syncService;
     private readonly PlannerDbContext _dbContext;
     private readonly LocalSchemaDbContext _schemaDbContext;
@@ -38,10 +39,11 @@ public class DailyViewModel : INotifyPropertyChanged
     private bool _isSyncing;
     private string _currentProjectName = string.Empty;
 
-    public DailyViewModel(PlannerRepository repo, AuthenticationService authService, DatasyncSyncService syncService, PlannerDbContext dbContext, LocalSchemaDbContext schemaDbContext, IConnectivity connectivity)
+    public DailyViewModel(PlannerRepository repo, AuthenticationService authService, ExternalIdAuthService externalIdAuthService, DatasyncSyncService syncService, PlannerDbContext dbContext, LocalSchemaDbContext schemaDbContext, IConnectivity connectivity)
     {
         _repo = repo;
         _authService = authService;
+        _externalIdAuthService = externalIdAuthService;
         _syncService = syncService;
         _dbContext = dbContext;
         _schemaDbContext = schemaDbContext;
@@ -53,6 +55,7 @@ public class DailyViewModel : INotifyPropertyChanged
         // Subscribe to events
         _connectivity.ConnectivityChanged += OnConnectivityChanged;
         _authService.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        _externalIdAuthService.AuthenticationStateChanged += OnAuthenticationStateChanged;
         _syncService.SyncStarted += OnSyncStarted;
         _syncService.SyncCompleted += OnSyncCompleted;
 
@@ -124,7 +127,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public bool IsAuthenticated
     {
-        get => _authService.IsAuthenticated;
+        get => _authService.IsAuthenticated || _externalIdAuthService.IsAuthenticated;
     }
 
     private ImageSource? _userAvatarSource;
@@ -155,6 +158,13 @@ public class DailyViewModel : INotifyPropertyChanged
         {
             LoginStatusText = _authService.UserEmail ?? "Sign out";
         }
+        else if (_externalIdAuthService.IsAuthenticated)
+        {
+            var displayName = _externalIdAuthService.UserEmail
+                ?? _externalIdAuthService.UserName
+                ?? $"Signed in with {_externalIdAuthService.Provider}";
+            LoginStatusText = displayName;
+        }
         else
         {
             LoginStatusText = "Sign in with Microsoft";
@@ -162,7 +172,8 @@ public class DailyViewModel : INotifyPropertyChanged
 
         if (!_authService.IsAuthenticated)
         {
-            SyncStatusText = "Not signed in";
+            // External ID (Apple/Google) sign-in does not connect to the Datasync service
+            SyncStatusText = _externalIdAuthService.IsAuthenticated ? "Sync not available" : "Not signed in";
             return;
         }
 
@@ -1321,13 +1332,21 @@ public class DailyViewModel : INotifyPropertyChanged
     {
         if (_authService.IsAuthenticated)
         {
-            // Sign out with full cleanup for multi-user support
+            // Sign out with full cleanup for multi-user support (Microsoft / MSAL flow)
             await _authService.SignOutWithCleanupAsync(_syncService, _dbContext, _schemaDbContext);
             await UpdateStatus();
             return;
         }
 
-        // Sign in and initialize for new user
+        if (_externalIdAuthService.IsAuthenticated)
+        {
+            // Sign out from External ID (Apple / Google) — no server calls needed
+            _externalIdAuthService.SignOut();
+            await UpdateStatus();
+            return;
+        }
+
+        // Sign in with Microsoft (existing MSAL flow — unchanged)
         var result = await _authService.SignInAsync();
         if (result != null)
         {
@@ -1375,6 +1394,56 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         await UpdateStatus();
+    }
+
+    /// <summary>
+    /// Signs in with Apple via Microsoft Entra External ID using WebAuthenticator.
+    /// On success the authenticated user's identity is stored in Preferences and
+    /// the UI is refreshed via <see cref="ExternalIdAuthService.AuthenticationStateChanged"/>.
+    /// </summary>
+    public async Task SignInWithAppleAsync()
+    {
+        try
+        {
+            var identity = await _externalIdAuthService.AuthenticateAsync("apple");
+            if (identity == null)
+            {
+                Console.WriteLine("[Auth] Sign in with Apple cancelled or failed.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Auth] Sign in with Apple error: {ex.Message}");
+        }
+        finally
+        {
+            await UpdateStatus();
+        }
+    }
+
+    /// <summary>
+    /// Signs in with Google via Microsoft Entra External ID using WebAuthenticator.
+    /// On success the authenticated user's identity is stored in Preferences and
+    /// the UI is refreshed via <see cref="ExternalIdAuthService.AuthenticationStateChanged"/>.
+    /// </summary>
+    public async Task SignInWithGoogleAsync()
+    {
+        try
+        {
+            var identity = await _externalIdAuthService.AuthenticateAsync("google");
+            if (identity == null)
+            {
+                Console.WriteLine("[Auth] Sign in with Google cancelled or failed.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Auth] Sign in with Google error: {ex.Message}");
+        }
+        finally
+        {
+            await UpdateStatus();
+        }
     }
 
     public async Task ForceSyncAsync()
