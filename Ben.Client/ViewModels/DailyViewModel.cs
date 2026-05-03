@@ -151,7 +151,7 @@ public class DailyViewModel : INotifyPropertyChanged
         IsOnline = _connectivity.NetworkAccess == NetworkAccess.Internet;
 
         // Update sync clickable state (only clickable when authenticated AND online)
-        IsSyncClickable = _authService.IsAuthenticated && IsOnline;
+        IsSyncClickable = IsAuthenticated && IsOnline;
 
         // Update login status
         if (_authService.IsAuthenticated)
@@ -170,10 +170,9 @@ public class DailyViewModel : INotifyPropertyChanged
             LoginStatusText = "Sign in with Microsoft";
         }
 
-        if (!_authService.IsAuthenticated)
+        if (!IsAuthenticated)
         {
-            // External ID (Apple/Google) sign-in does not connect to the Datasync service
-            SyncStatusText = _externalIdAuthService.IsAuthenticated ? "Sync not available" : "Not signed in";
+            SyncStatusText = "Not signed in";
             return;
         }
 

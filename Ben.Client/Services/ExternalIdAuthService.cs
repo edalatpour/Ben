@@ -80,6 +80,32 @@ public class ExternalIdAuthService
     // -----------------------------------------------------------------------
 
     /// <summary>
+    /// Returns the stored External ID access_token as a Datasync-compatible
+    /// <see cref="CommunityToolkit.Datasync.Client.Authentication.AuthenticationToken"/>.
+    /// Called by <c>PlannerDbContext</c> on every outgoing Datasync HTTP request so
+    /// that the backend can identify the user regardless of which identity provider
+    /// they chose (Apple or Google).
+    /// </summary>
+    public Task<CommunityToolkit.Datasync.Client.Authentication.AuthenticationToken> GetAuthenticationTokenAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var accessToken = Preferences.Default.Get(AccessTokenKey, (string?)null) ?? string.Empty;
+        var userId      = Preferences.Default.Get(UserIdKey,      (string?)null) ?? string.Empty;
+        var email       = Preferences.Default.Get(UserEmailKey,   (string?)null) ?? string.Empty;
+
+        // Try to read the expiry from the JWT exp claim; fall back to 1 hour from now
+        var expiresOn = TryGetJwtExpiry(accessToken) ?? DateTimeOffset.UtcNow.AddHours(1);
+
+        return Task.FromResult(new CommunityToolkit.Datasync.Client.Authentication.AuthenticationToken
+        {
+            DisplayName = email,
+            ExpiresOn   = expiresOn,
+            Token       = accessToken,
+            UserId      = userId
+        });
+    }
+
+    /// <summary>
     /// Launches the External ID sign-in flow for the specified identity provider.
     /// Uses <see cref="WebAuthenticator"/> (ASWebAuthenticationSession on iOS) so the
     /// browser chrome is visible to the user and Apple's App Store guidelines are met.
@@ -307,6 +333,27 @@ public class ExternalIdAuthService
                 : property.Value.ToString();
         }
 
-        return claims;
+    /// <summary>
+    /// Extracts the <c>exp</c> (expiry) Unix timestamp from a JWT access_token and
+    /// converts it to a <see cref="DateTimeOffset"/>. Returns <c>null</c> if the claim
+    /// is absent or the token is not a valid JWT.
+    /// </summary>
+    private static DateTimeOffset? TryGetJwtExpiry(string jwt)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(jwt))
+                return null;
+
+            var claims = ParseJwtPayloadClaims(jwt);
+            if (claims.TryGetValue("exp", out var expStr) && long.TryParse(expStr, out var expUnix))
+                return DateTimeOffset.FromUnixTimeSeconds(expUnix);
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }
