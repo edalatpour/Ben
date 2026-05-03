@@ -92,77 +92,42 @@
                             </Grid>
 
                             <!-- Not-authenticated state: three sign-in options -->
+                            <!-- Image files required in Resources/Images:
+                                 ms_symbollockup_signin_dark.png  — from https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-apps
+                                 signin_with_apple.png            — from https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple
+                                 btn_google_signin_dark.png       — from https://developers.google.com/identity/branding-guidelines -->
                             <StackLayout IsVisible="{Binding AuthViewModel.IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
-                                         Spacing="10">
+                                         Spacing="12">
 
-                                <!-- Continue with Microsoft (existing MSAL flow) -->
-                                <Grid ColumnDefinitions="Auto,*"
-                                      ColumnSpacing="8"
-                                      HorizontalOptions="Start">
-                                    <Image Grid.Column="0"
-                                           Source="microsoft.png"
-                                           Aspect="AspectFit"
-                                           WidthRequest="20"
-                                           HeightRequest="20"
-                                           VerticalOptions="Center"/>
-                                    <Label Grid.Column="1"
-                                           Text="Continue with Microsoft"
-                                           FontSize="14"
-                                           TextColor="{DynamicResource Link}"
-                                           TextDecorations="Underline"
-                                           VerticalOptions="Center">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Tapped="OnSignInMicrosoftTapped"/>
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                </Grid>
+                                <!-- Sign in with Microsoft (existing MSAL flow) -->
+                                <Image Source="ms_symbollockup_signin_dark.png"
+                                       Aspect="AspectFit"
+                                       HeightRequest="41"
+                                       HorizontalOptions="Start">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignInMicrosoftTapped"/>
+                                    </Image.GestureRecognizers>
+                                </Image>
 
-                                <!-- Continue with Apple (External ID flow) -->
-                                <Grid ColumnDefinitions="Auto,*"
-                                      ColumnSpacing="8"
-                                      HorizontalOptions="Start">
-                                    <Label Grid.Column="0"
-                                           Text="&#xF8FF;"
-                                           FontSize="18"
-                                           WidthRequest="20"
-                                           VerticalOptions="Center"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{DynamicResource Ink}"/>
-                                    <Label Grid.Column="1"
-                                           Text="Continue with Apple"
-                                           FontSize="14"
-                                           TextColor="{DynamicResource Link}"
-                                           TextDecorations="Underline"
-                                           VerticalOptions="Center">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Tapped="OnSignInAppleTapped"/>
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                </Grid>
+                                <!-- Sign in with Apple (External ID flow) -->
+                                <Image Source="signin_with_apple.png"
+                                       Aspect="AspectFit"
+                                       HeightRequest="44"
+                                       HorizontalOptions="Start">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignInAppleTapped"/>
+                                    </Image.GestureRecognizers>
+                                </Image>
 
-                                <!-- Continue with Google (External ID flow) -->
-                                <Grid ColumnDefinitions="Auto,*"
-                                      ColumnSpacing="8"
-                                      HorizontalOptions="Start">
-                                    <Label Grid.Column="0"
-                                           Text="G"
-                                           FontSize="16"
-                                           FontAttributes="Bold"
-                                           WidthRequest="20"
-                                           VerticalOptions="Center"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="#4285F4"/>
-                                    <Label Grid.Column="1"
-                                           Text="Continue with Google"
-                                           FontSize="14"
-                                           TextColor="{DynamicResource Link}"
-                                           TextDecorations="Underline"
-                                           VerticalOptions="Center">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Tapped="OnSignInGoogleTapped"/>
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                </Grid>
+                                <!-- Sign in with Google (External ID flow) -->
+                                <Image Source="btn_google_signin_dark.png"
+                                       Aspect="AspectFit"
+                                       HeightRequest="40"
+                                       HorizontalOptions="Start">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignInGoogleTapped"/>
+                                    </Image.GestureRecognizers>
+                                </Image>
 
                             </StackLayout>
 
