@@ -54,50 +54,84 @@
                           RowSpacing="16">
 
                         <!-- Authentication -->
-                        <Grid Grid.Row="0"
-                              ColumnDefinitions="Auto,*"
-                              ColumnSpacing="8"
-                              HorizontalOptions="Fill"
-                              Padding="4,0,4,4">
+                        <StackLayout Grid.Row="0" Spacing="8" Padding="4,0,4,4">
 
-                            <Image Grid.Column="0"
-                                   Source="microsoft.png"
-                                   IsVisible="{Binding AuthViewModel.IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
-                                   Aspect="AspectFit"
-                                   WidthRequest="24"
-                                   HeightRequest="24"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="Start"/>
+                            <!-- Authenticated state: user avatar + email/name (tap = sign out) -->
+                            <Grid IsVisible="{Binding AuthViewModel.IsAuthenticated}"
+                                  ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="8"
+                                  HorizontalOptions="Fill">
 
-                            <Border Grid.Column="0"
-                                    IsVisible="{Binding AuthViewModel.IsAuthenticated}"
-                                    WidthRequest="24"
-                                    HeightRequest="24"
-                                    StrokeThickness="0"
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="Start">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="12"/>
-                                </Border.StrokeShape>
-                                <Image Source="{Binding AuthViewModel.UserAvatarSource}"
-                                       Aspect="AspectFill"
-                                       WidthRequest="24"
-                                       HeightRequest="24"/>
-                            </Border>
+                                <Border Grid.Column="0"
+                                        WidthRequest="24"
+                                        HeightRequest="24"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="Start">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12"/>
+                                    </Border.StrokeShape>
+                                    <Image Source="{Binding AuthViewModel.UserAvatarSource}"
+                                           Aspect="AspectFill"
+                                           WidthRequest="24"
+                                           HeightRequest="24"/>
+                                </Border>
 
-                            <Label Grid.Column="1"
-                                   Text="{Binding AuthViewModel.LoginStatusText}"
-                                   FontSize="14"
-                                   TextColor="{DynamicResource Link}"
-                                   TextDecorations="Underline"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="Start">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnLoginStatusTapped"/>
-                                </Label.GestureRecognizers>
-                            </Label>
+                                <Label Grid.Column="1"
+                                       Text="{Binding AuthViewModel.LoginStatusText}"
+                                       FontSize="14"
+                                       TextColor="{DynamicResource Link}"
+                                       TextDecorations="Underline"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Start">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignOutTapped"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
 
-                        </Grid>
+                            </Grid>
+
+                            <!-- Not-authenticated state: three sign-in options -->
+                            <!-- Image files required in Resources/Images:
+                                 ms_symbollockup_signin_dark.png  — from https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-apps
+                                 signin_with_apple.png            — from https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple
+                                 btn_google_signin_dark.png       — from https://developers.google.com/identity/branding-guidelines -->
+                            <StackLayout IsVisible="{Binding AuthViewModel.IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
+                                         Spacing="12">
+
+                                <!-- Sign in with Microsoft (existing MSAL flow) -->
+                                <Image Source="ms_symbollockup_signin_light.png"
+                                       Aspect="AspectFit"
+                                       HeightRequest="41"
+                                       HorizontalOptions="Start">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignInMicrosoftTapped"/>
+                                    </Image.GestureRecognizers>
+                                </Image>
+
+                                <!-- Sign in with Apple (External ID flow) -->
+                                <Image Source="signin_with_apple.png"
+                                       Aspect="AspectFit"
+                                       HeightRequest="44"
+                                       HorizontalOptions="Start">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignInAppleTapped"/>
+                                    </Image.GestureRecognizers>
+                                </Image>
+
+                                <!-- Sign in with Google (External ID flow) -->
+                                <!-- <Image Source="btn_google_signin_dark.png"
+                                       Aspect="AspectFit"
+                                       HeightRequest="40"
+                                       HorizontalOptions="Start">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignInGoogleTapped"/>
+                                    </Image.GestureRecognizers>
+                                </Image> -->
+
+                            </StackLayout>
+
+                        </StackLayout>
 
                         <!-- Theme Selection -->
                         <Grid Grid.Row="1"

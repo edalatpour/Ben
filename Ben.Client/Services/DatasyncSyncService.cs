@@ -20,6 +20,7 @@ public sealed class DatasyncSyncService : IDisposable
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConnectivity _connectivity;
     private readonly AuthenticationService _authService;
+    private readonly ExternalIdAuthService _externalIdAuthService;
     private readonly DatasyncOptions _options;
     private readonly ILogger<DatasyncSyncService> _logger;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
@@ -38,15 +39,24 @@ public sealed class DatasyncSyncService : IDisposable
         IServiceScopeFactory scopeFactory,
         IConnectivity connectivity,
         AuthenticationService authService,
+        ExternalIdAuthService externalIdAuthService,
         DatasyncOptions options,
         ILogger<DatasyncSyncService> logger)
     {
         _scopeFactory = scopeFactory;
         _connectivity = connectivity;
         _authService = authService;
+        _externalIdAuthService = externalIdAuthService;
         _options = options;
         _logger = logger;
     }
+
+    /// <summary>
+    /// Returns <c>true</c> when the user is signed in with any identity provider
+    /// (Microsoft via MSAL, Apple or Google via External ID).
+    /// </summary>
+    private bool IsAnyAuthenticated =>
+        _authService.IsAuthenticated || _externalIdAuthService.IsAuthenticated;
 
     public void Start()
     {
@@ -167,7 +177,7 @@ public sealed class DatasyncSyncService : IDisposable
                     continue;
                 }
 
-                if (_connectivity.NetworkAccess != NetworkAccess.Internet || !_authService.IsAuthenticated)
+                if (_connectivity.NetworkAccess != NetworkAccess.Internet || !IsAnyAuthenticated)
                 {
                     continue;
                 }
@@ -210,7 +220,7 @@ public sealed class DatasyncSyncService : IDisposable
     /// </summary>
     public async Task<bool> HasUnsyncedChangesAsync()
     {
-        if (_disposed || !_authService.IsAuthenticated)
+        if (_disposed || !IsAnyAuthenticated)
         {
             return false;
         }
@@ -236,7 +246,7 @@ public sealed class DatasyncSyncService : IDisposable
 
         try
         {
-            if (_disposed || !_authService.IsAuthenticated)
+            if (_disposed || !IsAnyAuthenticated)
             {
                 return 0;
             }
@@ -267,7 +277,7 @@ public sealed class DatasyncSyncService : IDisposable
     /// </summary>
     public async Task<bool> TrySyncNowAsync()
     {
-        if (!_authService.IsAuthenticated)
+        if (!IsAnyAuthenticated)
         {
             _logger.LogWarning("Cannot sync while not authenticated.");
             return false;
@@ -343,8 +353,8 @@ public sealed class DatasyncSyncService : IDisposable
             return false;
         }
 
-        // Don't sync if user is not authenticated
-        if (!_authService.IsAuthenticated)
+        // Don't sync if user is not authenticated with any identity provider
+        if (!IsAnyAuthenticated)
         {
             _logger.LogInformation("Skipping sync - user is not authenticated.");
             return false;

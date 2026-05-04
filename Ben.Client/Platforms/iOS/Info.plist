@@ -38,6 +38,14 @@
 			<key>CFBundleURLName</key>
 			<string>com.edalatpour.ben</string>
 		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>myapp</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.edalatpour.ben.externalid</string>
+		</dict>
 	</array>
 </dict>
 </plist>

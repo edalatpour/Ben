@@ -88,6 +88,15 @@
 		<UseInterpreter>true</UseInterpreter>
 		<MtouchLink>SdkOnly</MtouchLink>
 	</PropertyGroup>
+
+	<!-- iOS interpreter + linker settings — applied to all configurations -->
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+		<!-- UseInterpreter enables the Mono interpreter as a fallback for EF Core dynamic JIT methods;
+		     MtouchLink=SdkOnly preserves NuGet assemblies from trimming. Both bin and obj must be
+		     fully deleted before building or stale AOT artifacts will cause a startup crash. -->
+		<UseInterpreter>true</UseInterpreter>
+		<MtouchLink>SdkOnly</MtouchLink>
+	</PropertyGroup>
 	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(Configuration)' == 'Release' and '$(RuntimeIdentifier)' == 'ios-arm64'">
 		<CodesignKey>iPhone Distribution: Tim Edalatpour (QNQ323Z7FW)</CodesignKey>
 		<CodesignProvision>BenPlannerAppStore</CodesignProvision>
