@@ -19,12 +19,12 @@ public class ExternalIdAuthService
     /// <summary>
     /// The External ID (CIAM) tenant domain, e.g. "mytenant.ciamlogin.com".
     /// </summary>
-    private const string TenantDomain = "mytenant.ciamlogin.com";
+    private const string TenantDomain = "benid.ciamlogin.com";
 
     /// <summary>
     /// The client (application) ID registered in the External ID tenant.
     /// </summary>
-    private const string ClientId = "my-client-id";
+    private const string ClientId = "d5a4dd1f-e90b-4c48-8031-15041bd3c02c";
 
     /// <summary>
     /// The custom policy name configured in the External ID tenant.
@@ -36,7 +36,7 @@ public class ExternalIdAuthService
     /// Must also be registered as a CFBundleURLScheme in Info.plist (iOS) and as an
     /// intent-filter scheme in AndroidManifest.xml (Android).
     /// </summary>
-    private const string RedirectUri = "myapp://auth";
+    private const string RedirectUri = "msauth.com.edalatpour.ben://auth";
 
     // -----------------------------------------------------------------------
     // Preferences keys (namespaced to avoid collisions with MSAL keys)
@@ -90,8 +90,8 @@ public class ExternalIdAuthService
         CancellationToken cancellationToken = default)
     {
         var accessToken = Preferences.Default.Get(AccessTokenKey, (string?)null) ?? string.Empty;
-        var userId      = Preferences.Default.Get(UserIdKey,      (string?)null) ?? string.Empty;
-        var email       = Preferences.Default.Get(UserEmailKey,   (string?)null) ?? string.Empty;
+        var userId = Preferences.Default.Get(UserIdKey, (string?)null) ?? string.Empty;
+        var email = Preferences.Default.Get(UserEmailKey, (string?)null) ?? string.Empty;
 
         // Try to read the expiry from the JWT exp claim; fall back to 1 hour from now
         var expiresOn = TryGetJwtExpiry(accessToken) ?? DateTimeOffset.UtcNow.AddHours(1);
@@ -99,9 +99,9 @@ public class ExternalIdAuthService
         return Task.FromResult(new CommunityToolkit.Datasync.Client.Authentication.AuthenticationToken
         {
             DisplayName = email,
-            ExpiresOn   = expiresOn,
-            Token       = accessToken,
-            UserId      = userId
+            ExpiresOn = expiresOn,
+            Token = accessToken,
+            UserId = userId
         });
     }
 
@@ -123,6 +123,12 @@ public class ExternalIdAuthService
     {
         if (string.IsNullOrWhiteSpace(provider))
             throw new ArgumentException("Provider name must not be empty.", nameof(provider));
+
+        if (OperatingSystem.IsWindows())
+        {
+            Console.WriteLine($"[ExternalId] Sign in with {provider} is not supported on Windows because MAUI WebAuthenticator is not available on WinUI.");
+            return null;
+        }
 
         try
         {
@@ -146,6 +152,11 @@ public class ExternalIdAuthService
         {
             // User dismissed the browser without completing sign-in — not an error
             Console.WriteLine($"[ExternalId] Sign-in cancelled by user (provider: {provider})");
+            return null;
+        }
+        catch (PlatformNotSupportedException ex)
+        {
+            Console.WriteLine($"[ExternalId] Platform does not support WebAuthenticator (provider: {provider}): {ex.Message}");
             return null;
         }
         catch (Exception ex)
@@ -277,21 +288,21 @@ public class ExternalIdAuthService
 
         var identity = new UnifiedIdentity
         {
-            Provider    = displayProvider,
-            UserId      = userId      ?? string.Empty,
-            Email       = email       ?? string.Empty,
-            Name        = name        ?? string.Empty,
-            IdToken     = idToken     ?? string.Empty,
+            Provider = displayProvider,
+            UserId = userId ?? string.Empty,
+            Email = email ?? string.Empty,
+            Name = name ?? string.Empty,
+            IdToken = idToken ?? string.Empty,
             AccessToken = accessToken ?? string.Empty,
         };
 
         // Persist authentication state so it survives app restarts
         Preferences.Default.Set(AuthStateKey, true);
         Preferences.Default.Set(ProviderKey, displayProvider);
-        if (userId      != null) Preferences.Default.Set(UserIdKey,      userId);
-        if (email       != null) Preferences.Default.Set(UserEmailKey,   email);
-        if (name        != null) Preferences.Default.Set(UserNameKey,    name);
-        if (idToken     != null) Preferences.Default.Set(IdTokenKey,     idToken);
+        if (userId != null) Preferences.Default.Set(UserIdKey, userId);
+        if (email != null) Preferences.Default.Set(UserEmailKey, email);
+        if (name != null) Preferences.Default.Set(UserNameKey, name);
+        if (idToken != null) Preferences.Default.Set(IdTokenKey, idToken);
         if (accessToken != null) Preferences.Default.Set(AccessTokenKey, accessToken);
 
         Console.WriteLine($"[ExternalId] Sign-in succeeded. Provider={displayProvider}, Email={email}");

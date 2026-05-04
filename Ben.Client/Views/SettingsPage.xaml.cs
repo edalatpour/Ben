@@ -65,7 +65,7 @@ public partial class SettingsPage : ContentPage
         ApplyThemePreview(_selectedTheme);
     }
 
-    private async void OnSignOutTapped(object sender, TappedEventArgs e)
+    private async void OnSignOutTapped(object sender, EventArgs e)
     {
         // Handles sign-out when the user is already authenticated (any provider)
         await _dailyViewModel.ToggleAuthenticationAsync();
