@@ -41,7 +41,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>msauth.com.edalatpour.ben</string>
+				<string>myapp</string>
 			</array>
 			<key>CFBundleURLName</key>
 			<string>com.edalatpour.ben.externalid</string>
