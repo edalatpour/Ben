@@ -101,64 +101,37 @@
 
                             </Grid>
 
-                               <!-- Not-authenticated state: available sign-in options -->
+                            <!-- Not-authenticated state: available sign-in options -->
                             <!-- Image files required in Resources/Images:
                                  ms_symbollockup_signin_dark.png  — from https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-apps
                                    signin_with_apple.png            — from https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple -->
-                            <HorizontalStackLayout
+
+                            <VerticalStackLayout
                                 IsVisible="{Binding AuthViewModel.IsAuthenticated, Converter={StaticResource InvertedBoolConverter}}"
                                 Spacing="12">
 
-                                <Label Text="Sign in with: "
-                                       FontSize="14"
-                                       TextColor="{DynamicResource Ink}"
-                                       VerticalOptions="Center"
-                                       HorizontalOptions="Start">
-                                </Label>
-
-                                <!-- Sign in with Microsoft (existing MSAL flow) -->
-                                <Border WidthRequest="64"
-                                        HeightRequest="64"
-                                        Padding="0"
-                                        StrokeThickness="2"
-                                        Stroke="{DynamicResource Ink}"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="Center">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="12"/>
-                                    </Border.StrokeShape>
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnSignInMicrosoftTapped"/>
-                                    </Border.GestureRecognizers>
-                                    <Image Source="microsoft.png"
-                                           Aspect="AspectFit"
-                                           VerticalOptions="Center"
-                                           HorizontalOptions="Center">
-                                    </Image>
-                                </Border>
-
                                 <!-- Sign in with Apple (External ID flow) -->
-                                <Border WidthRequest="64"
-                                        HeightRequest="64"
-                                        Padding="0"
-                                        StrokeThickness="2"
-                                        Stroke="{DynamicResource Ink}"
-                                        IsVisible="{OnPlatform Default=true, WinUI=false}"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="Center">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="12"/>
-                                    </Border.StrokeShape>
-                                    <Border.GestureRecognizers>
+                                <Image Source="signin_with_apple.png"
+                                       Aspect="AspectFit"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       IsVisible="{OnPlatform Default=true, WinUI=false}">
+                                    <Image.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnSignInAppleTapped"/>
-                                    </Border.GestureRecognizers>
-                                    <Image Source="apple.png"
-                                           Aspect="AspectFit"
-                                           VerticalOptions="Center"
-                                           HorizontalOptions="Center">
-                                    </Image>
-                                </Border>
-                            </HorizontalStackLayout>
+                                    </Image.GestureRecognizers>
+                                </Image>
+
+                                <!-- Sign in with Microsoft (MSAL flow) -->
+                                <Image Source="signin_with_microsoft.png"
+                                       Aspect="AspectFit"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSignInMicrosoftTapped"/>
+                                    </Image.GestureRecognizers>
+                                </Image>
+
+                            </VerticalStackLayout>
 
                         </StackLayout>
 
