@@ -144,6 +144,7 @@ public sealed class DatasyncSyncService : IDisposable
         }
 
         _disposed = true;
+        _started = false;
         _connectivity.ConnectivityChanged -= OnConnectivityChanged;
 
         CancellationTokenSource? scheduledSyncCts;
@@ -161,7 +162,10 @@ public sealed class DatasyncSyncService : IDisposable
 
         _periodicSyncCts?.Cancel();
         _periodicSyncCts?.Dispose();
-        _syncLock.Dispose();
+
+        // Intentionally do not dispose _syncLock here.
+        // Fire-and-forget work may still be unwinding during app shutdown,
+        // and disposing the semaphore can throw ObjectDisposedException on close.
     }
 
     private async Task RunPendingChangesSyncLoopAsync(CancellationToken cancellationToken)
@@ -239,10 +243,13 @@ public sealed class DatasyncSyncService : IDisposable
             return _pendingCountSnapshot;
         }
 
+        bool lockAcquired = false;
         if (!await _syncLock.WaitAsync(0))
         {
             return _pendingCountSnapshot;
         }
+
+        lockAcquired = true;
 
         try
         {
@@ -268,7 +275,10 @@ public sealed class DatasyncSyncService : IDisposable
         }
         finally
         {
-            _syncLock.Release();
+            if (lockAcquired)
+            {
+                _syncLock.Release();
+            }
         }
     }
 
@@ -365,10 +375,13 @@ public sealed class DatasyncSyncService : IDisposable
             return false;
         }
 
+        bool lockAcquired = false;
         if (!await _syncLock.WaitAsync(0))
         {
             return false;
         }
+
+        lockAcquired = true;
 
         bool shouldScheduleRetry = false;
         SyncStarted?.Invoke(this, EventArgs.Empty);
@@ -451,7 +464,11 @@ public sealed class DatasyncSyncService : IDisposable
         }
         finally
         {
-            _syncLock.Release();
+            if (lockAcquired)
+            {
+                _syncLock.Release();
+            }
+
             SyncCompleted?.Invoke(this, EventArgs.Empty);
 
             if (shouldScheduleRetry)
