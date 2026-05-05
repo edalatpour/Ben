@@ -136,17 +136,47 @@ public class DailyViewModel : INotifyPropertyChanged
     }
 
     private ImageSource? _userAvatarSource;
+    private bool _isUserAvatarPhoto;
     public ImageSource UserAvatarSource
     {
-        get => _userAvatarSource ??= BuildUserAvatarSource();
-        private set { _userAvatarSource = value; OnPropertyChanged(); }
+        get
+        {
+            if (_userAvatarSource is null)
+            {
+                _userAvatarSource = BuildUserAvatarSource();
+            }
+
+            return _userAvatarSource;
+        }
+        private set
+        {
+            _userAvatarSource = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsUserAvatarPhoto));
+            OnPropertyChanged(nameof(IsUserAvatarFallback));
+        }
     }
+
+    public bool IsUserAvatarPhoto => _isUserAvatarPhoto;
+
+    public bool IsUserAvatarFallback => !_isUserAvatarPhoto;
 
     private ImageSource BuildUserAvatarSource()
     {
+        if (_externalIdAuthService.IsAuthenticated)
+        {
+            _isUserAvatarPhoto = false;
+            return "apple_512.png";
+        }
+
         var path = _authService.ProfilePicturePath;
         if (!string.IsNullOrEmpty(path) && File.Exists(path))
+        {
+            _isUserAvatarPhoto = true;
             return ImageSource.FromFile(path);
+        }
+
+        _isUserAvatarPhoto = false;
         return "microsoft.png";
     }
 

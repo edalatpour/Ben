@@ -157,24 +157,35 @@
         </Label.GestureRecognizers>
       </Label>
 
-      <Border Grid.Column="0"
-              IsVisible="{Binding IsAuthenticated}"
-              WidthRequest="32"
-              HeightRequest="32"
-              StrokeThickness="0"
-              VerticalOptions="Center"
-              HorizontalOptions="Start">
-        <Border.StrokeShape>
-          <RoundRectangle CornerRadius="16"/>
-        </Border.StrokeShape>
-        <Border.GestureRecognizers>
+      <Grid Grid.Column="0"
+            IsVisible="{Binding IsAuthenticated}"
+            WidthRequest="32"
+            HeightRequest="32"
+            VerticalOptions="Center"
+            HorizontalOptions="Start">
+        <Grid.GestureRecognizers>
           <TapGestureRecognizer Tapped="OnSettingsClicked"/>
-        </Border.GestureRecognizers>
-        <Image Source="{Binding UserAvatarSource}"
-               Aspect="AspectFill"
+        </Grid.GestureRecognizers>
+
+        <Border IsVisible="{Binding IsUserAvatarPhoto}"
+                WidthRequest="32"
+                HeightRequest="32"
+                StrokeThickness="0">
+          <Border.StrokeShape>
+            <RoundRectangle CornerRadius="16"/>
+          </Border.StrokeShape>
+          <Image Source="{Binding UserAvatarSource}"
+                 Aspect="AspectFill"
+                 WidthRequest="32"
+                 HeightRequest="32"/>
+        </Border>
+
+        <Image IsVisible="{Binding IsUserAvatarFallback}"
+               Source="{Binding UserAvatarSource}"
+               Aspect="AspectFit"
                WidthRequest="32"
                HeightRequest="32"/>
-      </Border>
+      </Grid>
 
       <Label Grid.Column="1"
              Text="{Binding SyncStatusText}"

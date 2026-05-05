@@ -66,20 +66,30 @@
                                   RowSpacing="4"
                                   HorizontalOptions="Fill">
 
-                                <Border Grid.Column="0"
-                                        WidthRequest="24"
-                                        HeightRequest="24"
-                                        StrokeThickness="0"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="Start">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="12"/>
-                                    </Border.StrokeShape>
-                                    <Image Source="{Binding AuthViewModel.UserAvatarSource}"
-                                           Aspect="AspectFill"
+                                <Grid Grid.Column="0"
+                                      WidthRequest="24"
+                                      HeightRequest="24"
+                                      VerticalOptions="Center"
+                                      HorizontalOptions="Center">
+                                    <Border IsVisible="{Binding AuthViewModel.IsUserAvatarPhoto}"
+                                            WidthRequest="24"
+                                            HeightRequest="24"
+                                            StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="12"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="{Binding AuthViewModel.UserAvatarSource}"
+                                               Aspect="AspectFill"
+                                               WidthRequest="24"
+                                               HeightRequest="24"/>
+                                    </Border>
+
+                                    <Image IsVisible="{Binding AuthViewModel.IsUserAvatarFallback}"
+                                           Source="{Binding AuthViewModel.UserAvatarSource}"
+                                           Aspect="AspectFit"
                                            WidthRequest="24"
                                            HeightRequest="24"/>
-                                </Border>
+                                </Grid>
 
                                 <Label Grid.Column="1"
                                        Text="{Binding AuthViewModel.LoginStatusText}"
@@ -113,6 +123,7 @@
                                 <!-- Sign in with Apple (External ID flow) -->
                                 <Image Source="signin_with_apple.png"
                                        Aspect="AspectFit"
+                                       WidthRequest="200"
                                        VerticalOptions="Center"
                                        HorizontalOptions="Center"
                                        IsVisible="{OnPlatform Default=true, WinUI=false}">
@@ -124,6 +135,7 @@
                                 <!-- Sign in with Microsoft (MSAL flow) -->
                                 <Image Source="signin_with_microsoft.png"
                                        Aspect="AspectFit"
+                                       WidthRequest="200"
                                        VerticalOptions="Center"
                                        HorizontalOptions="Center">
                                     <Image.GestureRecognizers>
