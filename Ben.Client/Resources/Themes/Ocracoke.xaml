@@ -12,7 +12,7 @@
     <Color x:Key="Ink">#2B2B2B</Color>
     <Color x:Key="Line">#E6E6E6</Color>
 
-    <Color x:Key="Accent">#E0E0E0</Color>
+    <Color x:Key="Accent">#5A5A5A</Color>
     <Color x:Key="Link">#555555</Color>
 
     <Color x:Key="UserText">#000000</Color>
@@ -22,9 +22,9 @@
     <Color x:Key="InkBrush">#2B2B2B</Color>
     <Color x:Key="SecondaryInkBrush">#888888</Color>
     <Color x:Key="GlyphBrush">#2B2B2B</Color>
-    <Color x:Key="AccentBrush">#E0E0E0</Color>
-    <Color x:Key="SelectionBrush">#80E0E0E0</Color>
-    <Color x:Key="HighlightBrush">#33E0E0E0</Color>
+    <Color x:Key="AccentBrush">#5A5A5A</Color>
+    <Color x:Key="SelectionBrush">#805A5A5A</Color>
+    <Color x:Key="HighlightBrush">#335A5A5A</Color>
     <Color x:Key="HeaderBackgroundBrush">#FFFFFF</Color>
     <Color x:Key="HeaderForegroundBrush">#2B2B2B</Color>
     <Color x:Key="CheckboxStrokeBrush">#CCCCCC</Color>

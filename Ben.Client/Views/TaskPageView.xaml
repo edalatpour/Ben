@@ -163,7 +163,7 @@
                                                 <FormattedString>
                                                     <Span Text="{Binding Title}"
                                                           Style="{StaticResource Handwriting}"
-                                                          TextColor="Black"/>
+                                                          TextColor="{DynamicResource Ink}"/>
                                                     <Span Text="{Binding ForwardedFromDate, StringFormat=' ({0})', TargetNullValue=''}"
                                                           TextColor="{DynamicResource Accent}"/>
                                                 </FormattedString>

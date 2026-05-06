@@ -5,7 +5,7 @@
              x:Class="Ben.Views.TaskDetailsPage"
              Title="Task Details">
 
-    <Grid Style="{StaticResource PaperRootGrid}">
+    <Grid Style="{DynamicResource PaperRootGrid}">
 
         <Grid Padding="16"
               HorizontalOptions="Fill"
