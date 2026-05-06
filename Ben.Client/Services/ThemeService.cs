@@ -25,13 +25,15 @@ public class ThemeService
 
     private string _currentTheme;
     private ResourceDictionary? _currentThemeDict;
+    private readonly IThemeIdentityService _themeIdentityService;
 
     public string CurrentTheme => _currentTheme;
 
     public event EventHandler<string>? ThemeChanged;
 
-    public ThemeService()
+    public ThemeService(IThemeIdentityService themeIdentityService)
     {
+        _themeIdentityService = themeIdentityService;
         _currentTheme = Preferences.Get("SelectedTheme", "Green");
         System.Diagnostics.Debug.WriteLine($"ThemeService initialized with theme: {_currentTheme}");
     }
@@ -50,6 +52,13 @@ public class ThemeService
         try
         {
             var normalizedThemeName = NormalizeThemeName(themeName);
+
+            if (_currentThemeDict != null && string.Equals(_currentTheme, normalizedThemeName, StringComparison.OrdinalIgnoreCase))
+            {
+                System.Diagnostics.Debug.WriteLine($"Theme '{normalizedThemeName}' already active. Skipping reapply.");
+                return;
+            }
+
             ResourceDictionary newThemeDict = CreateThemeDictionary(normalizedThemeName);
 
             var appResources = Application.Current?.Resources;
@@ -92,6 +101,8 @@ public class ThemeService
 
             System.Diagnostics.Debug.WriteLine($"Theme changed to: {normalizedThemeName}");
             ThemeChanged?.Invoke(this, normalizedThemeName);
+
+            _themeIdentityService.ApplyThemeIdentity(normalizedThemeName);
         }
         catch (Exception ex)
         {
