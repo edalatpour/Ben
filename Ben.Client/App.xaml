@@ -29,7 +29,7 @@
                     <x:Double x:Key="GridLineOpacity">0.30</x:Double>
                     <x:String x:Key="GridMode">Soft</x:String>
                 </ResourceDictionary>
-                <themes:Green/>
+                <themes:Hatteras/>
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 

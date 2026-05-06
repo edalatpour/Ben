@@ -25,25 +25,13 @@
                    HorizontalTextAlignment="Center"/>
 
             <!-- Form -->
-            <Grid Grid.Row="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="1"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <BoxView Grid.ColumnSpan="2"
-                         Style="{DynamicResource DividerStrong}"/>
-                <BoxView Grid.RowSpan="3"
-                         Style="{DynamicResource GridLineStrong}"/>
-
-                <ScrollView Grid.Row="1"
-                            Grid.Column="1"
-                            HorizontalOptions="Fill"
+            <Border Grid.Row="2"
+                    Style="{DynamicResource ThemedCard}"
+                    StrokeThickness="{DynamicResource DividerThickness}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{DynamicResource ListCardCornerRadius}"/>
+                </Border.StrokeShape>
+                <ScrollView HorizontalOptions="Fill"
                             VerticalOptions="Fill">
 
                     <Grid BackgroundColor="{DynamicResource WritingPaper}"
@@ -207,11 +195,7 @@
 
                 </ScrollView>
 
-                <BoxView Grid.Row="2"
-                         Grid.ColumnSpan="2"
-                         Style="{DynamicResource DividerStrong}"/>
-
-            </Grid>
+            </Border>
 
             <!-- Action buttons -->
             <Grid Grid.Row="3"

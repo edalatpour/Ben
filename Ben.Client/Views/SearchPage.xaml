@@ -18,25 +18,13 @@
                    Style="{DynamicResource SectionTitle}"
                    HorizontalTextAlignment="Center"/>
 
-            <Grid Grid.Row="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="1"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <BoxView Grid.ColumnSpan="2"
-                         Style="{DynamicResource DividerStrong}"/>
-                <BoxView Grid.RowSpan="3"
-                         Style="{DynamicResource GridLineStrong}"/>
-
-                <Grid Grid.Row="1"
-                      Grid.Column="1"
-                      BackgroundColor="{DynamicResource WritingPaper}">
+            <Border Grid.Row="1"
+                    Style="{DynamicResource ThemedCard}"
+                    StrokeThickness="{DynamicResource DividerThickness}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{DynamicResource ListCardCornerRadius}"/>
+                </Border.StrokeShape>
+                <Grid BackgroundColor="{DynamicResource WritingPaper}">
                     <ScrollView Margin="0"
                                 BackgroundColor="Transparent">
                         <VerticalStackLayout Spacing="0"
@@ -70,11 +58,7 @@
                         </VerticalStackLayout>
                     </ScrollView>
                 </Grid>
-
-                <BoxView Grid.Row="2"
-                         Grid.ColumnSpan="2"
-                         Style="{DynamicResource DividerStrong}"/>
-            </Grid>
+            </Border>
 
             <Grid Grid.Row="2"
                   RowDefinitions="Auto,Auto"

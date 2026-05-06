@@ -113,10 +113,21 @@ public class ThemeService
 
     public Color? GetThemeColor(string themeName, string resourceKey)
     {
-        var dictionary = CreateThemeDictionary(NormalizeThemeName(themeName));
-        if (dictionary.TryGetValue(resourceKey, out var resource) && resource is Color color)
+        var resource = GetThemeResource(themeName, resourceKey);
+        if (resource is Color color)
         {
             return color;
+        }
+
+        return null;
+    }
+
+    public object? GetThemeResource(string themeName, string resourceKey)
+    {
+        var dictionary = CreateThemeDictionary(NormalizeThemeName(themeName));
+        if (dictionary.TryGetValue(resourceKey, out var resource))
+        {
+            return resource;
         }
 
         return null;

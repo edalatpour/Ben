@@ -5,7 +5,7 @@ namespace Ben.Views;
 
 public partial class SettingsPage : ContentPage
 {
-    private static readonly string[] PreviewColorKeys =
+    private static readonly string[] PreviewResourceKeys =
     {
         "Paper",
         "WritingPaper",
@@ -22,6 +22,9 @@ public partial class SettingsPage : ContentPage
         "HeaderForegroundBrush",
         "BorderColor",
         "DividerColor",
+        "BorderThickness",
+        "DividerThickness",
+        "ListCardCornerRadius",
     };
 
     private string _originalTheme = "Green";
@@ -32,20 +35,12 @@ public partial class SettingsPage : ContentPage
     private readonly DailyViewModel _dailyViewModel;
     private readonly List<ThemeOption> _availableThemes = new()
     {
-        new ThemeOption { Name = "Red",          DisplayName = "Red" },
-        new ThemeOption { Name = "Orange",       DisplayName = "Orange" },
-        new ThemeOption { Name = "Yellow",       DisplayName = "Yellow" },
-        new ThemeOption { Name = "Green",        DisplayName = "Green" },
-        new ThemeOption { Name = "Blue",         DisplayName = "Blue" },
-        new ThemeOption { Name = "Purple",       DisplayName = "Purple" },
-        new ThemeOption { Name = "Brown",        DisplayName = "Brown" },
-        new ThemeOption { Name = "Gray",         DisplayName = "Gray" },
-        new ThemeOption { Name = "Currituck",    DisplayName = "Currituck" },
-        new ThemeOption { Name = "Hatteras",     DisplayName = "Hatteras" },
-        new ThemeOption { Name = "Ocracoke",     DisplayName = "Ocracoke" },
-        new ThemeOption { Name = "OakIsland",    DisplayName = "Oak Island" },
         new ThemeOption { Name = "Bodie",        DisplayName = "Bodie" },
         new ThemeOption { Name = "CapeLookout",  DisplayName = "Cape Lookout" },
+        new ThemeOption { Name = "Currituck",    DisplayName = "Currituck" },
+        new ThemeOption { Name = "Hatteras",     DisplayName = "Hatteras" },
+        new ThemeOption { Name = "OakIsland",    DisplayName = "Oak Island" },
+        new ThemeOption { Name = "Ocracoke",     DisplayName = "Ocracoke" },
     };
 
     public List<ThemeOption> AvailableThemes => _availableThemes;
@@ -142,12 +137,12 @@ public partial class SettingsPage : ContentPage
 
     private void ApplyThemePreview(string themeName)
     {
-        foreach (var resourceKey in PreviewColorKeys)
+        foreach (var resourceKey in PreviewResourceKeys)
         {
-            var themeColor = _themeService.GetThemeColor(themeName, resourceKey);
-            if (themeColor != null)
+            var themeResource = _themeService.GetThemeResource(themeName, resourceKey);
+            if (themeResource != null)
             {
-                Resources[resourceKey] = themeColor;
+                Resources[resourceKey] = themeResource;
             }
         }
     }
