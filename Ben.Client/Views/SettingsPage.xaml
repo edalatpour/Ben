@@ -180,7 +180,7 @@
                         </Grid>
 
                         <Label Grid.Row="3"
-                               Text="How to use Ben"
+                               Text="About Daymark"
                                FontSize="14"
                                TextColor="{DynamicResource Link}"
                                TextDecorations="Underline"

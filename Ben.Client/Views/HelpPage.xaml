@@ -18,7 +18,7 @@
                     RowSpacing="12">
 
                      <Label Grid.Row="0"
-                            Text="How to use Ben"
+                            Text="About Daymark"
                             Style="{DynamicResource SectionTitle}"
                             HorizontalTextAlignment="Center"/>
 
@@ -34,24 +34,34 @@
                                                         BackgroundColor="{DynamicResource WritingPaper}">
 
                                           <VerticalStackLayout Spacing="8">
-                                                 <Label Text="What Is Ben?"
-                                                        Style="{DynamicResource Handwriting}"
-                                                        HorizontalTextAlignment="Center"/>
+
                                                  <Label Style="{DynamicResource Handwriting}"
                                                         LineBreakMode="WordWrap"
-                                                        Text="Ben is a modern, digital interpretation of the classic Franklin planning method. Instead of scattering your life across sticky notes, apps, and inboxes, Ben gives you a single place to plan your day, capture your notes, track your progress, and stay aligned with what matters most.&#x0a;&#x0a;Each day in Ben has its own dedicated page with a prioritized task list, a flexible notes section, and tools for forwarding, organizing, and reviewing your work.&#x0a;&#x0a;Ben is not just a to-do list. It is a daily planning ritual designed to help you think, act, and follow through with clarity."/>
+                                                        Text="Daymark is a modern, digital interpretation of classic paper-based planning methods. Instead of scattering your life across sticky notes, apps, and inboxes, Daymark gives you a single place to plan your day, capture your notes, track your progress, and stay aligned with what matters most.&#x0a;&#x0a;Each day in Daymark has its own dedicated page with a prioritized task list, a flexible notes section, and tools for forwarding, organizing, and reviewing your work.&#x0a;&#x0a;Daymark is not just a to-do list. It is a daily planning ritual designed to help you think, act, and follow through with clarity."/>
                                           </VerticalStackLayout>
 
                                           <BoxView HeightRequest="1"
                                                    BackgroundColor="{DynamicResource Line}"/>
 
                                           <VerticalStackLayout Spacing="8">
-                                                 <Label Text="Why Ben Is Better"
+                                                 <Label Text="What Is a Daymark?"
                                                         Style="{DynamicResource Handwriting}"
                                                         HorizontalTextAlignment="Center"/>
                                                  <Label Style="{DynamicResource Handwriting}"
                                                         LineBreakMode="WordWrap"
-                                                        Text="Most to-do apps encourage you to accumulate tasks, not complete them. Lists get long, priorities blur, and important items get buried.&#x0a;&#x0a;Ben solves that:&#x0a;&#x0a;- Daily focus: plan one day at a time, not an endless backlog.&#x0a;- Prioritization: A/B/C levels identify what is essential vs. optional.&#x0a;- Forwarding with intention: tasks move forward with context so nothing slips.&#x0a;- Integrated notes: thoughts and ideas live right next to your tasks.&#x0a;- A planning rhythm: review, prioritize, execute every day.&#x0a;&#x0a;The result: fewer forgotten commitments, clearer priorities, and a calmer mind."/>
+                                                        Text="A daymark is a fixed, highly visible navigation marker used by mariners during daylight. It relies on bold geometric patterns, distinctive shapes, and strong colors to give sailors an unmistakable point of reference. When you spot a daymark, you instantly know where you are and which direction to go.&#x0a;&#x0a;Daymark is named after this concept because the app is built around the same idea: give you a clear, reliable point of orientation in your day. Just as a mariner uses a daymark to know where they stand and where they are heading, you use Daymark to understand your priorities, track your progress, and move forward with confidence.&#x0a;&#x0a;The themes in Daymark draw directly from real lighthouse and daymark stations along the Outer Banks and Carolina coast — Cape Hatteras, Bodie Island, Ocracoke, Currituck, Oak Island, and Cape Lookout. Each lighthouse has its own signature pattern: bold stripes, diamonds, spirals, and checkers that mariners have recognized for generations. Those same patterns inspire the visual themes in the app, turning each color scheme into something rooted in history and place.&#x0a;&#x0a;The metaphor goes deeper than the name. Guidance, stability, visibility, direction — these are the values built into every feature of Daymark. A good day does not happen by accident. It is navigated."/>
+                                          </VerticalStackLayout>
+
+                                          <BoxView HeightRequest="1"
+                                                   BackgroundColor="{DynamicResource Line}"/>
+
+                                          <VerticalStackLayout Spacing="8">
+                                                 <Label Text="Why Daymark Is Better"
+                                                        Style="{DynamicResource Handwriting}"
+                                                        HorizontalTextAlignment="Center"/>
+                                                 <Label Style="{DynamicResource Handwriting}"
+                                                        LineBreakMode="WordWrap"
+                                                        Text="Most to-do apps encourage you to accumulate tasks, not complete them. Lists get long, priorities blur, and important items get buried.&#x0a;&#x0a;Daymark solves that:&#x0a;&#x0a;- Daily focus: plan one day at a time, not an endless backlog.&#x0a;- Prioritization: A/B/C levels identify what is essential vs. optional.&#x0a;- Forwarding with intention: tasks move forward with context so nothing slips.&#x0a;- Integrated notes: thoughts and ideas live right next to your tasks.&#x0a;- A planning rhythm: review, prioritize, execute every day.&#x0a;&#x0a;The result: fewer forgotten commitments, clearer priorities, and a calmer mind."/>
                                           </VerticalStackLayout>
 
                                           <BoxView HeightRequest="1"
@@ -87,7 +97,7 @@
                                                         HorizontalTextAlignment="Center"/>
                                                  <Label Style="{DynamicResource Handwriting}"
                                                         LineBreakMode="WordWrap"
-                                                        Text="Tap a task, choose Forward, and pick a new date. Ben marks the original as Forwarded and creates a fresh copy on that date.&#x0a;&#x0a;Missed a few days? Use Catch-Up Mode. Open any past date and forward unfinished tasks in bulk or one by one. Nothing gets lost, even when life gets busy."/>
+                                                        Text="Tap a task, choose Forward, and pick a new date. Daymark marks the original as Forwarded and creates a fresh copy on that date.&#x0a;&#x0a;Missed a few days? Use Catch-Up Mode. Open any past date and forward unfinished tasks in bulk or one by one. Nothing gets lost, even when life gets busy."/>
                                           </VerticalStackLayout>
 
                                           <BoxView HeightRequest="1"
