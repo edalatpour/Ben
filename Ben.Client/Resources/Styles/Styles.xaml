@@ -6,7 +6,7 @@
         <Style x:Key="DateNumber"
                TargetType="Label">
                 <Setter Property="FontFamily"
-                        Value="Times New Roman"/>
+                        Value="{DynamicResource ThemeDateNumberFont}"/>
                 <Setter Property="FontSize"
                         Value="48"/>
                 <Setter Property="TextColor"
@@ -24,13 +24,13 @@
                 <Setter Property="VerticalTextAlignment"
                         Value="Center"/>
                 <Setter Property="TextColor"
-                        Value="Black"/>
+                        Value="{DynamicResource Ink}"/>
         </Style>
 
         <Style x:Key="DateText"
                TargetType="Label">
                 <Setter Property="FontFamily"
-                        Value="Times New Roman"/>
+                        Value="{DynamicResource ThemeDateDayFont}"/>
                 <Setter Property="FontSize"
                         Value="16"/>
                 <Setter Property="TextColor"
@@ -40,7 +40,7 @@
         <Style x:Key="SectionTitle"
                TargetType="Label">
                 <Setter Property="FontFamily"
-                        Value="Times New Roman"/>
+                        Value="{DynamicResource ThemeHeaderFont}"/>
                 <Setter Property="FontSize"
                         Value="16"/>
                 <Setter Property="FontAttributes"
@@ -113,6 +113,36 @@
                         </VisualStateGroupList>
                 </Setter>
         </Style> -->
+
+        <Style x:Key="DividerH"
+               TargetType="BoxView">
+                <Setter Property="BackgroundColor"
+                        Value="{DynamicResource DividerColor}"/>
+                <Setter Property="HeightRequest"
+                        Value="{DynamicResource DividerThickness}"/>
+                <Setter Property="HorizontalOptions"
+                        Value="Fill"/>
+        </Style>
+
+        <Style x:Key="DividerV"
+               TargetType="BoxView">
+                <Setter Property="BackgroundColor"
+                        Value="{DynamicResource GridLineColor}"/>
+                <Setter Property="WidthRequest"
+                        Value="{DynamicResource DividerThickness}"/>
+                <Setter Property="VerticalOptions"
+                        Value="Fill"/>
+        </Style>
+
+        <Style x:Key="ThemedCard"
+               TargetType="Border">
+                <Setter Property="BackgroundColor"
+                        Value="{DynamicResource CardBackgroundBrush}"/>
+                <Setter Property="Stroke"
+                        Value="{DynamicResource BorderColor}"/>
+                <Setter Property="StrokeThickness"
+                        Value="{DynamicResource BorderThickness}"/>
+        </Style>
 
         <Style TargetType="ContentPage">
                 <Setter Property="BackgroundColor"

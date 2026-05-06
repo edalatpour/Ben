@@ -21,7 +21,13 @@ public static class AppFontCatalog
         new() { FileName = "LovedByTheKing-Regular.ttf", Alias = "LovedByTheKing", DisplayName = "Loved By The King" },
         new() { FileName = "OpenSans-Regular.ttf", Alias = "OpenSans", DisplayName = "Open Sans" },
         new() { FileName = "PatrickHand-Regular.ttf", Alias = "PatrickHand", DisplayName = "Patrick Hand" },
-        new() { FileName = "Roboto-Regular.ttf", Alias = "Roboto", DisplayName = "Roboto" }
+        new() { FileName = "Roboto-Regular.ttf",           Alias = "Roboto",                  DisplayName = "Roboto" },
+        new() { FileName = "SourceSerifPro-SemiBold.ttf", Alias = "SourceSerifPro-SemiBold",  DisplayName = "Source Serif Pro SemiBold" },
+        new() { FileName = "NotoSerif-Regular.ttf",       Alias = "NotoSerif-Regular",        DisplayName = "Noto Serif" },
+        new() { FileName = "Inter-Regular.ttf",           Alias = "Inter-Regular",            DisplayName = "Inter" },
+        new() { FileName = "Lato-Regular.ttf",            Alias = "Lato-Regular",             DisplayName = "Lato" },
+        new() { FileName = "IBMPlexSans-Medium.ttf",      Alias = "IBMPlexSans-Medium",       DisplayName = "IBM Plex Sans Medium" },
+        new() { FileName = "Montserrat-SemiBold.ttf",     Alias = "Montserrat-SemiBold",      DisplayName = "Montserrat SemiBold" },
     };
 
     public static IReadOnlyList<AppFontOption> UserSelectableFonts => AllFonts;

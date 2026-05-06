@@ -65,3 +65,51 @@ public partial class Gray : ResourceDictionary
         InitializeComponent();
     }
 }
+
+public partial class Currituck : ResourceDictionary
+{
+    public Currituck()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Hatteras : ResourceDictionary
+{
+    public Hatteras()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Ocracoke : ResourceDictionary
+{
+    public Ocracoke()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class OakIsland : ResourceDictionary
+{
+    public OakIsland()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Bodie : ResourceDictionary
+{
+    public Bodie()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class CapeLookout : ResourceDictionary
+{
+    public CapeLookout()
+    {
+        InitializeComponent();
+    }
+}

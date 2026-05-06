@@ -17,4 +17,26 @@
 
     <Color x:Key="UserText">#000000</Color>
 
+    <Color x:Key="PageBackgroundBrush">#EDEDED</Color>
+    <Color x:Key="CardBackgroundBrush">#FFFFFF</Color>
+    <Color x:Key="InkBrush">#363636</Color>
+    <Color x:Key="SecondaryInkBrush">#9B9B9B</Color>
+    <Color x:Key="GlyphBrush">#363636</Color>
+    <Color x:Key="AccentBrush">#525252</Color>
+    <Color x:Key="SelectionBrush">#80525252</Color>
+    <Color x:Key="HighlightBrush">#33525252</Color>
+    <Color x:Key="HeaderBackgroundBrush">#363636</Color>
+    <Color x:Key="HeaderForegroundBrush">#FFFFFF</Color>
+    <Color x:Key="CheckboxStrokeBrush">#363636</Color>
+    <Color x:Key="CheckboxFillBrush">#525252</Color>
+    <Color x:Key="BorderColor">#C7C7C7</Color>
+    <Color x:Key="GridLineColor">#C7C7C7</Color>
+    <Color x:Key="DividerColor">#C7C7C7</Color>
+    <x:Double x:Key="BorderThickness">1</x:Double>
+    <x:Double x:Key="DividerThickness">1</x:Double>
+    <x:Double x:Key="CornerRadius">4</x:Double>
+    <x:String x:Key="ThemeHeaderFont">Times New Roman</x:String>
+    <x:String x:Key="ThemeDateNumberFont">Times New Roman</x:String>
+    <x:String x:Key="ThemeDateDayFont">Times New Roman</x:String>
+
 </ResourceDictionary>

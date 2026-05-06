@@ -13,7 +13,15 @@ public partial class SettingsPage : ContentPage
         "Line",
         "Accent",
         "Link",
-        "UserText"
+        "UserText",
+        "PageBackgroundBrush",
+        "CardBackgroundBrush",
+        "InkBrush",
+        "AccentBrush",
+        "HeaderBackgroundBrush",
+        "HeaderForegroundBrush",
+        "BorderColor",
+        "DividerColor",
     };
 
     private string _originalTheme = "Green";
@@ -24,14 +32,20 @@ public partial class SettingsPage : ContentPage
     private readonly DailyViewModel _dailyViewModel;
     private readonly List<ThemeOption> _availableThemes = new()
     {
-        new ThemeOption { Name = "Red", DisplayName = "Red" },
-        new ThemeOption { Name = "Orange", DisplayName = "Orange" },
-        new ThemeOption { Name = "Yellow", DisplayName = "Yellow" },
-        new ThemeOption { Name = "Green", DisplayName = "Green" },
-        new ThemeOption { Name = "Blue", DisplayName = "Blue" },
-        new ThemeOption { Name = "Purple", DisplayName = "Purple" },
-        new ThemeOption { Name = "Brown", DisplayName = "Brown" },
-        new ThemeOption { Name = "Gray", DisplayName = "Gray" },
+        new ThemeOption { Name = "Red",          DisplayName = "Red" },
+        new ThemeOption { Name = "Orange",       DisplayName = "Orange" },
+        new ThemeOption { Name = "Yellow",       DisplayName = "Yellow" },
+        new ThemeOption { Name = "Green",        DisplayName = "Green" },
+        new ThemeOption { Name = "Blue",         DisplayName = "Blue" },
+        new ThemeOption { Name = "Purple",       DisplayName = "Purple" },
+        new ThemeOption { Name = "Brown",        DisplayName = "Brown" },
+        new ThemeOption { Name = "Gray",         DisplayName = "Gray" },
+        new ThemeOption { Name = "Currituck",    DisplayName = "Currituck" },
+        new ThemeOption { Name = "Hatteras",     DisplayName = "Hatteras" },
+        new ThemeOption { Name = "Ocracoke",     DisplayName = "Ocracoke" },
+        new ThemeOption { Name = "OakIsland",    DisplayName = "Oak Island" },
+        new ThemeOption { Name = "Bodie",        DisplayName = "Bodie" },
+        new ThemeOption { Name = "CapeLookout",  DisplayName = "Cape Lookout" },
     };
 
     public List<ThemeOption> AvailableThemes => _availableThemes;

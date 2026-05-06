@@ -14,7 +14,13 @@ public class ThemeService
         "Blue",
         "Purple",
         "Brown",
-        "Gray"
+        "Gray",
+        "Currituck",
+        "Hatteras",
+        "Ocracoke",
+        "OakIsland",
+        "Bodie",
+        "CapeLookout",
     };
 
     private string _currentTheme;
@@ -122,6 +128,12 @@ public class ThemeService
             "Purple" => new Purple(),
             "Gray" => new Gray(),
             "Brown" => new Brown(),
+            "Currituck" => new Currituck(),
+            "Hatteras" => new Hatteras(),
+            "Ocracoke" => new Ocracoke(),
+            "OakIsland" => new OakIsland(),
+            "Bodie" => new Bodie(),
+            "CapeLookout" => new CapeLookout(),
             _ => new Green()
         };
     }

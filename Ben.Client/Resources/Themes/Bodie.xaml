@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Ben.Resources.Themes.Bodie">
+
+    <!-- Bodie Lighthouse — Sand / Black Bands -->
+
+    <Color x:Key="Paper">#F8F5EE</Color>
+    <Color x:Key="WritingPaper">#FFFFFF</Color>
+
+    <Color x:Key="Ink">#2B2B2B</Color>
+    <Color x:Key="Line">#DCD2B8</Color>
+
+    <Color x:Key="Accent">#D8CBA8</Color>
+    <Color x:Key="Link">#000000</Color>
+
+    <Color x:Key="UserText">#000000</Color>
+
+    <Color x:Key="PageBackgroundBrush">#F8F5EE</Color>
+    <Color x:Key="CardBackgroundBrush">#FFFFFF</Color>
+    <Color x:Key="InkBrush">#2B2B2B</Color>
+    <Color x:Key="SecondaryInkBrush">#7A7570</Color>
+    <Color x:Key="GlyphBrush">#000000</Color>
+    <Color x:Key="AccentBrush">#D8CBA8</Color>
+    <Color x:Key="SelectionBrush">#80D8CBA8</Color>
+    <Color x:Key="HighlightBrush">#33D8CBA8</Color>
+    <Color x:Key="HeaderBackgroundBrush">#000000</Color>
+    <Color x:Key="HeaderForegroundBrush">#FFFFFF</Color>
+    <Color x:Key="CheckboxStrokeBrush">#A8A8A8</Color>
+    <Color x:Key="CheckboxFillBrush">#000000</Color>
+    <Color x:Key="BorderColor">#A8A8A8</Color>
+    <Color x:Key="GridLineColor">#DCD2B8</Color>
+    <Color x:Key="DividerColor">#DCD2B8</Color>
+    <x:Double x:Key="BorderThickness">1</x:Double>
+    <x:Double x:Key="DividerThickness">1</x:Double>
+    <x:Double x:Key="CornerRadius">4</x:Double>
+    <x:String x:Key="ThemeHeaderFont">IBMPlexSans-Medium</x:String>
+    <x:String x:Key="ThemeDateNumberFont">IBMPlexSans-Medium</x:String>
+    <x:String x:Key="ThemeDateDayFont">OpenSans</x:String>
+
+</ResourceDictionary>
