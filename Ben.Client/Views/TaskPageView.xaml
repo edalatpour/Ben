@@ -119,7 +119,7 @@
                        HorizontalTextAlignment="Center"
                        VerticalTextAlignment="Center"/>
             </Border>
-            <Label Text="❖"
+            <Label Text="◆"
                    Grid.Column="1"
                    Style="{StaticResource SectionTitle}"
                    VerticalOptions="Center"

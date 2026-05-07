@@ -37,7 +37,7 @@
                         <Editor x:Name="NoteEditor"
                                 Grid.Row="0"
                                 Placeholder="Enter note text..."
-                                Style="{StaticResource Handwriting}"
+                                Style="{StaticResource HandwritingEditor}"
                                 FontSize="24"
                                 BackgroundColor="Transparent"
                                 AutoSize="TextChanges"

@@ -27,8 +27,8 @@ public partial class SettingsPage : ContentPage
         "ListCardCornerRadius",
     };
 
-    private string _originalTheme = "Green";
-    private string _selectedTheme = "Green";
+    private string _originalTheme = "Hatteras";
+    private string _selectedTheme = "Hatteras";
     private string _selectedUserFont = "PatrickHand";
     private readonly ThemeService _themeService;
     private readonly UserFontService _userFontService;
@@ -61,7 +61,7 @@ public partial class SettingsPage : ContentPage
 
         // Set the picker to the current theme
         var currentIndex = _availableThemes.FindIndex(t => t.Name == _originalTheme);
-        ThemeColorPicker.SelectedIndex = currentIndex >= 0 ? currentIndex : 3; // Default to Green
+        ThemeColorPicker.SelectedIndex = currentIndex >= 0 ? currentIndex : 3; // Default to Hatteras
 
         // Set the font picker to the current selected user font.
         _selectedUserFont = _userFontService.CurrentUserFont;

@@ -31,8 +31,8 @@
 		<ApplicationId>com.edalatpour.ben</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0.4</ApplicationDisplayVersion>
-		<ApplicationVersion>4</ApplicationVersion>
+		<ApplicationDisplayVersion>1.0.5</ApplicationDisplayVersion>
+		<ApplicationVersion>5</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>MSIX</WindowsPackageType>
@@ -124,12 +124,12 @@
 	<ItemGroup>
 		<!-- App Icon -->
 		<!-- <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" /> -->
-		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="Navy" Resize="True" BaseSize="1024,1024" />
+		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="#0A1A2F" />
 
 		<!-- Splash Screen -->
 		<!-- <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" /> -->
 		<!-- <MauiSplashScreen Include="Resources\AppIcon\b.png" Color="#1F4E4B" /> -->
-		<MauiSplashScreen Include="Resources\Splash\hatteras_splash_ios.png" Color="Navy" BaseSize="384,384" />
+		<MauiSplashScreen Include="Resources\Splash\hatteras_splash_ios.png" Color="#0A1A2F" BaseSize="512,512" />
 		
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />

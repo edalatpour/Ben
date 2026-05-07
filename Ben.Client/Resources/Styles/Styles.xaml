@@ -27,6 +27,32 @@
                         Value="{DynamicResource Ink}"/>
         </Style>
 
+        <Style x:Key="HandwritingEntry"
+               TargetType="Entry">
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource UserHandwritingFont}"/>
+                <Setter Property="FontSize"
+                        Value="17"/>
+                <Setter Property="FontAutoScalingEnabled"
+                        Value="False"/>
+                <Setter Property="VerticalTextAlignment"
+                        Value="Center"/>
+                <Setter Property="TextColor"
+                        Value="{DynamicResource Ink}"/>
+        </Style>
+
+        <Style x:Key="HandwritingEditor"
+               TargetType="Editor">
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource UserHandwritingFont}"/>
+                <Setter Property="FontSize"
+                        Value="17"/>
+                <Setter Property="FontAutoScalingEnabled"
+                        Value="False"/>
+                <Setter Property="TextColor"
+                        Value="{DynamicResource Ink}"/>
+        </Style>
+
         <Style x:Key="DateText"
                TargetType="Label">
                 <Setter Property="FontFamily"

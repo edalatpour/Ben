@@ -34,7 +34,7 @@ public class ThemeService
     public ThemeService(IThemeIdentityService themeIdentityService)
     {
         _themeIdentityService = themeIdentityService;
-        _currentTheme = Preferences.Get("SelectedTheme", "Green");
+        _currentTheme = Preferences.Get("SelectedTheme", "Hatteras");
         System.Diagnostics.Debug.WriteLine($"ThemeService initialized with theme: {_currentTheme}");
     }
 
@@ -135,7 +135,7 @@ public class ThemeService
 
     private static string NormalizeThemeName(string themeName)
     {
-        return ThemeNames.Contains(themeName) ? themeName : "Green";
+        return ThemeNames.Contains(themeName) ? themeName : "Hatteras";
     }
 
     private static ResourceDictionary CreateThemeDictionary(string themeName)
@@ -156,7 +156,7 @@ public class ThemeService
             "OakIsland" => new OakIsland(),
             "Bodie" => new Bodie(),
             "CapeLookout" => new CapeLookout(),
-            _ => new Green()
+            _ => new Hatteras()
         };
     }
 
