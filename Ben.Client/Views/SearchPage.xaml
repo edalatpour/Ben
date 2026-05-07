@@ -28,8 +28,7 @@
                        Placeholder="Enter text to find in notes"
                        ReturnType="Search"
                        Completed="OnSearchSubmitted"
-                       FontFamily="{DynamicResource UserHandwritingFont}"
-                       FontSize="24"
+                       Style="{StaticResource HandwritingEntry}"
                        TextColor="{DynamicResource UserText}"
                        BackgroundColor="Transparent"/>
             </Grid>
