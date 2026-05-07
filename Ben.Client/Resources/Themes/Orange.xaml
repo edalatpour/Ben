@@ -39,5 +39,7 @@
     <x:String x:Key="ThemeHeaderFont">Times New Roman</x:String>
     <x:String x:Key="ThemeDateNumberFont">Times New Roman</x:String>
     <x:String x:Key="ThemeDateDayFont">Times New Roman</x:String>
+    <x:String x:Key="RootGridBackground"></x:String>
+    <x:String x:Key="RootGridBackgroundAspect">Tile</x:String>
 
 </ResourceDictionary>

@@ -55,5 +55,7 @@
     <x:String x:Key="ThemeHeaderFont">IBMPlexSans-Medium</x:String>
     <x:String x:Key="ThemeDateNumberFont">IBMPlexSans-Medium</x:String>
     <x:String x:Key="ThemeDateDayFont">OpenSans</x:String>
+    <x:String x:Key="RootGridBackground">bodie.png</x:String>
+    <x:String x:Key="RootGridBackgroundAspect">Tile</x:String>
 
 </ResourceDictionary>

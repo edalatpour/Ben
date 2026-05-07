@@ -55,5 +55,6 @@
     <x:String x:Key="ThemeHeaderFont">Inter-Regular</x:String>
     <x:String x:Key="ThemeDateNumberFont">Inter-Regular</x:String>
     <x:String x:Key="ThemeDateDayFont">Lato-Regular</x:String>
-
+    <x:String x:Key="RootGridBackground">ocracoke.png</x:String>
+    <x:String x:Key="RootGridBackgroundAspect">Tile</x:String>
 </ResourceDictionary>

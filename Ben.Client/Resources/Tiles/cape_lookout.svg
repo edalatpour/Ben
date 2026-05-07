@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
+  <!-- White Background -->
+  <rect width="1024" height="1024" fill="#FFFFFF"/>
+
+  <!-- black traiangles to make a diamond pattern: 45°, equal width -->
+  <polygon points="0,0 512,0 256,512 0,0" fill="#000000"/>
+  <polygon points="512,0 1024,0 768,512 512,0" fill="#000000"/>
+  <polygon points="0,1024 256,512 512,1024 0,1024" fill="#000000"/>
+  <polygon points="512,1024 768,512 1024,1024 512,1024" fill="#000000"/>
+</svg>

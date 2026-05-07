@@ -38,6 +38,7 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
             <converters:LinkColorConverter x:Key="LinkColorConverter"/>
             <converters:LinkDecorationConverter x:Key="LinkDecorationConverter"/>
+            <converters:RootGridAspectConverter x:Key="RootGridAspectConverter"/>
             <x:String x:Key="UserHandwritingFont">Inter-Regular</x:String>
         </ResourceDictionary>
     </Application.Resources>
