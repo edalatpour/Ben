@@ -3,5 +3,6 @@
   <rect width="1024" height="1024" fill="#000000"/>
 
   <!-- Diagonal white stripes: 45°, equal width -->
-  <polygon points="0,0 1024,0 1024,512 0,512 0,0" fill="#FFFFFF"/>
+  <polygon points="0,0 1024,0 1024,256 0,256 0,0" fill="#FFFFFF"/>
+  <polygon points="0,512 1024,512 1024,768 0,768 0,512" fill="#FFFFFF"/>
 </svg>

@@ -38,7 +38,7 @@
 		{
 			"label": "run-ios-release",
 			"type": "shell",
-			"command": "set -e && dotnet build -p:Configuration=Release -f net10.0-ios -r ios-arm64 -p:CodesignKey=\"Apple Development: Tim Edalatpour (HX989MV2KU)\" -p:CodesignProvision=\"Ben Development\" ./Ben.Client/Ben.Client.csproj && xcrun devicectl device install app --device 165857C8-81A2-5628-8D8F-CD6A5B75B10F ./Ben.Client/bin/Release/net10.0-ios/ios-arm64/Ben.Client.app && xcrun devicectl device process launch --console --terminate-existing --device 165857C8-81A2-5628-8D8F-CD6A5B75B10F com.edalatpour.ben",
+			"command": "set -e && find ./Ben.Client/obj -path \"*/resizetizer/r/Assets.xcassets/appicon.appiconset\" -type d -prune -exec rm -rf {} + && find ./Ben.Client/obj -path \"*/actool/cloned-assets/Assets.xcassets/appicon.appiconset\" -type d -prune -exec rm -rf {} + && dotnet build -p:Configuration=Release -f net10.0-ios -r ios-arm64 -p:CodesignKey=\"Apple Development: Tim Edalatpour (HX989MV2KU)\" -p:CodesignProvision=\"Ben Development\" ./Ben.Client/Ben.Client.csproj && xcrun devicectl device install app --device 165857C8-81A2-5628-8D8F-CD6A5B75B10F ./Ben.Client/bin/Release/net10.0-ios/ios-arm64/Ben.Client.app && xcrun devicectl device process launch --console --terminate-existing --device 165857C8-81A2-5628-8D8F-CD6A5B75B10F com.edalatpour.ben",
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build",
@@ -50,7 +50,7 @@
 		{
 			"label": "clean-and-run-ios-release",
 			"type": "shell",
-			"command": "set -e && rm -rf ./Ben.Client/bin/Release ./Ben.Client/obj/Release && dotnet build -p:Configuration=Release -f net10.0-ios -r ios-arm64 -p:CodesignKey=\"Apple Development: Tim Edalatpour (HX989MV2KU)\" -p:CodesignProvision=\"Ben Development\" ./Ben.Client/Ben.Client.csproj && xcrun devicectl device install app --device 165857C8-81A2-5628-8D8F-CD6A5B75B10F ./Ben.Client/bin/Release/net10.0-ios/ios-arm64/Ben.Client.app && xcrun devicectl device process launch --console --terminate-existing --device 165857C8-81A2-5628-8D8F-CD6A5B75B10F com.edalatpour.ben",
+			"command": "set -e && rm -rf ./Ben.Client/bin/Release ./Ben.Client/obj/Release && find ./Ben.Client/obj -path \"*/resizetizer/r/Assets.xcassets/appicon.appiconset\" -type d -prune -exec rm -rf {} + && find ./Ben.Client/obj -path \"*/actool/cloned-assets/Assets.xcassets/appicon.appiconset\" -type d -prune -exec rm -rf {} + && dotnet build -p:Configuration=Release -f net10.0-ios -r ios-arm64 -p:CodesignKey=\"Apple Development: Tim Edalatpour (HX989MV2KU)\" -p:CodesignProvision=\"Ben Development\" ./Ben.Client/Ben.Client.csproj && xcrun devicectl device install app --device 165857C8-81A2-5628-8D8F-CD6A5B75B10F ./Ben.Client/bin/Release/net10.0-ios/ios-arm64/Ben.Client.app && xcrun devicectl device process launch --console --terminate-existing --device 165857C8-81A2-5628-8D8F-CD6A5B75B10F com.edalatpour.ben",
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build",
