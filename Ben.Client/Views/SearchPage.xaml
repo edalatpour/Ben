@@ -5,12 +5,13 @@
              x:Name="RootPage"
              x:Class="Ben.Views.SearchPage"
              x:DataType="views:SearchPage"
+             SafeAreaEdges="All"
              Title="Search Notes">
 
     <Grid Style="{DynamicResource PaperRootGrid}">
         <Grid Padding="{DynamicResource SpacingLg}"
               HorizontalOptions="Fill"
-              RowDefinitions="Auto,*,Auto"
+              RowDefinitions="Auto,Auto,*,Auto"
               RowSpacing="{DynamicResource SpacingMd}">
 
             <Label Grid.Row="0"
@@ -18,7 +19,22 @@
                    Style="{DynamicResource SectionTitle}"
                    HorizontalTextAlignment="Center"/>
 
-            <Border Grid.Row="1"
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="*"
+                  ColumnSpacing="12">
+                <Entry x:Name="SearchEntry"
+                       Grid.Column="0"
+                       Text="{Binding SearchText, Mode=TwoWay}"
+                       Placeholder="Enter text to find in notes"
+                       ReturnType="Search"
+                       Completed="OnSearchSubmitted"
+                       FontFamily="{DynamicResource UserHandwritingFont}"
+                       FontSize="24"
+                       TextColor="{DynamicResource UserText}"
+                       BackgroundColor="Transparent"/>
+            </Grid>
+
+            <Border Grid.Row="2"
                     Style="{DynamicResource ThemedCard}"
                     StrokeThickness="{DynamicResource DividerThickness}">
                 <Border.StrokeShape>
@@ -26,6 +42,7 @@
                 </Border.StrokeShape>
                 <Grid BackgroundColor="{DynamicResource WritingPaper}">
                     <ScrollView Margin="0"
+                                SafeAreaEdges="SoftInput"
                                 BackgroundColor="Transparent">
                         <VerticalStackLayout Spacing="0"
                                              BindableLayout.ItemsSource="{Binding SearchResults}">
@@ -60,26 +77,11 @@
                 </Grid>
             </Border>
 
-            <Grid Grid.Row="2"
-                  RowDefinitions="Auto,Auto"
+            <Grid Grid.Row="3"
+                  RowDefinitions="Auto"
                   RowSpacing="0"
                   Margin="{DynamicResource FooterTopMargin}">
                 <Grid Grid.Row="0"
-                      ColumnDefinitions="*"
-                      ColumnSpacing="12">
-                    <Entry x:Name="SearchEntry"
-                           Grid.Column="0"
-                           Text="{Binding SearchText, Mode=TwoWay}"
-                           Placeholder="Enter text to find in notes"
-                           ReturnType="Search"
-                           Completed="OnSearchSubmitted"
-                           FontFamily="{DynamicResource UserHandwritingFont}"
-                           FontSize="24"
-                           TextColor="{DynamicResource UserText}"
-                           BackgroundColor="Transparent"/>
-                </Grid>
-
-                <Grid Grid.Row="1"
                       ColumnDefinitions="*"
                       ColumnSpacing="{DynamicResource SpacingMd}">
                     <Button Grid.Column="0"

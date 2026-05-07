@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:Ben.Views"
+             xmlns:views="clr-namespace:Ben.Views;assembly=Ben.Client"
              xmlns:viewModels="clr-namespace:Ben.ViewModels"
              xmlns:models="clr-namespace:Ben.Models"
              x:Class="Ben.Views.TaskPageView"
@@ -152,7 +152,7 @@
                           ItemsSource="{Binding CurrentDay.Tasks}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:TaskItem">
-                            <ViewCell>
+                            <views:AutoSizingViewCell>
                                 <ContentView BackgroundColor="{DynamicResource WritingPaper}">
                                     <Grid ColumnDefinitions="32,38,*"
                                           RowDefinitions="Auto,1"
@@ -171,7 +171,7 @@
                                                FontSize="20"
                                                HeightRequest="24"
                                                WidthRequest="24"
-                                               Margin="{OnPlatform iOS='0,-3,0,3', Default='0,-3,0,3'}"
+                                               Margin="{OnPlatform iOS='0,0,0,3', Default='0,0,0,3'}"
                                                HorizontalOptions="Center"
                                                HorizontalTextAlignment="Center"
                                                VerticalOptions="Start"
@@ -180,7 +180,7 @@
                                                FontAttributes="Bold"/>
 
                                         <Label Grid.Column="1"
-                                               Margin="{OnPlatform iOS='-5,0,-5,3', Default='-5,0,-5,3'}"
+                                               Margin="{OnPlatform iOS='-5,2,-5,3', Default='-5,2,-5,3'}"
                                                Padding="0"
                                                Text="{Binding PriorityOrder}"
                                                LineBreakMode="NoWrap"
@@ -191,7 +191,7 @@
                                                TextColor="{DynamicResource Ink}"/>
 
                                         <Label Grid.Column="2"
-                                               Margin="{OnPlatform iOS='0,0,0,3', Default='0,0,0,3'}"
+                                               Margin="{OnPlatform iOS='0,2,0,3', Default='0,2,0,3'}"
                                                Padding="0"
                                                LineBreakMode="WordWrap"
                                                HorizontalTextAlignment="Start"
@@ -214,7 +214,7 @@
                                                  VerticalOptions="End"/>
                                     </Grid>
                                 </ContentView>
-                            </ViewCell>
+                            </views:AutoSizingViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>

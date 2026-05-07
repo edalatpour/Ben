@@ -6,10 +6,10 @@
 
     <Grid Style="{DynamicResource PaperRootGrid}">
 
-        <Grid Padding="16"
+        <Grid Padding="{DynamicResource SpacingLg}"
               HorizontalOptions="Fill"
               RowDefinitions="Auto,*,Auto"
-              RowSpacing="12">
+              RowSpacing="{DynamicResource SpacingMd}">
 
             <!-- Header -->
             <Label Grid.Row="0"
@@ -18,31 +18,18 @@
                    HorizontalTextAlignment="Center"/>
 
             <!-- Form -->
-            <Grid Grid.Row="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="1"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <Border Grid.Row="1"
+                    Style="{DynamicResource ThemedCard}"
+                    StrokeThickness="{DynamicResource DividerThickness}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{DynamicResource ListCardCornerRadius}"/>
+                </Border.StrokeShape>
 
-                <BoxView Grid.ColumnSpan="2"
-                         HeightRequest="3"
-                         BackgroundColor="{DynamicResource Ink}"/>
-                <BoxView Grid.RowSpan="3"
-                         WidthRequest="1"
-                         BackgroundColor="{DynamicResource Ink}"/>
-
-                <ScrollView Grid.Row="1"
-                            Grid.Column="1"
-                            HorizontalOptions="Fill"
+                <ScrollView HorizontalOptions="Fill"
                             VerticalOptions="Fill">
 
                     <Grid BackgroundColor="{DynamicResource WritingPaper}"
-                          Padding="16"
+                          Padding="{DynamicResource SpacingLg}"
                           RowDefinitions="*,Auto"
                           RowSpacing="8">
 
@@ -59,19 +46,13 @@
                     </Grid>
 
                 </ScrollView>
-
-                <BoxView Grid.Row="2"
-                         Grid.ColumnSpan="2"
-                         HeightRequest="1"
-                         BackgroundColor="{DynamicResource Ink}"/>
-
-            </Grid>
+            </Border>
 
             <!-- Action buttons -->
             <Grid Grid.Row="2"
                   ColumnDefinitions="*,*"
                   ColumnSpacing="12"
-                  Margin="0,16,0,0">
+                  Margin="0,{DynamicResource SpacingMd},0,0">
 
                 <Button Grid.Column="0"
                         Text="Cancel"

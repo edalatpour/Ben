@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:Ben.Views"
+             xmlns:views="clr-namespace:Ben.Views;assembly=Ben.Client"
              xmlns:viewModels="clr-namespace:Ben.ViewModels"
              xmlns:models="clr-namespace:Ben.Models"
              x:Class="Ben.Views.NotesPageView"
@@ -161,7 +161,7 @@
                           ItemsSource="{Binding CurrentDay.Notes}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:NoteItem">
-                            <ViewCell>
+                            <views:AutoSizingViewCell>
                                 <ContentView BackgroundColor="{DynamicResource WritingPaper}">
                                     <Grid ColumnDefinitions="28,*"
                                           RowDefinitions="Auto,1"
@@ -174,14 +174,13 @@
                                         </Grid.GestureRecognizers>
                                         <Label Grid.Column="0"
                                                Text="{Binding Order}"
-                                               HorizontalTextAlignment="End"
+                                               Margin="{OnPlatform iOS='0,2,0,3', Default='0,2,0,3'}"
+                                               HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Start"
-                                               FontFamily="{DynamicResource ThemeDateDayFont}"
-                                               FontSize="13"
-                                               TextColor="{DynamicResource SecondaryInkBrush}"/>
+                                               Style="{StaticResource Handwriting}"/>
                                         <Label Grid.Column="1"
                                                Text="{Binding Text}"
-                                               Margin="{OnPlatform iOS='0,0,0,3', Default='0,0,0,3'}"
+                                               Margin="{OnPlatform iOS='0,2,0,3', Default='0,2,0,3'}"
                                                LineBreakMode="WordWrap"
                                                HorizontalTextAlignment="Start"
                                                VerticalTextAlignment="Start"
@@ -192,7 +191,7 @@
                                                  VerticalOptions="End"/>
                                     </Grid>
                                 </ContentView>
-                            </ViewCell>
+                            </views:AutoSizingViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
