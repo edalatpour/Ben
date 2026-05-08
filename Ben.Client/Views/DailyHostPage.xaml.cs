@@ -8,12 +8,18 @@ public partial class DailyHostPage : ContentPage
 {
     const double LandscapeSeamBaseOpacity = 0.2;
     const double LandscapeSeamPeakOpacity = 0.38;
+    const double OrientationHysteresisRatio = 0.08;
 
     private readonly DailyViewModel _viewModel;
-    readonly TaskPageView _tasksView;
-    readonly NotesPageView _notesView;
+    readonly TaskPageView _portraitTasksView;
+    readonly NotesPageView _portraitNotesView;
+    readonly TaskPageView _landscapeTasksView;
+    readonly NotesPageView _landscapeNotesView;
+    readonly IDispatcherTimer _resizeLayoutTimer;
     bool _isNavigating;
     bool _isLandscape;
+    bool? _pendingOrientation;
+    bool _hasMeasuredSize;
 
     public DailyHostPage(DailyViewModel vm)
     {
@@ -21,8 +27,14 @@ public partial class DailyHostPage : ContentPage
         DesktopNavigationButtons.IsVisible = ShowDesktopArrows;
         _viewModel = vm;
         BindingContext = vm;
-        _tasksView = new TaskPageView(_viewModel);
-        _notesView = new NotesPageView(_viewModel);
+        _portraitTasksView = new TaskPageView(_viewModel);
+        _portraitNotesView = new NotesPageView(_viewModel);
+        _landscapeTasksView = new TaskPageView(_viewModel);
+        _landscapeNotesView = new NotesPageView(_viewModel);
+        _resizeLayoutTimer = Dispatcher.CreateTimer();
+        _resizeLayoutTimer.Interval = TimeSpan.FromMilliseconds(120);
+        _resizeLayoutTimer.IsRepeating = false;
+        _resizeLayoutTimer.Tick += OnResizeLayoutTimerTick;
         ApplyLayout();
     }
 
@@ -34,25 +46,73 @@ public partial class DailyHostPage : ContentPage
     {
         base.OnSizeAllocated(width, height);
 
-        bool isLandscape = width > height;
-        if (_isLandscape == isLandscape)
+        if (width <= 0 || height <= 0)
         {
             return;
         }
 
-        _isLandscape = isLandscape;
+        bool nextOrientation = DetermineOrientation(width, height);
+        if (_isLandscape == nextOrientation)
+        {
+            _pendingOrientation = null;
+            return;
+        }
+
+        _pendingOrientation = nextOrientation;
+        _resizeLayoutTimer.Stop();
+        _resizeLayoutTimer.Start();
+    }
+
+    void OnResizeLayoutTimerTick(object? sender, EventArgs e)
+    {
+        _resizeLayoutTimer.Stop();
+
+        if (!_pendingOrientation.HasValue)
+        {
+            return;
+        }
+
+        bool nextOrientation = _pendingOrientation.Value;
+        _pendingOrientation = null;
+
+        if (_isLandscape == nextOrientation)
+        {
+            return;
+        }
+
+        _isLandscape = nextOrientation;
         ApplyLayout();
+    }
+
+    bool DetermineOrientation(double width, double height)
+    {
+        double ratio = width / height;
+
+        if (!_hasMeasuredSize)
+        {
+            _hasMeasuredSize = true;
+            return ratio >= 1;
+        }
+
+        if (_isLandscape)
+        {
+            return ratio > 1 - OrientationHysteresisRatio;
+        }
+
+        return ratio > 1 + OrientationHysteresisRatio;
     }
 
     void UpdatePortraitPage()
     {
+        SetActivePortraitSubpageBinding();
+
         if (ViewModel.SubPage == 0)
         {
-            AttachView(SinglePageHost, _tasksView);
+            AttachView(SinglePageHost, _portraitTasksView);
         }
         else
         {
-            AttachView(SinglePageHost, _notesView);
+            AttachView(SinglePageHost, _portraitNotesView);
         }
     }
 
@@ -64,15 +124,55 @@ public partial class DailyHostPage : ContentPage
 
         if (_isLandscape)
         {
-            SinglePageHost.Content = null;
-            AttachView(LandscapeTasksHost, _tasksView);
-            AttachView(LandscapeNotesHost, _notesView);
+            SetActiveLayoutBindings(isLandscape: true);
+            AttachView(LandscapeTasksHost, _landscapeTasksView);
+            AttachView(LandscapeNotesHost, _landscapeNotesView);
             return;
         }
 
-        LandscapeTasksHost.Content = null;
-        LandscapeNotesHost.Content = null;
+        SetActiveLayoutBindings(isLandscape: false);
         UpdatePortraitPage();
+    }
+
+    void SetActiveLayoutBindings(bool isLandscape)
+    {
+        object? activeContext = _viewModel;
+
+        SetBindingContext(_landscapeTasksView, isLandscape ? activeContext : null);
+        SetBindingContext(_landscapeNotesView, isLandscape ? activeContext : null);
+
+        if (isLandscape)
+        {
+            SetBindingContext(_portraitTasksView, null);
+            SetBindingContext(_portraitNotesView, null);
+            return;
+        }
+
+        SetActivePortraitSubpageBinding();
+    }
+
+    void SetActivePortraitSubpageBinding()
+    {
+        object? activeContext = _viewModel;
+        if (ViewModel.SubPage == 0)
+        {
+            SetBindingContext(_portraitTasksView, activeContext);
+            SetBindingContext(_portraitNotesView, null);
+            return;
+        }
+
+        SetBindingContext(_portraitTasksView, null);
+        SetBindingContext(_portraitNotesView, activeContext);
+    }
+
+    static void SetBindingContext(BindableObject view, object? bindingContext)
+    {
+        if (ReferenceEquals(view.BindingContext, bindingContext))
+        {
+            return;
+        }
+
+        view.BindingContext = bindingContext;
     }
 
     static void AttachView(ContentView host, View view)
