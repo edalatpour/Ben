@@ -128,13 +128,14 @@
 	<ItemGroup>
 		<!-- App Icon -->
 		<!-- <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" /> -->
+		<MauiIcon Remove="Resources\AppIcon\**\*" />
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#1A6B8A" />
 
 		<!-- Splash Screen -->
 		<!-- <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" /> -->
 		<!-- <MauiSplashScreen Include="Resources\AppIcon\b.png" Color="#1F4E4B" /> -->
       	<!-- <MauiSplashScreen Include="Resources\Splash\hatteras_splash_ios.png" Color="#E5DCC5" BaseSize="512,512" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'" /> -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1A6B8A" BaseSize="384,384" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1A6B8A" BaseSize="512,512" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -148,6 +149,14 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 		<MauiAsset Include="Resources\Quotes\*.csv" LogicalName="Quotes/%(Filename)%(Extension)" />
 	</ItemGroup>
+
+	<Target Name="CleanStaleIosAppIconAssets" BeforeTargets="Build" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+		<ItemGroup>
+			<_StaleAppIconDirs Include="$(BaseIntermediateOutputPath)**/resizetizer/r/Assets.xcassets/appicon.appiconset" />
+			<_StaleAppIconDirs Include="$(BaseIntermediateOutputPath)**/actool/cloned-assets/Assets.xcassets/appicon.appiconset" />
+		</ItemGroup>
+		<RemoveDir Directories="@(_StaleAppIconDirs)" />
+	</Target>
 
 	<ItemGroup>
     <PackageReference Include="CommunityToolkit.Datasync.Client" Version="9.0.2" />
