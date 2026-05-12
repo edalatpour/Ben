@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Ben.Data;
 using Ben.Models;
@@ -11,13 +12,15 @@ public class PlannerRepository
     private readonly PlannerDbContext _db;
     private readonly DatasyncSyncService _syncService;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly SqliteWriteCoordinator _sqliteWriteCoordinator;
     private readonly SemaphoreSlim _dbContextLock = new(1, 1);
 
-    public PlannerRepository(PlannerDbContext db, DatasyncSyncService syncService, IServiceScopeFactory scopeFactory)
+    public PlannerRepository(PlannerDbContext db, DatasyncSyncService syncService, IServiceScopeFactory scopeFactory, SqliteWriteCoordinator sqliteWriteCoordinator)
     {
         _db = db;
         _syncService = syncService;
         _scopeFactory = scopeFactory;
+        _sqliteWriteCoordinator = sqliteWriteCoordinator;
     }
 
     public Task<DailyData> LoadDayAsync(DateTime key)
@@ -139,7 +142,7 @@ public class PlannerRepository
 
     public async Task AddTaskAsync(TaskItem task, bool triggerSync = true)
     {
-        await _dbContextLock.WaitAsync();
+        await WaitForWriteAccessAsync();
         try
         {
             _db.Tasks.Add(task);
@@ -147,7 +150,7 @@ public class PlannerRepository
         }
         finally
         {
-            _dbContextLock.Release();
+            ReleaseWriteAccess();
         }
 
         if (triggerSync)
@@ -271,15 +274,33 @@ public class PlannerRepository
 
     public async Task AddProjectAsync(ProjectItem project)
     {
-        _db.Projects.Add(project);
-        await _db.SaveChangesAsync();
+        await WaitForWriteAccessAsync();
+        try
+        {
+            _db.Projects.Add(project);
+            await _db.SaveChangesAsync();
+        }
+        finally
+        {
+            ReleaseWriteAccess();
+        }
+
         TriggerSync();
     }
 
     public async Task UpdateProjectAsync(ProjectItem project)
     {
-        _db.Projects.Update(project);
-        await _db.SaveChangesAsync();
+        await WaitForWriteAccessAsync();
+        try
+        {
+            _db.Projects.Update(project);
+            await _db.SaveChangesAsync();
+        }
+        finally
+        {
+            ReleaseWriteAccess();
+        }
+
         TriggerSync();
     }
 
@@ -329,7 +350,7 @@ public class PlannerRepository
 
     public async Task UpdateTaskAsync(TaskItem task, bool triggerSync = true)
     {
-        await _dbContextLock.WaitAsync();
+        await WaitForWriteAccessAsync();
         try
         {
             await using var transaction = await _db.Database.BeginTransactionAsync();
@@ -351,7 +372,7 @@ public class PlannerRepository
         }
         finally
         {
-            _dbContextLock.Release();
+            ReleaseWriteAccess();
         }
 
 
@@ -361,7 +382,7 @@ public class PlannerRepository
         }
     }
 
-    public async Task UpdateTasksAsync(IEnumerable<TaskItem> tasks, bool triggerSync = true)
+    public async Task UpdateTasksAsync(IEnumerable<TaskItem> tasks, bool triggerSync = true, string? saveTraceId = null)
     {
         List<TaskItem> uniqueTasks = tasks
             .Where(task => task != null)
@@ -369,27 +390,81 @@ public class PlannerRepository
             .Select(group => group.First())
             .ToList();
 
+        bool shouldLog = !string.IsNullOrWhiteSpace(saveTraceId);
+        string traceId = shouldLog ? saveTraceId! : "no-trace";
+        Stopwatch totalStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+
         if (uniqueTasks.Count == 0)
         {
+            if (shouldLog)
+            {
+                Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.skipped {totalStopwatch.ElapsedMilliseconds}ms reason=no-changes");
+            }
             return;
         }
 
+        Stopwatch lockWaitStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
         await _dbContextLock.WaitAsync();
+        if (shouldLog)
+        {
+            Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.lock-wait {lockWaitStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count}");
+        }
+
+        Stopwatch writeGateWaitStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+        await _sqliteWriteCoordinator.WaitAsync();
+        if (shouldLog)
+        {
+            Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.sqlite-write-gate-wait {writeGateWaitStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count}");
+        }
+
         try
         {
             await using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
                 // Preserve forward semantics for all updated parents, then persist once.
+                Stopwatch cleanupStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
                 foreach (TaskItem task in uniqueTasks)
                 {
                     await DeleteChildTasksInternalAsync(task.Id);
                 }
+                if (shouldLog)
+                {
+                    Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.cleanup-children {cleanupStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count}");
+                }
 
+                Stopwatch saveStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+                Stopwatch updateRangeStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
                 _db.Tasks.UpdateRange(uniqueTasks);
-                await _db.SaveChangesAsync();
+                if (shouldLog)
+                {
+                    Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.save-changes.prepare {updateRangeStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count} trackedEntries={_db.ChangeTracker.Entries().Count()}");
+                }
 
+                Stopwatch saveDbCallStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+                await _db.SaveChangesAsync(acceptAllChangesOnSuccess: false);
+                if (shouldLog)
+                {
+                    Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.save-changes.db-call {saveDbCallStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count}");
+                }
+
+                Stopwatch acceptAllStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+                _db.ChangeTracker.AcceptAllChanges();
+                if (shouldLog)
+                {
+                    Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.save-changes.accept-all {acceptAllStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count}");
+                }
+                if (shouldLog)
+                {
+                    Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.save-changes {saveStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count}");
+                }
+
+                Stopwatch commitStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
                 await transaction.CommitAsync();
+                if (shouldLog)
+                {
+                    Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.commit {commitStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count}");
+                }
             }
             catch
             {
@@ -399,7 +474,13 @@ public class PlannerRepository
         }
         finally
         {
+            _sqliteWriteCoordinator.Release();
             _dbContextLock.Release();
+        }
+
+        if (shouldLog)
+        {
+            Console.WriteLine($"TaskSaveTiming[{traceId}] repo.update-tasks.total {totalStopwatch.ElapsedMilliseconds}ms changedTasks={uniqueTasks.Count}");
         }
 
 
@@ -422,7 +503,7 @@ public class PlannerRepository
             return;
         }
 
-        await _dbContextLock.WaitAsync();
+        await WaitForWriteAccessAsync();
         try
         {
             await using var transaction = await _db.Database.BeginTransactionAsync();
@@ -452,7 +533,7 @@ public class PlannerRepository
         }
         finally
         {
-            _dbContextLock.Release();
+            ReleaseWriteAccess();
         }
 
 
@@ -594,36 +675,44 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
             return (0, 0);
         }
 
-        await using var transaction = await _db.Database.BeginTransactionAsync();
-
+        await WaitForWriteAccessAsync();
         try
         {
-            int forwardedCount = 0;
+            await using var transaction = await _db.Database.BeginTransactionAsync();
 
-            foreach (TaskItem task in sourceTasks)
+            try
             {
-                if (TryQueueForwardTask(task, destinationDateKey, out _))
+                int forwardedCount = 0;
+
+                foreach (TaskItem task in sourceTasks)
                 {
-                    forwardedCount++;
+                    if (TryQueueForwardTask(task, destinationDateKey, out _))
+                    {
+                        forwardedCount++;
+                    }
                 }
+
+                await _db.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                Console.WriteLine($"CatchUp execute: saved {sourceTasks.Count} source update(s) and {forwardedCount} forwarded task insert(s) for destination {destinationDateKey}.");
+                return (sourceTasks.Count, forwardedCount);
             }
-
-            await _db.SaveChangesAsync();
-
-            await transaction.CommitAsync();
-            Console.WriteLine($"CatchUp execute: saved {sourceTasks.Count} source update(s) and {forwardedCount} forwarded task insert(s) for destination {destinationDateKey}.");
-            return (sourceTasks.Count, forwardedCount);
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
-        catch
+        finally
         {
-            await transaction.RollbackAsync();
-            throw;
+            ReleaseWriteAccess();
         }
     }
 
     public async Task DeleteTaskAsync(TaskItem task)
     {
-        await _dbContextLock.WaitAsync();
+        await WaitForWriteAccessAsync();
         try
         {
             await using var transaction = await _db.Database.BeginTransactionAsync();
@@ -645,7 +734,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
         }
         finally
         {
-            _dbContextLock.Release();
+            ReleaseWriteAccess();
         }
 
 
@@ -680,7 +769,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
 
     public async Task AddNoteAsync(NoteItem note, bool triggerSync = true)
     {
-        await _dbContextLock.WaitAsync();
+        await WaitForWriteAccessAsync();
         try
         {
             _db.Notes.Add(note);
@@ -688,7 +777,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
         }
         finally
         {
-            _dbContextLock.Release();
+            ReleaseWriteAccess();
         }
 
         if (triggerSync)
@@ -699,7 +788,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
 
     public async Task UpdateNoteAsync(NoteItem note, bool triggerSync = true)
     {
-        await _dbContextLock.WaitAsync();
+        await WaitForWriteAccessAsync();
         try
         {
             _db.Notes.Update(note);
@@ -707,7 +796,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
         }
         finally
         {
-            _dbContextLock.Release();
+            ReleaseWriteAccess();
         }
 
         if (triggerSync)
@@ -718,7 +807,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
 
     public async Task DeleteNoteAsync(NoteItem note)
     {
-        await _dbContextLock.WaitAsync();
+        await WaitForWriteAccessAsync();
         try
         {
             _db.Notes.Remove(note);
@@ -726,7 +815,7 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
         }
         finally
         {
-            _dbContextLock.Release();
+            ReleaseWriteAccess();
         }
 
         TriggerSync();
@@ -800,26 +889,46 @@ WHERE [Id] = '{sourceTaskIdLiteral}'
             return;
         }
 
-        List<NoteItem> notes = await _db.Notes
-            .OrderBy(note => note.Key)
-            .ThenBy(note => note.Id)
-            .ToListAsync();
-
-        string currentKey = string.Empty;
-        int order = 0;
-
-        foreach (NoteItem note in notes)
+        await WaitForWriteAccessAsync();
+        try
         {
-            if (note.Key != currentKey)
+            List<NoteItem> notes = await _db.Notes
+                .OrderBy(note => note.Key)
+                .ThenBy(note => note.Id)
+                .ToListAsync();
+
+            string currentKey = string.Empty;
+            int order = 0;
+
+            foreach (NoteItem note in notes)
             {
-                currentKey = note.Key;
-                order = 1;
+                if (note.Key != currentKey)
+                {
+                    currentKey = note.Key;
+                    order = 1;
+                }
+
+                note.Order = order++;
             }
 
-            note.Order = order++;
+            await _db.SaveChangesAsync();
         }
+        finally
+        {
+            ReleaseWriteAccess();
+        }
+    }
 
-        await _db.SaveChangesAsync();
+    private async Task WaitForWriteAccessAsync()
+    {
+        await _dbContextLock.WaitAsync();
+        await _sqliteWriteCoordinator.WaitAsync();
+    }
+
+    private void ReleaseWriteAccess()
+    {
+        _sqliteWriteCoordinator.Release();
+        _dbContextLock.Release();
     }
 
     async Task EnsureNoteOrderColumnAsync()

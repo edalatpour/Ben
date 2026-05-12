@@ -19,7 +19,12 @@ public static class MauiProgram
         builder.ConfigureFonts(AppFontCatalog.ConfigureFonts);
 
 #if DEBUG
-        builder.Logging.AddDebug();
+        builder.Logging
+            .AddDebug()
+            .SetMinimumLevel(LogLevel.Information)
+            .AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.None)
+            .AddFilter("Microsoft.Maui.Controls.Xaml.Diagnostics.BindingDiagnostics", LogLevel.None)
+            .AddFilter("Microsoft.Maui.Controls.Style", LogLevel.None);
 #endif
 
         RegisterServices(builder);
@@ -45,6 +50,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IThemeIdentityService, NoOpThemeIdentityService>();
         builder.Services.AddSingleton<ThemeService>();
         builder.Services.AddSingleton<UserFontService>();
+        builder.Services.AddSingleton<SqliteWriteCoordinator>();
         builder.Services.AddSingleton<DatasyncSyncService>();
 
         builder.Services.AddDbContext<LocalSchemaDbContext>(options => options.UseSqlite(sqliteConnectionString));

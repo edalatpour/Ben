@@ -1,0 +1,11 @@
+TaskSaveTiming[ab12cd34] page.preclose.begin isNewTask=False
+TaskSaveTiming[ab12cd34] page.preclose.suppress-sync 0ms
+TaskSaveTiming[ab12cd34] page.preclose.local-save-attempt.start attempt=1
+TaskSaveTiming[ab12cd34] vm.preclose.begin isNewTask=False status=Forwarded shouldForward=True
+TaskSaveTiming[ab12cd34] vm.preclose.apply-placement 21ms
+TaskSaveTiming[ab12cd34] vm.preclose.forward 13ms
+TaskSaveTiming[ab12cd34] vm.preclose.total 36ms
+TaskSaveTiming[ab12cd34] page.preclose.local-save-attempt.success 37ms attempt=1
+TaskSaveTiming[ab12cd34] page.preclose.local-save-complete 38ms
+TaskSaveTiming[ab12cd34] page.preclose.modal-close 11ms
+TaskSaveTiming[ab12cd34] page.preclose.total 49ms

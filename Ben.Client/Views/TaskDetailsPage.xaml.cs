@@ -1,5 +1,6 @@
 namespace Ben.Views;
 
+using System.Diagnostics;
 using Ben.Models;
 using Ben.Services;
 using Ben.ViewModels;
@@ -10,6 +11,7 @@ public partial class TaskDetailsPage : ContentPage
     static readonly string[] PriorityValues = { "A", "B", "C" };
     private const int LocalSaveRetryCount = 3;
     private static readonly TimeSpan LocalSaveRetryDelay = TimeSpan.FromMilliseconds(350);
+    private static readonly TimeSpan EditSessionSyncSuppression = TimeSpan.FromSeconds(20);
 
     private readonly DailyViewModel _viewModel;
     private readonly TaskItem _task;
@@ -70,6 +72,10 @@ public partial class TaskDetailsPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        // Suppress background sync while the user is actively editing to reduce
+        // sqlite gate contention when Save is pressed.
+        _viewModel.SuppressSyncForLocalSave(EditSessionSyncSuppression);
 
         // DispatchDelayed ensures the modal transition is complete before
         // requesting focus, which is required on iOS for the keyboard to appear.
@@ -217,9 +223,15 @@ public partial class TaskDetailsPage : ContentPage
 
         try
         {
+            string saveTraceId = Guid.NewGuid().ToString("N")[..8];
+            Stopwatch preCloseStopwatch = Stopwatch.StartNew();
+
+            Console.WriteLine($"TaskSaveTiming[{saveTraceId}] page.preclose.begin isNewTask={_isNewTask}");
+
             string title = TitleEntry.Text?.Trim() ?? string.Empty;
             if (string.IsNullOrEmpty(title))
             {
+                LogTaskSaveTiming(saveTraceId, "page.preclose.validation", preCloseStopwatch.ElapsedMilliseconds, "result=missing-title");
                 await DisplayAlertAsync("Validation", "Please enter a task title.", "OK");
                 return;
             }
@@ -234,12 +246,14 @@ public partial class TaskDetailsPage : ContentPage
                 forwardDestinationKey = GetForwardDestinationKey();
                 if (string.IsNullOrWhiteSpace(forwardDestinationKey))
                 {
+                    LogTaskSaveTiming(saveTraceId, "page.preclose.validation", preCloseStopwatch.ElapsedMilliseconds, "result=missing-forward-target");
                     await DisplayAlertAsync("Validation", "Please select a destination page.", "OK");
                     return;
                 }
 
                 if (string.Equals(forwardDestinationKey, _task.Key, StringComparison.Ordinal))
                 {
+                    LogTaskSaveTiming(saveTraceId, "page.preclose.validation", preCloseStopwatch.ElapsedMilliseconds, "result=forward-target-same-page");
                     await DisplayAlertAsync("Validation", "Please select a different page to forward this task to.", "OK");
                     return;
                 }
@@ -249,25 +263,37 @@ public partial class TaskDetailsPage : ContentPage
             _order = Math.Clamp(_order, _minOrder, _maxOrder);
 
             // Local save should complete before close, but sync should stay out of the way.
+            Stopwatch suppressStopwatch = Stopwatch.StartNew();
             _viewModel.SuppressSyncForLocalSave(TimeSpan.FromSeconds(8));
+            LogTaskSaveTiming(saveTraceId, "page.preclose.suppress-sync", suppressStopwatch.ElapsedMilliseconds);
 
             // Save to local database before closing the modal.
-            await SaveTaskLocallyWithRetryAsync(title, _selectedStatus, selectedPriority, _order);
+            await SaveTaskLocallyWithRetryAsync(
+                title,
+                _selectedStatus,
+                selectedPriority,
+                _order,
+                forwardDestinationKey,
+                forwardedTaskSeed,
+                saveTraceId);
+            LogTaskSaveTiming(saveTraceId, "page.preclose.local-save-complete", preCloseStopwatch.ElapsedMilliseconds);
 
             // Close the modal immediately after local save.
+            Stopwatch closeStopwatch = Stopwatch.StartNew();
             await Navigation.PopModalAsync();
+            LogTaskSaveTiming(saveTraceId, "page.preclose.modal-close", closeStopwatch.ElapsedMilliseconds);
+            LogTaskSaveTiming(saveTraceId, "page.preclose.total", preCloseStopwatch.ElapsedMilliseconds);
 
             // Fire-and-forget: sort tasks, refresh UI, then sync in background.
             _ = _viewModel.CompleteTaskSaveAfterCloseAsync(
                 _task,
                 selectedPriority,
                 _order,
-                _isNewTask,
-                forwardDestinationKey,
-                forwardedTaskSeed);
+                _isNewTask);
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"TaskSaveTiming page.preclose.failed {ex.GetType().Name}: {ex.Message}");
             await DisplayAlertAsync("Save failed", "Could not save the task. Please try again.", "OK");
         }
         finally
@@ -278,7 +304,14 @@ public partial class TaskDetailsPage : ContentPage
         }
     }
 
-    async Task SaveTaskLocallyWithRetryAsync(string title, string status, string priority, int order)
+    async Task SaveTaskLocallyWithRetryAsync(
+        string title,
+        string status,
+        string priority,
+        int order,
+        string? forwardDestinationKey,
+        ForwardedTaskSeed? forwardedTaskSeed,
+        string saveTraceId)
     {
         Exception? lastError = null;
 
@@ -286,12 +319,27 @@ public partial class TaskDetailsPage : ContentPage
         {
             try
             {
-                await _viewModel.SaveTaskDetailsLocallyAsync(_task, title, status, priority, order, _isNewTask);
+                Stopwatch attemptStopwatch = Stopwatch.StartNew();
+                Console.WriteLine($"TaskSaveTiming[{saveTraceId}] page.preclose.local-save-attempt.start attempt={attempt}");
+
+                await _viewModel.SaveTaskDetailsLocallyAsync(
+                    _task,
+                    title,
+                    status,
+                    priority,
+                    order,
+                    _isNewTask,
+                    forwardDestinationKey,
+                    forwardedTaskSeed,
+                    saveTraceId);
+
+                LogTaskSaveTiming(saveTraceId, "page.preclose.local-save-attempt.success", attemptStopwatch.ElapsedMilliseconds, $"attempt={attempt}");
                 return;
             }
             catch (Exception ex)
             {
                 lastError = ex;
+                Console.WriteLine($"TaskSaveTiming[{saveTraceId}] page.preclose.local-save-attempt.failure attempt={attempt} error={ex.GetType().Name}:{ex.Message}");
 
                 if (attempt == LocalSaveRetryCount)
                 {
@@ -304,6 +352,18 @@ public partial class TaskDetailsPage : ContentPage
 
         throw lastError ?? new InvalidOperationException("Local task save failed.");
     }
+
+    static void LogTaskSaveTiming(string traceId, string step, long elapsedMilliseconds, string? details = null)
+    {
+        if (string.IsNullOrWhiteSpace(details))
+        {
+            Console.WriteLine($"TaskSaveTiming[{traceId}] {step} {elapsedMilliseconds}ms");
+            return;
+        }
+
+        Console.WriteLine($"TaskSaveTiming[{traceId}] {step} {elapsedMilliseconds}ms {details}");
+    }
+
     async void OnCancelClicked(object sender, EventArgs e)
     {
         await Navigation.PopModalAsync();

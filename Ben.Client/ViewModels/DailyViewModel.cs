@@ -5,6 +5,7 @@
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
@@ -918,16 +919,30 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
-    public async Task SaveTaskDetailsLocallyAsync(TaskItem task, string title, string status, string priority, int order, bool isNewTask)
+    public async Task SaveTaskDetailsLocallyAsync(
+        TaskItem task,
+        string title,
+        string status,
+        string priority,
+        int order,
+        bool isNewTask,
+        string? forwardDestinationKey = null,
+        ForwardedTaskSeed? forwardedTaskSeed = null,
+        string? saveTraceId = null)
     {
+        Stopwatch totalStopwatch = Stopwatch.StartNew();
+        string traceId = string.IsNullOrWhiteSpace(saveTraceId) ? "no-trace" : saveTraceId;
+
         if (task == null)
         {
+            LogTaskSaveTiming(traceId, "vm.preclose.skipped", totalStopwatch.ElapsedMilliseconds, "reason=null-task");
             return;
         }
 
         string normalizedTitle = NormalizeTaskTitle(title);
         if (string.IsNullOrEmpty(normalizedTitle))
         {
+            LogTaskSaveTiming(traceId, "vm.preclose.skipped", totalStopwatch.ElapsedMilliseconds, "reason=empty-title");
             return;
         }
 
@@ -937,13 +952,42 @@ public class DailyViewModel : INotifyPropertyChanged
         task.Priority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
         task.Order = Math.Max(1, order);
 
+        bool shouldForward = string.Equals(task.Status, "Forwarded", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(forwardDestinationKey);
+
+        Console.WriteLine($"TaskSaveTiming[{traceId}] vm.preclose.begin isNewTask={isNewTask} status={task.Status} shouldForward={shouldForward}");
+
         if (isNewTask)
         {
+            Stopwatch addStopwatch = Stopwatch.StartNew();
             await _repo.AddTaskAsync(task, triggerSync: false);
-            return;
+            LogTaskSaveTiming(traceId, "vm.preclose.add-task", addStopwatch.ElapsedMilliseconds);
+        }
+        else if (CurrentDay?.Tasks != null && CurrentDay.Tasks.IndexOf(task) >= 0)
+        {
+            Stopwatch placementStopwatch = Stopwatch.StartNew();
+            await ApplyTaskPlacementAsync(task, task.Priority, task.Order, triggerSync: false, saveTraceId: traceId);
+            LogTaskSaveTiming(traceId, "vm.preclose.apply-placement", placementStopwatch.ElapsedMilliseconds);
+        }
+        else
+        {
+            Stopwatch updateStopwatch = Stopwatch.StartNew();
+            await _repo.UpdateTaskAsync(task, triggerSync: false);
+            LogTaskSaveTiming(traceId, "vm.preclose.update-task", updateStopwatch.ElapsedMilliseconds);
         }
 
-        await _repo.UpdateTaskAsync(task, triggerSync: false);
+        if (shouldForward)
+        {
+            Stopwatch forwardStopwatch = Stopwatch.StartNew();
+            await _repo.ForwardTaskAsync(
+                task,
+                forwardDestinationKey!,
+                triggerSync: false,
+                forwardedTaskSeed: forwardedTaskSeed);
+            LogTaskSaveTiming(traceId, "vm.preclose.forward", forwardStopwatch.ElapsedMilliseconds);
+        }
+
+        LogTaskSaveTiming(traceId, "vm.preclose.total", totalStopwatch.ElapsedMilliseconds);
     }
 
     public void SuppressSyncForLocalSave(TimeSpan duration)
@@ -951,13 +995,7 @@ public class DailyViewModel : INotifyPropertyChanged
         _syncService.SuppressSyncFor(duration);
     }
 
-    public async Task CompleteTaskSaveAfterCloseAsync(
-        TaskItem task,
-        string priority,
-        int order,
-        bool isNewTask,
-        string? forwardDestinationKey,
-        ForwardedTaskSeed? forwardedTaskSeed = null)
+    public async Task CompleteTaskSaveAfterCloseAsync(TaskItem task, string priority, int order, bool isNewTask)
     {
         bool shouldRunPostSaveFlow = false;
         string pageKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
@@ -974,24 +1012,9 @@ public class DailyViewModel : INotifyPropertyChanged
                 CurrentDay.Tasks.Add(task);
             }
 
-            if (CurrentDay.Tasks.IndexOf(task) >= 0)
-            {
-                await ApplyTaskPlacementAsync(task, priority, order, triggerSync: false);
-            }
-            else
-            {
-                await SaveTaskDirectAsync(task, priority, order, triggerSync: false);
-            }
-
-            if (string.Equals(task.Status, "Forwarded", StringComparison.Ordinal)
-                && !string.IsNullOrWhiteSpace(forwardDestinationKey))
-            {
-                await _repo.ForwardTaskAsync(
-                    task,
-                    forwardDestinationKey,
-                    triggerSync: false,
-                    forwardedTaskSeed: forwardedTaskSeed);
-            }
+            task.Priority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
+            task.Order = Math.Max(1, order);
+            SortTasksInMemory();
 
             await UpdateStatus();
             shouldRunPostSaveFlow = true;
@@ -1005,6 +1028,17 @@ public class DailyViewModel : INotifyPropertyChanged
         {
             await RunPostLocalSaveFlowAsync(pageKey, reloadCurrentPage: false);
         }
+    }
+
+    static void LogTaskSaveTiming(string traceId, string step, long elapsedMilliseconds, string? details = null)
+    {
+        if (string.IsNullOrWhiteSpace(details))
+        {
+            Console.WriteLine($"TaskSaveTiming[{traceId}] {step} {elapsedMilliseconds}ms");
+            return;
+        }
+
+        Console.WriteLine($"TaskSaveTiming[{traceId}] {step} {elapsedMilliseconds}ms {details}");
     }
 
     public Task<string?> GetTaskKeyByIdAsync(string taskId)
@@ -1279,19 +1313,46 @@ public class DailyViewModel : INotifyPropertyChanged
         await UpdateStatus();
     }
 
-    async Task ApplyTaskPlacementAsync(TaskItem task, string priority, int order, bool triggerSync = true)
+    async Task ApplyTaskPlacementAsync(
+        TaskItem task,
+        string priority,
+        int order,
+        bool triggerSync = true,
+        string? saveTraceId = null)
     {
         if (task == null || CurrentDay?.Tasks == null)
         {
             return;
         }
 
+        bool shouldLog = !string.IsNullOrWhiteSpace(saveTraceId);
+        string traceId = shouldLog ? saveTraceId! : "no-trace";
+        Stopwatch totalStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+
         string requestedPriority = string.IsNullOrWhiteSpace(priority) ? "A" : priority;
         int requestedOrder = Math.Max(1, order);
 
+        Stopwatch placementStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
         PlaceTaskInMemory(task, requestedPriority, requestedOrder);
-        await UpdateTaskOrderAsync(new[] { task }, triggerSync);
+        if (shouldLog)
+        {
+            LogTaskSaveTiming(traceId, "vm.preclose.apply-placement.place-in-memory", placementStopwatch.ElapsedMilliseconds);
+        }
+
+        Stopwatch reorderStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+        int changedTaskCount = await UpdateTaskOrderAsync(new[] { task }, triggerSync, saveTraceId);
+        if (shouldLog)
+        {
+            LogTaskSaveTiming(traceId, "vm.preclose.apply-placement.persist-order", reorderStopwatch.ElapsedMilliseconds, $"changedTasks={changedTaskCount}");
+        }
+
+        Stopwatch sortStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
         SortTasksInMemory();
+        if (shouldLog)
+        {
+            LogTaskSaveTiming(traceId, "vm.preclose.apply-placement.sort-in-memory", sortStopwatch.ElapsedMilliseconds);
+            LogTaskSaveTiming(traceId, "vm.preclose.apply-placement.total", totalStopwatch.ElapsedMilliseconds, $"changedTasks={changedTaskCount}");
+        }
     }
 
     async Task SaveTaskDirectAsync(TaskItem task, string priority, int order, bool triggerSync = true)
@@ -1644,8 +1705,15 @@ public class DailyViewModel : INotifyPropertyChanged
         return GetSuggestedTaskOrder(key, priority, excludeTask: null);
     }
 
-    async Task UpdateTaskOrderAsync(IEnumerable<TaskItem>? additionallyChanged = null, bool triggerSync = true)
+    async Task<int> UpdateTaskOrderAsync(
+        IEnumerable<TaskItem>? additionallyChanged = null,
+        bool triggerSync = true,
+        string? saveTraceId = null)
     {
+        bool shouldLog = !string.IsNullOrWhiteSpace(saveTraceId);
+        string traceId = shouldLog ? saveTraceId! : "no-trace";
+        Stopwatch totalStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+
         List<TaskItem> changedTasks = new();
         HashSet<string> changedIds = new(StringComparer.Ordinal);
 
@@ -1698,7 +1766,21 @@ public class DailyViewModel : INotifyPropertyChanged
             }
         }
 
-        await _repo.UpdateTasksAsync(changedTasks, triggerSync);
+        if (shouldLog)
+        {
+            LogTaskSaveTiming(traceId, "vm.preclose.apply-placement.update-order.calculate", totalStopwatch.ElapsedMilliseconds, $"changedTasks={changedTasks.Count}");
+        }
+
+        Stopwatch persistStopwatch = shouldLog ? Stopwatch.StartNew() : null!;
+        await _repo.UpdateTasksAsync(changedTasks, triggerSync, saveTraceId);
+
+        if (shouldLog)
+        {
+            LogTaskSaveTiming(traceId, "vm.preclose.apply-placement.update-order.repo-update", persistStopwatch.ElapsedMilliseconds, $"changedTasks={changedTasks.Count}");
+            LogTaskSaveTiming(traceId, "vm.preclose.apply-placement.update-order.total", totalStopwatch.ElapsedMilliseconds, $"changedTasks={changedTasks.Count}");
+        }
+
+        return changedTasks.Count;
     }
 
     static int GetPriorityRank(string? priority)
