@@ -5,6 +5,8 @@ namespace Ben.Services.Auth;
 
 public sealed class AuthenticationLifecycleCoordinator : IAuthenticationLifecycleCoordinator
 {
+    private const string PendingSignOutResetKey = "AuthLifecycle.PendingSignOutReset";
+
     private readonly DatasyncSyncService _syncService;
     private readonly PlannerDbContext _plannerDbContext;
     private readonly LocalSchemaDbContext _schemaDbContext;
@@ -29,16 +31,16 @@ public sealed class AuthenticationLifecycleCoordinator : IAuthenticationLifecycl
     {
         try
         {
-            bool dbRecreated = await _plannerDbContext.RecreateAndInitializeDatabaseAsync();
+            bool dbRecreated = await _plannerDbContext.RecreateAndInitializeDatabaseAsync().ConfigureAwait(false);
             if (!dbRecreated)
             {
                 Console.WriteLine("Warning: Database recreation failed, but proceeding with sync initialization.");
             }
 
-            await _schemaDbContext.Database.EnsureCreatedAsync();
+            await _schemaDbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
             LocalMigrationRunner.ApplyMigrations(_schemaDbContext);
 
-            bool clientInitialized = await _plannerDbContext.ReinitializeDatasyncClientAsync();
+            bool clientInitialized = await _plannerDbContext.ReinitializeDatasyncClientAsync().ConfigureAwait(false);
             if (!clientInitialized)
             {
                 Console.WriteLine("Warning: Datasync client reinitialization failed.");
@@ -59,7 +61,10 @@ public sealed class AuthenticationLifecycleCoordinator : IAuthenticationLifecycl
     {
         try
         {
-            await _syncService.CancelAndDisposeAsync();
+            // If the app closes mid-sign-out, startup uses this marker to force a clean DB reset.
+            Preferences.Default.Set(PendingSignOutResetKey, true);
+
+            await _syncService.CancelAndDisposeAsync().ConfigureAwait(false);
 
             _plannerDbContext.ChangeTracker.Clear();
             _schemaDbContext.ChangeTracker.Clear();
@@ -76,21 +81,34 @@ public sealed class AuthenticationLifecycleCoordinator : IAuthenticationLifecycl
                 schemaConnection.Close();
             }
 
-            bool dbDeleted = await _plannerDbContext.DeleteDatabaseFileAsync();
+            bool dbDeleted = await _plannerDbContext.DeleteDatabaseFileAsync().ConfigureAwait(false);
             if (!dbDeleted)
             {
                 Console.WriteLine("Warning: Database file deletion failed, but proceeding with sign-out.");
             }
 
+            // Immediately recreate a fresh local database so signed-out users can continue
+            // using the app locally without backend connectivity.
+            bool dbRecreated = await _plannerDbContext.RecreateAndInitializeDatabaseAsync().ConfigureAwait(false);
+            if (!dbRecreated)
+            {
+                Console.WriteLine("Warning: Failed to recreate local database after sign-out.");
+            }
+
+            await _schemaDbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            LocalMigrationRunner.ApplyMigrations(_schemaDbContext);
+
             if (_authenticationService.IsAuthenticated)
             {
-                await _authenticationService.SignOutAsync();
+                await _authenticationService.SignOutAsync().ConfigureAwait(false);
             }
 
             if (_externalIdAuthService.IsAuthenticated)
             {
                 _externalIdAuthService.SignOut();
             }
+
+            Preferences.Default.Set(PendingSignOutResetKey, false);
 
             return true;
         }

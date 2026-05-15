@@ -13,6 +13,8 @@ namespace Ben;
 
 public static class MauiProgram
 {
+    private const string PendingSignOutResetKey = "AuthLifecycle.PendingSignOutReset";
+
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
@@ -71,11 +73,13 @@ public static class MauiProgram
     {
         try
         {
+            RecoverFromInterruptedSignOutIfNeeded();
+
             using var scope = app.Services.CreateScope();
 
             var pdb = scope.ServiceProvider.GetRequiredService<PlannerDbContext>();
-            EnsurePlannerSchema(pdb);
             pdb.Database.EnsureCreated();
+            EnsurePlannerSchemaUpToDate(pdb);
             // Persist WAL at the file level and keep write contention waits short.
             pdb.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
             pdb.Database.ExecuteSqlRaw("PRAGMA busy_timeout=1000;");
@@ -97,6 +101,119 @@ public static class MauiProgram
         }
     }
 
+    static void RecoverFromInterruptedSignOutIfNeeded()
+    {
+        try
+        {
+            if (!Preferences.Default.Get(PendingSignOutResetKey, false))
+            {
+                return;
+            }
+
+            string dbPath = Path.Combine(FileSystem.AppDataDirectory, "planner.datasync.db");
+            DeleteIfExists(dbPath);
+            DeleteIfExists(dbPath + "-wal");
+            DeleteIfExists(dbPath + "-shm");
+
+            Preferences.Default.Set(PendingSignOutResetKey, false);
+            Console.WriteLine("[Startup] Recovered from interrupted sign-out database reset.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Startup] Sign-out recovery failed: {ex.Message}");
+        }
+    }
+
+    static void DeleteIfExists(string path)
+    {
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+    }
+
+    static void EnsurePlannerSchemaUpToDate(PlannerDbContext db)
+    {
+        // Keep this routine additive only: create missing tables, columns, and indexes,
+        // but never delete existing data.
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS Tasks (
+                Id TEXT NOT NULL PRIMARY KEY,
+                UpdatedAt TEXT NULL,
+                Version TEXT NULL,
+                Deleted INTEGER NOT NULL DEFAULT 0,
+                [Key] TEXT NOT NULL,
+                Status TEXT NOT NULL,
+                Priority TEXT NOT NULL,
+                [Order] INTEGER NOT NULL,
+                Title TEXT NOT NULL,
+                ParentTaskId TEXT NULL,
+                OriginalTaskId TEXT NULL
+            );
+        ");
+
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS Notes (
+                Id TEXT NOT NULL PRIMARY KEY,
+                UpdatedAt TEXT NULL,
+                Version TEXT NULL,
+                Deleted INTEGER NOT NULL DEFAULT 0,
+                [Key] TEXT NOT NULL,
+                Text TEXT NOT NULL,
+                [Order] INTEGER NOT NULL DEFAULT 0
+            );
+        ");
+
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS Projects (
+                Id TEXT NOT NULL PRIMARY KEY,
+                UpdatedAt TEXT NULL,
+                Version TEXT NULL,
+                Deleted INTEGER NOT NULL DEFAULT 0,
+                Name TEXT NOT NULL,
+                NormalizedName TEXT NOT NULL
+            );
+        ");
+
+        EnsureColumnExists(db, "Tasks", "ParentTaskId", "ALTER TABLE Tasks ADD COLUMN ParentTaskId TEXT;");
+        EnsureColumnExists(db, "Tasks", "OriginalTaskId", "ALTER TABLE Tasks ADD COLUMN OriginalTaskId TEXT;");
+        EnsureColumnExists(db, "Notes", "Order", "ALTER TABLE Notes ADD COLUMN [Order] INTEGER NOT NULL DEFAULT 0;");
+
+        db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS IX_Tasks_Key ON Tasks ([Key]);");
+        db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS IX_Notes_Key ON Notes ([Key]);");
+        db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IF NOT EXISTS IX_Projects_NormalizedName ON Projects (NormalizedName);");
+    }
+
+    static void EnsureColumnExists(PlannerDbContext db, string tableName, string columnName, string alterSql)
+    {
+        using var connection = db.Database.GetDbConnection();
+        if (connection.State != ConnectionState.Open)
+        {
+            connection.Open();
+        }
+
+        using var command = connection.CreateCommand();
+        command.CommandText = $"PRAGMA table_info('{tableName}');";
+
+        bool hasColumn = false;
+        using (var reader = command.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                if (string.Equals(reader[1]?.ToString(), columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    hasColumn = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasColumn)
+        {
+            db.Database.ExecuteSqlRaw(alterSql);
+        }
+    }
+
     static void TryWriteStartupExceptionToFile(Exception ex)
     {
         try
@@ -111,71 +228,4 @@ public static class MauiProgram
         }
     }
 
-    static void EnsurePlannerSchema(PlannerDbContext db)
-    {
-        bool hasTasks = TableExists(db, "Tasks");
-        bool hasNotes = TableExists(db, "Notes");
-        bool hasProjects = TableExists(db, "Projects");
-
-        if (hasTasks && hasNotes && hasProjects)
-        {
-            return;
-        }
-
-        bool hasAnyPlannerTables = hasTasks || hasNotes || hasProjects;
-        bool hasAnyTables = DatabaseHasAnyUserTables(db);
-
-        // Recover from first-run partial schema where only SchemaInfo exists.
-        if (!hasAnyPlannerTables && hasAnyTables)
-        {
-            db.Database.EnsureDeleted();
-            return;
-        }
-    }
-
-    static bool TableExists(DbContext db, string tableName)
-    {
-        using var connection = db.Database.GetDbConnection();
-        if (connection.State != ConnectionState.Open)
-        {
-            connection.Open();
-        }
-
-        using var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT COUNT(*)
-            FROM sqlite_master
-            WHERE type = 'table' AND name = $name;
-        ";
-
-        var parameter = command.CreateParameter();
-        parameter.ParameterName = "$name";
-        parameter.Value = tableName;
-        command.Parameters.Add(parameter);
-
-        object? value = command.ExecuteScalar();
-        long count = Convert.ToInt64(value ?? 0);
-        return count > 0;
-    }
-
-    static bool DatabaseHasAnyUserTables(DbContext db)
-    {
-        using var connection = db.Database.GetDbConnection();
-        if (connection.State != ConnectionState.Open)
-        {
-            connection.Open();
-        }
-
-        using var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT COUNT(*)
-            FROM sqlite_master
-            WHERE type = 'table'
-              AND name NOT LIKE 'sqlite_%';
-        ";
-
-        object? value = command.ExecuteScalar();
-        long count = Convert.ToInt64(value ?? 0);
-        return count > 0;
-    }
 }

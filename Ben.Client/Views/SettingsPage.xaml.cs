@@ -84,14 +84,14 @@ public partial class SettingsPage : ContentPage
 
     private async void OnSignOutTapped(object sender, EventArgs e)
     {
-        // Handles sign-out when the user is already authenticated (any provider)
-        await _dailyViewModel.ToggleAuthenticationAsync();
+        // Handles sign-out when the user is already authenticated (any provider).
+        await _dailyViewModel.SignOutAsync();
     }
 
     private async void OnSignInMicrosoftTapped(object sender, TappedEventArgs e)
     {
-        // Launches the existing Microsoft MSAL sign-in flow
-        await _dailyViewModel.ToggleAuthenticationAsync();
+        // Launches the Microsoft sign-in flow via the unified auth runtime.
+        await _dailyViewModel.SignInWithMicrosoftAsync();
     }
 
     private async void OnSignInAppleTapped(object sender, TappedEventArgs e)

@@ -9,10 +9,12 @@ using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Networking;
 using Ben.Data;
 using Ben.Models;
 using Ben.Services;
+using Ben.Services.Auth;
 using Ben.Views;
 // using Microsoft.UI.Xaml.Controls;
 
@@ -28,11 +30,10 @@ public class DailyViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private readonly PlannerRepository _repo;
+    private readonly IUnifiedAuthService _unifiedAuthService;
+    private readonly IAuthenticationLifecycleCoordinator _authLifecycleCoordinator;
     private readonly AuthenticationService _authService;
-    private readonly ExternalIdAuthService _externalIdAuthService;
     private readonly DatasyncSyncService _syncService;
-    private readonly PlannerDbContext _dbContext;
-    private readonly LocalSchemaDbContext _schemaDbContext;
     private readonly IConnectivity _connectivity;
     private readonly SemaphoreSlim _refreshAfterSyncLock = new(1, 1);
     // private readonly List<string> _quotes = [];
@@ -41,14 +42,19 @@ public class DailyViewModel : INotifyPropertyChanged
     private SyncIssueInfo? _lastSyncIssue;
     private string _currentProjectName = string.Empty;
 
-    public DailyViewModel(PlannerRepository repo, AuthenticationService authService, ExternalIdAuthService externalIdAuthService, DatasyncSyncService syncService, PlannerDbContext dbContext, LocalSchemaDbContext schemaDbContext, IConnectivity connectivity)
+    public DailyViewModel(
+        PlannerRepository repo,
+        IUnifiedAuthService unifiedAuthService,
+        IAuthenticationLifecycleCoordinator authLifecycleCoordinator,
+        AuthenticationService authService,
+        DatasyncSyncService syncService,
+        IConnectivity connectivity)
     {
         _repo = repo;
+        _unifiedAuthService = unifiedAuthService;
+        _authLifecycleCoordinator = authLifecycleCoordinator;
         _authService = authService;
-        _externalIdAuthService = externalIdAuthService;
         _syncService = syncService;
-        _dbContext = dbContext;
-        _schemaDbContext = schemaDbContext;
         _connectivity = connectivity;
 
         CurrentDate = DateTime.Today;
@@ -56,8 +62,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
         // Subscribe to events
         _connectivity.ConnectivityChanged += OnConnectivityChanged;
-        _authService.AuthenticationStateChanged += OnAuthenticationStateChanged;
-        _externalIdAuthService.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        _unifiedAuthService.AuthenticationStateChanged += OnAuthenticationStateChanged;
         _syncService.SyncStarted += OnSyncStarted;
         _syncService.SyncCompleted += OnSyncCompleted;
         _syncService.SyncIssueDetected += OnSyncIssueDetected;
@@ -78,18 +83,47 @@ public class DailyViewModel : INotifyPropertyChanged
 
     private void OnAuthenticationStateChanged(object? sender, EventArgs e)
     {
-        OnPropertyChanged(nameof(IsAuthenticated));
-        UserAvatarSource = BuildUserAvatarSource();
-
-        // Clear all data when signing out
-        if (!IsAuthenticated)
+        void ApplyAuthenticationStateChange()
         {
-            CurrentDay.Tasks.Clear();
-            CurrentDay.Notes.Clear();
-            Console.WriteLine("Cleared UI data on sign-out");
+            OnPropertyChanged(nameof(IsAuthenticated));
+            UserAvatarSource = BuildUserAvatarSource();
+
+            if (!IsAuthenticated)
+            {
+                ResetSignedOutUiState();
+            }
+
+            _ = UpdateStatus();
         }
 
-        _ = UpdateStatus();
+        if (MainThread.IsMainThread)
+        {
+            ApplyAuthenticationStateChange();
+            return;
+        }
+
+        MainThread.BeginInvokeOnMainThread(ApplyAuthenticationStateChange);
+    }
+
+    private void ResetSignedOutUiState()
+    {
+        _currentProjectName = string.Empty;
+        _lastSyncIssue = null;
+
+        DateTime targetDate = CurrentDate;
+        if (CurrentDay != null && KeyConvention.TryParseDateKey(CurrentDay.Key, out DateTime parsedDate))
+        {
+            targetDate = parsedDate;
+        }
+
+        CurrentDate = targetDate;
+        CurrentDay = new DailyData
+        {
+            Key = KeyConvention.ToDateKey(targetDate),
+            Date = targetDate
+        };
+
+        Console.WriteLine("Reset UI data on sign-out.");
     }
 
     private void OnSyncStarted(object? sender, EventArgs e)
@@ -141,7 +175,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public bool IsAuthenticated
     {
-        get => _authService.IsAuthenticated || _externalIdAuthService.IsAuthenticated;
+        get => _unifiedAuthService.IsAuthenticated;
     }
 
     private ImageSource? _userAvatarSource;
@@ -172,7 +206,7 @@ public class DailyViewModel : INotifyPropertyChanged
 
     private ImageSource BuildUserAvatarSource()
     {
-        if (_externalIdAuthService.IsAuthenticated)
+        if (_unifiedAuthService.ActiveProvider is UnifiedAuthProvider.Apple or UnifiedAuthProvider.Google)
         {
             _isUserAvatarPhoto = false;
             return "apple_512.png";
@@ -198,26 +232,37 @@ public class DailyViewModel : INotifyPropertyChanged
         IsSyncClickable = IsAuthenticated && IsOnline;
 
         // Update login status
-        if (_authService.IsAuthenticated)
+        UnifiedAuthSession? session = _unifiedAuthService.CurrentSession;
+        if (!IsAuthenticated || session == null)
         {
-            LoginStatusText = _authService.UserEmail ?? "Sign out";
+            LoginStatusText = "Sign in with Microsoft";
         }
-        else if (_externalIdAuthService.IsAuthenticated)
+        else if (!string.IsNullOrWhiteSpace(session.Email))
         {
-            var displayName = _externalIdAuthService.UserEmail
-                ?? _externalIdAuthService.UserName
-                ?? $"Signed in with {_externalIdAuthService.Provider}";
-            LoginStatusText = displayName;
+            LoginStatusText = session.Email;
+        }
+        else if (!string.IsNullOrWhiteSpace(session.Name))
+        {
+            LoginStatusText = session.Name;
         }
         else
         {
-            LoginStatusText = "Sign in with Microsoft";
+            LoginStatusText = $"Signed in with {session.Provider}";
         }
 
         if (!IsAuthenticated)
         {
             _lastSyncIssue = null;
             SyncStatusText = "Not signed in";
+            return;
+        }
+
+        if (_isSyncing)
+        {
+            var pendingCount = await _syncService.GetUnsyncedChangesCountAsync();
+            SyncStatusText = pendingCount > 0
+                ? $"Synchronizing... ({pendingCount} pending)"
+                : "Synchronizing...";
             return;
         }
 
@@ -302,31 +347,17 @@ public class DailyViewModel : INotifyPropertyChanged
         }
     }
 
-    private async Task InitializeSignedInUserAsync()
+    private async Task CompleteSignInAsync()
     {
-        // Step 1: Recreate database to match current entities
-        Console.WriteLine("Initializing database for new user");
-        bool dbRecreated = await _dbContext.RecreateAndInitializeDatabaseAsync();
-        if (!dbRecreated)
+        bool initialized = await _authLifecycleCoordinator.InitializeSignedInUserAsync();
+        if (!initialized)
         {
-            Console.WriteLine("Warning: Database recreation failed, but proceeding with sync");
+            Console.WriteLine("Sign-in lifecycle initialization failed.");
+            return;
         }
 
-        // Step 2: Ensure schema tracking database is initialized with migrations
-        Console.WriteLine("Applying schema migrations for new user");
-        await _schemaDbContext.Database.EnsureCreatedAsync();
-        LocalMigrationRunner.ApplyMigrations(_schemaDbContext);
-
-        // Step 3: Reinitialize Datasync client with new user's JWT
-        Console.WriteLine("Initializing Datasync client for new user");
-        bool clientInitialized = await _dbContext.ReinitializeDatasyncClientAsync();
-        if (!clientInitialized)
-        {
-            Console.WriteLine("Warning: Datasync client reinitialization failed");
-        }
-
-        // Step 4: Pull fresh data from server
-        await RestoreAuthenticatedSessionAsync();
+        await LoadPageAsync(CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate));
+        await UpdateStatus();
     }
 
     async Task RefreshCurrentPageAfterSyncAsync()
@@ -1512,78 +1543,68 @@ public class DailyViewModel : INotifyPropertyChanged
     void OnPropertyChanged([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-    public async Task ToggleAuthenticationAsync()
+    public async Task SignOutAsync()
     {
-        if (_authService.IsAuthenticated)
+        if (!IsAuthenticated)
         {
-            // Sign out with full cleanup for multi-user support (Microsoft / MSAL flow)
-            await _authService.SignOutWithCleanupAsync(_syncService, _dbContext, _schemaDbContext);
-            await UpdateStatus();
             return;
         }
 
-        if (_externalIdAuthService.IsAuthenticated)
+        bool success = await _authLifecycleCoordinator.SignOutWithCleanupAsync();
+        if (!success)
         {
-            // Sign out from External ID (Apple) with full local sync cleanup.
-            await _syncService.CancelAndDisposeAsync();
-
-            _dbContext.ChangeTracker.Clear();
-            _schemaDbContext.ChangeTracker.Clear();
-
-            var plannerConnection = _dbContext.Database.GetDbConnection();
-            if (plannerConnection.State != System.Data.ConnectionState.Closed)
-            {
-                plannerConnection.Close();
-            }
-
-            var schemaConnection = _schemaDbContext.Database.GetDbConnection();
-            if (schemaConnection.State != System.Data.ConnectionState.Closed)
-            {
-                schemaConnection.Close();
-            }
-
-            _ = await _dbContext.DeleteDatabaseFileAsync();
-            _externalIdAuthService.SignOut();
-            await UpdateStatus();
-            return;
+            Console.WriteLine("Sign-out lifecycle cleanup failed.");
         }
-
-        // Sign in with Microsoft (existing MSAL flow — unchanged)
-        var result = await _authService.SignInAsync();
-        if (result != null)
+        else
         {
-            try
-            {
-                await InitializeSignedInUserAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error during sign-in initialization: {ex.Message}");
-            }
+            ResetSignedOutUiState();
         }
 
         await UpdateStatus();
     }
 
+    public async Task SignInWithMicrosoftAsync()
+    {
+        try
+        {
+            var identity = await _unifiedAuthService.SignInWithProviderAsync(UnifiedAuthProvider.Microsoft);
+            if (identity == null)
+            {
+                Console.WriteLine("[Auth] Sign in with Microsoft did not complete.");
+            }
+            else
+            {
+                await CompleteSignInAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Auth] Unexpected error during Microsoft sign-in: {ex.Message}");
+        }
+        finally
+        {
+            await UpdateStatus();
+        }
+    }
+
     /// <summary>
     /// Signs in with Apple via Microsoft Entra External ID using WebAuthenticator.
-    /// On success the authenticated user's identity is stored in Preferences and
-    /// the UI is refreshed via <see cref="ExternalIdAuthService.AuthenticationStateChanged"/>.
+    /// On success, the unified authentication lifecycle initializes local storage and sync.
     /// </summary>
     public async Task SignInWithAppleAsync()
     {
         try
         {
-            var identity = await _externalIdAuthService.AuthenticateAsync();
+            var identity = await _unifiedAuthService.SignInWithProviderAsync(UnifiedAuthProvider.Apple);
             if (identity == null)
             {
                 // Null is returned when the user cancels the browser or an error
-                // is handled inside ExternalIdAuthService (already logged there).
+                // is handled inside the provider-specific service (already logged there).
                 Console.WriteLine("[Auth] Sign in with Apple did not complete (cancelled or handled error).");
             }
             else
             {
-                await InitializeSignedInUserAsync();
+                await CompleteSignInAsync();
             }
         }
         catch (Exception ex)
@@ -1595,6 +1616,17 @@ public class DailyViewModel : INotifyPropertyChanged
         {
             await UpdateStatus();
         }
+    }
+
+    public async Task ToggleAuthenticationAsync()
+    {
+        if (IsAuthenticated)
+        {
+            await SignOutAsync();
+            return;
+        }
+
+        await SignInWithMicrosoftAsync();
     }
 
     public async Task ForceSyncAsync()
