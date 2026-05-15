@@ -102,8 +102,10 @@ public class ExternalIdAuthService
         var userId = Preferences.Default.Get(UserIdKey, (string?)null) ?? string.Empty;
         var email = Preferences.Default.Get(UserEmailKey, (string?)null) ?? string.Empty;
 
-        // Try to read the expiry from the JWT exp claim; fall back to 1 hour from now
-        var expiresOn = TryGetJwtExpiry(bearerToken) ?? DateTimeOffset.UtcNow.AddHours(1);
+        // Read the expiry from the JWT exp claim. If the token is unparsable we return
+        // DateTimeOffset.MinValue so that Datasync treats the token as expired and does
+        // not send it to the backend rather than using a fabricated window.
+        var expiresOn = TryGetJwtExpiry(bearerToken) ?? DateTimeOffset.MinValue;
 
         return Task.FromResult(new CommunityToolkit.Datasync.Client.Authentication.AuthenticationToken
         {
