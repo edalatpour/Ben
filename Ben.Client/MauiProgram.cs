@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Networking;
 using Ben.Data;
 using Ben.Services;
+using Ben.Services.Auth;
 using Ben.Views;
 using Ben.ViewModels;
 
@@ -47,6 +48,8 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<AuthenticationService>();
         builder.Services.AddSingleton<ExternalIdAuthService>();
+        builder.Services.AddSingleton<IUnifiedAuthSessionStore, PreferencesUnifiedAuthSessionStore>();
+        builder.Services.AddSingleton<IUnifiedAuthService, UnifiedAuthService>();
         builder.Services.AddSingleton<IThemeIdentityService, NoOpThemeIdentityService>();
         builder.Services.AddSingleton<ThemeService>();
         builder.Services.AddSingleton<UserFontService>();

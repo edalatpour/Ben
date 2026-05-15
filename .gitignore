@@ -15,3 +15,5 @@ publish/Packaging.log
 .DS_Store
 *.ips
 publish/DistributionSummary.plist
+Ben.Client/Ben.Client.csproj.lscache
+datasync-server/src/Ben.Datasync.Server/Ben.Datasync.Server.csproj.lscache
