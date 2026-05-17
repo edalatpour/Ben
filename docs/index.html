@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Daymark – Navigate your day</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Daymark is a modern daily planner inspired by classic paper-based planning methods. Plan each day with clarity, priorities, and purpose."
-  />
+  <meta name="description"
+    content="Daymark is a modern daily planner inspired by classic paper-based planning methods. Plan each day with clarity, priorities, and purpose." />
   <style>
     :root {
-      --bg: #0b1020;
-      --bg-alt: #111729;
-      --accent: #4ea1ff;
-      --accent-soft: rgba(78, 161, 255, 0.12);
-      --text: #f5f7ff;
-      --muted: #a5b0d0;
-      --border: #222a3f;
-      --radius: 12px;
-      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
+      --bg: #EDF1F7;
+      --bg-alt: #FFFFFF;
+      --accent: #0440B4;
+      --accent-soft: rgba(4, 64, 180, 0.08);
+      --text: #000000;
+      --muted: #8190B4;
+      --border: #B3C1D9;
+      --radius: 8px;
+      --shadow-soft: 0 8px 32px rgba(2, 32, 105, 0.10);
       --max-width: 1040px;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
+      --font-sans: 'Times New Roman', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", serif;
     }
 
     * {
@@ -32,7 +30,7 @@
 
     body {
       font-family: var(--font-sans);
-      background: radial-gradient(circle at top, #1a2440 0, #050814 55%, #02030a 100%);
+      background: var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
@@ -49,13 +47,8 @@
     }
 
     header {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(18px);
-      background: linear-gradient(
-        to bottom,
-        rgba(5, 8, 20, 0.9),
-        rgba(5, 8, 20, 0.75)
-      );
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
       position: sticky;
       top: 0;
       z-index: 20;
@@ -80,15 +73,15 @@
     .logo-mark {
       width: 30px;
       height: 30px;
-      border-radius: 10px;
-      background: radial-gradient(circle at 20% 0, #ffffff 0, #4ea1ff 40%, #1b4a9c 100%);
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0440B4 60%, #B3C1D9 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #02030a;
+      color: #fff;
       font-weight: 800;
       font-size: 18px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 4px 16px rgba(4, 64, 180, 0.12);
     }
 
     .logo-text {
@@ -143,10 +136,11 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #4ea1ff, #7bc4ff);
-      color: #02030a;
+      background: linear-gradient(135deg, #0440B4, #8190B4);
+      color: #fff;
       font-weight: 600;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 4px 16px rgba(4, 64, 180, 0.12);
+      border: none;
     }
 
     .btn-primary:hover {
@@ -155,9 +149,9 @@
     }
 
     .btn-ghost {
-      border-color: rgba(255, 255, 255, 0.12);
-      color: var(--muted);
-      background: rgba(5, 8, 20, 0.6);
+      border-color: var(--border);
+      color: var(--accent);
+      background: var(--bg-alt);
     }
 
     .btn-ghost:hover {
@@ -430,8 +424,12 @@
     }
 
     .section-title {
-      font-size: 24px;
+      font-size: 28px;
+      font-family: 'Times New Roman', serif;
+      font-weight: bold;
+      color: var(--accent);
       margin-bottom: 10px;
+      letter-spacing: 0.01em;
     }
 
     .section-subtitle {
@@ -465,7 +463,9 @@
     }
 
     .feature-title {
-      font-size: 15px;
+      font-size: 16px;
+      font-family: 'Times New Roman', serif;
+      color: var(--accent);
       margin-bottom: 6px;
     }
 
@@ -499,11 +499,11 @@
     }
 
     .card {
-      background: rgba(5, 8, 20, 0.9);
+      background: var(--bg-alt);
       border-radius: var(--radius);
       padding: 18px;
       border: 1px solid var(--border);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(4, 64, 180, 0.08);
     }
 
     .list {
@@ -584,6 +584,7 @@
     }
 
     @media (max-width: 900px) {
+
       .hero-grid,
       .two-column {
         grid-template-columns: minmax(0, 1fr);
@@ -622,354 +623,132 @@
     }
   </style>
 </head>
+
 <body>
   <div class="page">
     <header>
       <div class="nav">
         <div class="nav-left">
-          <div class="logo-mark">B</div>
+          <img src="./icon.png" alt="Daymark logo"
+            style="width: 30px; height: 30px; border-radius: 8px; box-shadow: 0 4px 16px rgba(4, 64, 180, 0.12);">
           <div class="logo-text">
             <div class="logo-text-main">Daymark</div>
-            <div class="logo-text-sub">Daily Planner</div>
+            <div class="logo-text-sub">Navigate your day</div>
           </div>
-        </div>
-        <nav class="nav-links">
-          <a href="#features">Features</a>
-          <a href="#method">A Daily Ritual</a>
-          <a href="#workflow">How It Works</a>
-          <a href="#value">Why It’s Different</a>
-        </nav>
-        <div class="nav-cta">
-          <a href="https://apps.microsoft.com/detail/9NX84KZ608MF" class="btn btn-primary">Get Daymark</a>
         </div>
       </div>
     </header>
 
     <main>
-      <!-- Hero -->
-      <section class="hero" id="top">
-        <div class="section-inner hero-grid">
-          <div>
-            <div class="hero-kicker">A Modern Daily Planner</div>
-            <h1 class="hero-title">
-              Plan each day with <span>clarity, priority, and purpose.</span>
-            </h1>
-            <p class="hero-subtitle">
-              Daymark is a modern daily planner built on a proven paper-based planning
-              method. Each day is its own page. Tasks and notes live together.
-              Unfinished items are carried forward intentionally—not forgotten.
-            </p>
-            <div class="hero-badges">
-              <div class="badge">Daily page metaphor</div>
-              <div class="badge">Focus on your priorities</div>
-              <div class="badge">Intentional task forwarding</div>
-            </div>
-            <div class="hero-cta-row">
-              <a href="https://apps.microsoft.com/detail/9NX84KZ608MF" class="btn btn-primary">
-                Get Daymark on Microsoft Store
-              </a>
-              <a href="#features" class="btn btn-ghost">Explore the workflow</a>
-            </div>
-            <div class="hero-caption">
-              Designed for people who want a planner that feels like paper—but
-              works like a modern app.
-            </div>
-          </div>
 
-          <div class="hero-device" aria-hidden="true">
-            <div class="device-frame">
-              <div class="device-notch"></div>
-              <div class="device-screen">
-                <div>
-                  <div class="device-header">
-                    <div class="device-date">Today · Mon, Apr 6</div>
-                    <div class="device-pill">Daily Plan</div>
-                  </div>
-                  <div class="device-column-title">Tasks</div>
-                  <div class="task-list">
-                    <div class="task-row">
-                      <div class="task-priority task-priority-a">A</div>
-                      <div class="task-text">Prepare client review deck</div>
-                      <div class="task-status">Must do</div>
-                    </div>
-                    <div class="task-row">
-                      <div class="task-priority task-priority-b">B</div>
-                      <div class="task-text">Reply to finance emails</div>
-                      <div class="task-status">Should do</div>
-                    </div>
-                    <div class="task-row">
-                      <div class="task-priority task-priority-c">C</div>
-                      <div class="task-text">Explore new tooling ideas</div>
-                      <div class="task-status">Nice to do</div>
-                    </div>
-                    <div class="task-row">
-                      <div class="task-priority task-priority-a">A</div>
-                      <div class="task-text">Schedule 1:1 with team lead</div>
-                      <div class="task-status">Forwarded</div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div class="device-header">
-                    <div class="device-column-title">Notes</div>
-                    <div class="device-pill">Linked to your day</div>
-                  </div>
-                  <div class="note-card">
-                    <div class="note-label">Morning planning</div>
-                    <div class="note-body">
-                      A1: Deck must be ready before 3 PM. Block 90 minutes of
-                      deep work. Move non‑critical items to tomorrow if needed.
-                    </div>
-                  </div>
-                  <div class="note-card">
-                    <div class="note-label">Meeting notes</div>
-                    <div class="note-body">
-                      Follow up on A‑task with finance. Capture open questions
-                      and turn them into tomorrow’s tasks.
-                    </div>
-                  </div>
-                  <div class="device-footer">
-                    <span>Unfinished tasks can be <strong>forwarded</strong>.</span>
-                    <span>Tomorrow stays <strong>intentional</strong>.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <!-- Features -->
-      <section id="features">
+      <!-- About / Help Section -->
+      <section id="about" class="help-section">
         <div class="section-inner">
-          <div class="section-kicker">Features</div>
-          <h2 class="section-title">A planner that behaves like a real daily page.</h2>
-          <p class="section-subtitle">
-            Daymark is not another endless to‑do list. It’s a structured daily planning
-            system where each day has its own tasks, notes, and decisions—just like
-            a physical planner.
-          </p>
-
-          <div class="features-grid">
-            <div class="feature-card">
-              <div class="feature-label">Daily page metaphor</div>
-              <div class="feature-title">Each day gets its own space.</div>
-              <p class="feature-body">
-                Open Daymark and you’re on today’s page. Yesterday and tomorrow are a
-                swipe away. Tasks and notes stay anchored to the day they belong
-                to, so your history and plans are always clear.
-              </p>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-label">Focus on your priorities</div>
-              <div class="feature-title">A/B/C priorities, built in.</div>
-              <p class="feature-body">
-                Mark tasks as A (must do), B (should do), or C (nice to do). Add
-                statuses like Completed, Delegated, or Forwarded to reflect what
-                actually happened—not just what you hoped to do.
-              </p>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-label">Intentional forwarding</div>
-              <div class="feature-title">Unfinished doesn’t mean forgotten.</div>
-              <p class="feature-body">
-                When a task doesn’t get done, you choose whether to forward it to
-                tomorrow. That small act of intention keeps your list honest and
-                your commitments visible.
-              </p>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-label">Linked notes</div>
-              <div class="feature-title">Notes that live with your tasks.</div>
-              <p class="feature-body">
-                Capture meeting notes, ideas, and reflections on the same page as
-                your tasks. Reference A‑tasks, decisions, and follow‑ups so you
-                always know why something is on your list.
-              </p>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-label">Focused design</div>
-              <div class="feature-title">No clutter. No ads. Just planning.</div>
-              <p class="feature-body">
-                Daymark is intentionally minimal. No gamification, no inbox of
-                distractions—just a calm, focused workspace for planning your day.
-              </p>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-label">Built for repetition</div>
-              <div class="feature-title">A daily ritual, not a one‑off tool.</div>
-              <p class="feature-body">
-                Daymark is designed to be opened every morning and every evening. The
-                more you use it, the more valuable your history, habits, and
-                decisions become.
-              </p>
-            </div>
+          <div class="section-title" style="text-align:center;">About Daymark</div>
+          <div class="card" style="margin-bottom:24px;">
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">Daymark is a modern, digital
+              interpretation of classic paper-based planning methods. Instead of scattering your life across sticky
+              notes, apps, and inboxes, Daymark gives you a single place to plan your day, capture your notes, track
+              your progress, and stay aligned with what matters most.<br><br>Each day in Daymark has its own dedicated
+              page with a prioritized task list, a flexible notes section, and tools for forwarding, organizing, and
+              reviewing your work.<br><br>Daymark is not just a to-do list. It is a daily planning ritual designed to
+              help you think, act, and follow through with clarity.</p>
+          </div>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">What Is a Daymark?</div>
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">A daymark is a fixed, highly
+              visible navigation marker used by mariners during daylight. It relies on bold geometric patterns,
+              distinctive shapes, and strong colors to give sailors an unmistakable point of reference. When you spot a
+              daymark, you instantly know where you are and which direction to go.<br><br>Daymark is named after this
+              concept because the app is built around the same idea: give you a clear, reliable point of orientation in
+              your day. Just as a mariner uses a daymark to know where they stand and where they are heading, you use
+              Daymark to understand your priorities, track your progress, and move forward with confidence.<br><br>The
+              themes in Daymark draw directly from real lighthouse and daymark stations along the Outer Banks and
+              Carolina coast — Cape Hatteras, Bodie Island, Ocracoke, Currituck, Oak Island, and Cape Lookout. Each
+              lighthouse has its own signature pattern: bold stripes, diamonds, spirals, and checkers that mariners have
+              recognized for generations. Those same patterns inspire the visual themes in the app, turning each color
+              scheme into something rooted in history and place.<br><br>The metaphor goes deeper than the name.
+              Guidance, stability, visibility, direction — these are the values built into every feature of Daymark. A
+              good day does not happen by accident. It is navigated.</p>
+          </div>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">Why Daymark Is Better</div>
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">Most to-do apps encourage you
+              to accumulate tasks, not complete them. Lists get long, priorities blur, and important items get
+              buried.<br><br>Daymark solves that:<br>
+            <ul style="margin-top:8px;margin-bottom:8px;padding-left:20px;">
+              <li>Daily focus: plan one day at a time, not an endless backlog.</li>
+              <li>Prioritization: A/B/C levels identify what is essential vs. optional.</li>
+              <li>Forwarding with intention: tasks move forward with context so nothing slips.</li>
+              <li>Integrated notes: thoughts and ideas live right next to your tasks.</li>
+              <li>A planning rhythm: review, prioritize, execute every day.</li>
+            </ul>The result: fewer forgotten commitments, clearer priorities, and a calmer mind.</p>
+          </div>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">Your Daily Task List</div>
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">Each day begins with a clean
+              page. Open today's page, tap Add Task, enter a clear title, assign an A/B/C priority, and
+              save.<br><br>Tips:
+            <ul style="margin-top:8px;margin-bottom:8px;padding-left:20px;">
+              <li>Keep tasks actionable. Write "Email Sarah about budget" not just "Sarah".</li>
+              <li>Break large items into smaller steps.</li>
+              <li>Limit A-priority tasks to what you can realistically finish today.</li>
+            </ul>Your daily list becomes the backbone of your plan.</p>
+          </div>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">Task Statuses</div>
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">Update any task with a single
+              tap:<br>
+            <ul style="margin-top:8px;margin-bottom:8px;padding-left:20px;">
+              <li>Open: not started yet</li>
+              <li>In Progress: you have begun</li>
+              <li>Completed: finished today</li>
+              <li>Forwarded: moved to a future date</li>
+              <li>Dropped: no longer needed</li>
+            </ul>Statuses tell the story of your day at a glance.</p>
+          </div>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">Forwarding Tasks</div>
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">Tap a task, choose Forward,
+              and pick a new date. Daymark marks the original as Forwarded and creates a fresh copy on that
+              date.<br><br>Missed a few days? Use Catch-Up Mode. Open any past date and forward unfinished tasks in bulk
+              or one by one. Nothing gets lost, even when life gets busy.</p>
+          </div>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">Notes</div>
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">Every day includes a
+              free-form notes area for meeting notes, ideas, journaling, or anything that is not quite a task. Notes
+              stay tied to the day they were created.<br><br>To turn a note into a task, highlight the text, tap Create
+              Task, assign a priority, and save. Important ideas never get lost.</p>
+          </div>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">Your Daily Planning Session</div>
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">Step 1: Review yesterday.
+              Mark completed items, forward unfinished tasks, review notes for follow-ups.<br>Step 2: Build today's
+              list. Add forwarded tasks, add new ones, assign priorities. Keep the A-list short.<br>Step 3: Focus. Start
+              with A-priority tasks, capture thoughts in notes, update statuses as you go.<br><br>This daily ritual
+              keeps you aligned and ensures nothing falls through the cracks.</p>
+          </div>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">Projects</div>
+            <p style="font-family:'Times New Roman',serif;font-size:16px;line-height:1.7;">Not everything belongs on a
+              daily page. Projects give structure to work that spans weeks or months: initiatives, home renovations,
+              vacations, events, or long-term goals.<br><br>Each project has its own task list and notes section. Pull
+              tasks from a project into your daily plan whenever you are ready to act on them.</p>
           </div>
         </div>
       </section>
 
-      <!-- Daily Ritual -->
-      <section id="method">
-        <div class="section-inner two-column">
-          <div>
-            <div class="section-kicker">Your Daily Planning Ritual</div>
-            <h2 class="section-title">A proven system, translated into a modern app.</h2>
-            <p class="section-subtitle">
-              For decades, paper-based planners have helped people manage
-              their time with intention. Daymark brings that structure into a digital
-              daily planner—without losing the simplicity that made it work.
-            </p>
-
-            <div class="card">
-              <p class="quote">
-                “Most apps give you more lists. Daymark lets decide
-                what actually matters today.”
-              </p>
-              <div class="quote-caption">How Daymark thinks about planning</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <ul class="list">
-              <li>
-                <strong>A/B/C priorities:</strong> Classify tasks by importance,
-                not just urgency, so your day reflects your real priorities.
-              </li>
-              <li>
-                <strong>Daily pages:</strong> Treat each day as a fresh page with
-                its own commitments, notes, and outcomes.
-              </li>
-              <li>
-                <strong>Forwarding tasks:</strong> When something moves, it moves
-                with intention—not by accident.
-              </li>
-              <li>
-                <strong>Reflection and review:</strong> Use notes to capture what
-                happened, what changed, and what needs to carry forward.
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- Workflow -->
-      <section id="workflow">
-        <div class="section-inner two-column">
-          <div>
-            <div class="section-kicker">How it works</div>
-            <h2 class="section-title">A simple daily workflow you can actually stick to.</h2>
-            <p class="section-subtitle">
-              Daymark is designed around a repeatable daily ritual: plan in the
-              morning, execute during the day, review and forward in the evening.
-              No complex setup. No endless configuration.
-            </p>
-
-            <div class="card">
-              <ul class="list">
-                <li>
-                  <strong>Morning:</strong> Open today’s page, list your tasks,
-                  assign A/B/C priorities, and capture any key notes.
-                </li>
-                <li>
-                  <strong>During the day:</strong> Mark tasks as Completed,
-                  Delegated, or Forwarded as reality unfolds.
-                </li>
-                <li>
-                  <strong>Evening:</strong> Review what happened, add notes, and
-                  intentionally forward any unfinished tasks to tomorrow.
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="feature-label">Designed for consistency</div>
-            <div class="feature-title">The value compounds over time.</div>
-            <p class="feature-body">
-              Because each day is its own page, your history becomes a narrative
-              of what you chose to do—and what you chose not to do. That makes
-              Daymark more than a checklist. It becomes a record of your decisions.
-            </p>
-            <div class="pill-row">
-              <div class="pill">Daily ritual</div>
-              <div class="pill">Decision history</div>
-              <div class="pill">Intentional planning</div>
-              <div class="pill">Lightweight structure</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Value / Differentiation -->
-      <section id="value">
-        <div class="section-inner two-column">
-          <div>
-            <div class="section-kicker">Why Daymark is different</div>
-            <h2 class="section-title">Not just another task app.</h2>
-            <p class="section-subtitle">
-              Most task managers give you more ways to store tasks. Daymark gives you
-              a way to live your day with intention. It’s opinionated, structured,
-              and built around a proven planning method.
-            </p>
-
-            <div class="card">
-              <ul class="list">
-                <li>
-                  <strong>Daily page, not infinite lists:</strong> You always
-                  start on today, with just what matters now.
-                </li>
-                <li>
-                  <strong>Tasks and notes together:</strong> Context and action
-                  live side by side.
-                </li>
-                <li>
-                  <strong>Intentional forwarding:</strong> Unfinished tasks are a
-                  decision, not a default.
-                </li>
-                <li>
-                  <strong>Focused experience:</strong> No ads, no clutter, no
-                  distractions—just planning.
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="card" id="download">
-            <div class="feature-label">Available on Microsoft Store</div>
-            <div class="feature-title">Navigate your day.</div>
-            <p class="feature-body">
-              Daymark is designed for professionals, planners, and anyone who wants a
-              digital planner that feels intentional, not overwhelming. Use it as
-              your primary daily planner or as a focused companion to your broader
-              productivity stack.
-            </p>
-            <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px;">
-              <a href="#" class="btn btn-primary">Get Daymark on Microsoft Store</a>
-              <a href="#workflow" class="btn btn-ghost">See the daily workflow</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- CTA -->
-      <section class="cta-section">
+      <!-- Support Section -->
+      <section id="support" class="support-section">
         <div class="section-inner">
-          <div class="cta-card">
-            <div>
-              <div class="cta-title">Start tomorrow with a clearer plan.</div>
-              <div class="cta-subtitle">
-                Open Daymark, write today’s page, and see how it feels to have your
-                tasks, priorities, and notes aligned in one place. No setup. No
-                learning curve. Just a better way to plan your day.
-              </div>
-            </div>
-            <div>
-              <a href="#" class="btn btn-primary">Download Daymark</a>
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-title" style="font-size:20px;text-align:center;">Support</div>
+            <div style="font-size:16px;line-height:1.7;text-align:center;">
+              If you need support or wish to contact the developer, please use the information below:<br><br>
+              <strong>Email:</strong> timothy.edalatpour@outlook.com<br>
+              <strong>Phone:</strong> +1 (215) 498-2207
             </div>
           </div>
         </div>
@@ -978,19 +757,17 @@
       <!-- Privacy -->
       <section class="privacy-section">
         <div class="section-inner">
-          <div class="crivacy-card">
-            <div>
-              <div class="cta-title">Privacy Policy</div>
-              <div class="cta-subtitle">
-                Daymark does not collect, store, share, or sell any personal data.
-                We use your email address as a key to organize your notes, tasks,
-                and other data that you enter into your planner, and for no other purpose.
-              </div>
+          <div class="card">
+            <div class="cta-title">Privacy Policy</div>
+            <div class="cta-subtitle">
+              Daymark does not collect, store, share, or sell any personal data.<br>
+              We use your email address as a key to organize your notes, tasks,
+              and other data that you enter into your planner, and for no other purpose.
             </div>
           </div>
         </div>
       </section>
-    
+
     </main>
 
     <footer>
@@ -1005,4 +782,5 @@
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 </body>
+
 </html>
