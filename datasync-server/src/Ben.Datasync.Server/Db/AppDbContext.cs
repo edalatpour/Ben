@@ -129,6 +129,28 @@ INNER JOIN [ProjectItems] projectItems
 WHERE noteItems.[Key] LIKE N'project:%'
     AND noteItems.[Key] <> N'project:' + projectItems.[Id];
 
+IF OBJECT_ID(N'[Users]') IS NULL
+BEGIN
+    CREATE TABLE [Users]
+    (
+        [UserId] uniqueidentifier NOT NULL,
+        [ExternalId] nvarchar(200) NOT NULL,
+        [IdentityProvider] nvarchar(50) NOT NULL,
+        [Email] nvarchar(200) NULL,
+        [CreatedAt] datetime2(7) NOT NULL,
+        CONSTRAINT [PK_Users] PRIMARY KEY ([UserId])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[Users]') AND name = N'IX_Users_IdentityProvider_ExternalId'
+)
+BEGIN
+    CREATE UNIQUE INDEX [IX_Users_IdentityProvider_ExternalId] ON [Users] ([IdentityProvider], [ExternalId]);
+END;
+
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NOT NULL
    AND NOT EXISTS (
        SELECT 1
@@ -237,6 +259,10 @@ END;
             modelBuilder.Entity<UserRecord>()
                 .Property(user => user.CreatedAt)
                 .HasColumnType("datetime2(7)");
+
+            modelBuilder.Entity<UserRecord>()
+                .HasIndex(user => new { user.IdentityProvider, user.ExternalId })
+                .IsUnique();
 
         }
     }

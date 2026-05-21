@@ -12,9 +12,9 @@ namespace Ben.Datasync.Server
     where TEntity : ITableData, IPersonalEntity
   {
     private const string UserRecordCheckedItemKey = "Ben.UserRecordChecked";
+    private const string CanonicalUserIdItemKey = "Ben.CanonicalUserId";
 
-    // private string? UserId { get => contextAccessor.HttpContext?.User?.Identity?.Name; }
-    private string? UserId
+    private string? EmailUserId
     {
       get => contextAccessor.HttpContext?.User?.FindFirst("email")?.Value
           ?? contextAccessor.HttpContext?.User?.FindFirst("preferred_username")?.Value
@@ -23,14 +23,15 @@ namespace Ben.Datasync.Server
 
     public Expression<Func<TEntity, bool>> GetDataView()
     {
-      logger.LogInformation("GetDataView called. UserId: {UserId}", UserId ?? "(null)");
-      return UserId is null ? x => false : x => x.UserId == UserId;
+      string? canonicalUserId = GetCanonicalUserIdForDataView();
+      logger.LogInformation("GetDataView called. CanonicalUserId: {CanonicalUserId}", canonicalUserId ?? "(null)");
+      return canonicalUserId is null ? x => false : x => x.UserId == canonicalUserId;
     }
 
     public async ValueTask<bool> IsAuthorizedAsync(TableOperation op, TEntity? entity, CancellationToken cancellationToken = default)
     {
-      string? userId = UserId;
-      logger.LogInformation("IsAuthorizedAsync called. Operation: {Operation}, UserId: {UserId}, Entity.UserId: {EntityUserId}",
+      string? userId = await EnsureUserRecordExistsAndGetCanonicalUserIdAsync(cancellationToken);
+      logger.LogInformation("IsAuthorizedAsync called. Operation: {Operation}, CanonicalUserId: {UserId}, Entity.UserId: {EntityUserId}",
         op, userId ?? "(null)", entity?.UserId ?? "(null)");
 
       if (string.IsNullOrWhiteSpace(userId))
@@ -38,7 +39,6 @@ namespace Ben.Datasync.Server
         return false;
       }
 
-      await EnsureUserRecordExistsAsync(cancellationToken);
       return op is TableOperation.Create || op is TableOperation.Query || (entity?.UserId == userId);
     }
 
@@ -90,10 +90,8 @@ namespace Ben.Datasync.Server
         logger.LogWarning("HttpContext is null - authentication context unavailable");
       }
 
-      string? userId = UserId;
-      logger.LogInformation("UserId extracted from claims/identity: {UserId}", userId ?? "(null)");
-
-      await EnsureUserRecordExistsAsync(cancellationToken);
+      string? userId = await EnsureUserRecordExistsAndGetCanonicalUserIdAsync(cancellationToken);
+      logger.LogInformation("Canonical user id resolved: {UserId}", userId ?? "(null)");
 
       if (string.IsNullOrWhiteSpace(userId))
       {
@@ -107,31 +105,79 @@ namespace Ben.Datasync.Server
     public ValueTask PostCommitHookAsync(TableOperation op, TEntity entity, CancellationToken cancellationToken = default)
       => ValueTask.CompletedTask;
 
-    private async ValueTask EnsureUserRecordExistsAsync(CancellationToken cancellationToken)
+    private string? GetCanonicalUserIdForDataView()
     {
       HttpContext? httpContext = contextAccessor.HttpContext;
       if (httpContext == null)
       {
-        return;
+        return null;
+      }
+
+      if (httpContext.Items.TryGetValue(CanonicalUserIdItemKey, out object? cachedCanonical)
+          && cachedCanonical is string cachedCanonicalUserId
+          && !string.IsNullOrWhiteSpace(cachedCanonicalUserId))
+      {
+        return cachedCanonicalUserId;
+      }
+
+      string? externalId = httpContext.User?.FindFirst("sub")?.Value;
+      string? identityProvider = ResolveIdentityProvider(httpContext.User);
+      if (string.IsNullOrWhiteSpace(externalId) || string.IsNullOrWhiteSpace(identityProvider))
+      {
+        return EmailUserId;
+      }
+
+      string normalizedExternalId = externalId.Length > 200 ? externalId[..200] : externalId;
+      string normalizedIdentityProvider = identityProvider.Length > 50 ? identityProvider[..50] : identityProvider;
+
+      AppDbContext dbContext = httpContext.RequestServices.GetRequiredService<AppDbContext>();
+      UserRecord? existing = dbContext.Users
+        .AsNoTracking()
+        .FirstOrDefault(user => user.ExternalId == normalizedExternalId && user.IdentityProvider == normalizedIdentityProvider);
+
+      if (existing == null)
+      {
+        return EmailUserId;
+      }
+
+      string canonicalUserId = existing.UserId.ToString();
+      httpContext.Items[CanonicalUserIdItemKey] = canonicalUserId;
+      httpContext.Items[UserRecordCheckedItemKey] = true;
+      return canonicalUserId;
+    }
+
+    private async ValueTask<string?> EnsureUserRecordExistsAndGetCanonicalUserIdAsync(CancellationToken cancellationToken)
+    {
+      HttpContext? httpContext = contextAccessor.HttpContext;
+      if (httpContext == null)
+      {
+        return null;
+      }
+
+      if (httpContext.Items.TryGetValue(CanonicalUserIdItemKey, out object? cachedCanonical)
+          && cachedCanonical is string cachedCanonicalUserId
+          && !string.IsNullOrWhiteSpace(cachedCanonicalUserId))
+      {
+        return cachedCanonicalUserId;
       }
 
       if (httpContext.Items.ContainsKey(UserRecordCheckedItemKey))
       {
-        return;
+        return EmailUserId;
       }
 
       httpContext.Items[UserRecordCheckedItemKey] = true;
 
       string? externalId = httpContext.User?.FindFirst("sub")?.Value;
       string? identityProvider = ResolveIdentityProvider(httpContext.User);
-      string? email = UserId;
+      string? email = EmailUserId;
 
       if (string.IsNullOrWhiteSpace(externalId) || string.IsNullOrWhiteSpace(identityProvider))
       {
         logger.LogWarning("Skipping Users upsert: missing ExternalId or IdentityProvider. ExternalId={ExternalId}, IdentityProvider={IdentityProvider}",
           externalId ?? "(null)",
           identityProvider ?? "(null)");
-        return;
+        return email;
       }
 
       string normalizedExternalId = externalId.Length > 200 ? externalId[..200] : externalId;
@@ -143,17 +189,24 @@ namespace Ben.Datasync.Server
       AppDbContext dbContext = httpContext.RequestServices.GetRequiredService<AppDbContext>();
 
       UserRecord? existing = await dbContext.Users
-        .AsNoTracking()
         .FirstOrDefaultAsync(
           user => user.ExternalId == normalizedExternalId && user.IdentityProvider == normalizedIdentityProvider,
           cancellationToken);
 
       if (existing != null)
       {
+        if (string.IsNullOrWhiteSpace(existing.Email) && !string.IsNullOrWhiteSpace(normalizedEmail))
+        {
+          existing.Email = normalizedEmail;
+          await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        string existingCanonicalUserId = existing.UserId.ToString();
+        httpContext.Items[CanonicalUserIdItemKey] = existingCanonicalUserId;
         logger.LogInformation("Users record already exists for provider {IdentityProvider} and external id {ExternalId}",
           normalizedIdentityProvider,
           normalizedExternalId);
-        return;
+        return existingCanonicalUserId;
       }
 
       var newUser = new UserRecord
@@ -166,13 +219,60 @@ namespace Ben.Datasync.Server
       };
 
       dbContext.Users.Add(newUser);
-      await dbContext.SaveChangesAsync(cancellationToken);
+
+      try
+      {
+        await dbContext.SaveChangesAsync(cancellationToken);
+      }
+      catch (DbUpdateException)
+      {
+        UserRecord? racedExisting = await dbContext.Users
+          .AsNoTracking()
+          .FirstOrDefaultAsync(
+            user => user.ExternalId == normalizedExternalId && user.IdentityProvider == normalizedIdentityProvider,
+            cancellationToken);
+
+        if (racedExisting == null)
+        {
+          throw;
+        }
+
+        string racedCanonicalUserId = racedExisting.UserId.ToString();
+        httpContext.Items[CanonicalUserIdItemKey] = racedCanonicalUserId;
+        return racedCanonicalUserId;
+      }
+
+      string canonicalUserId = newUser.UserId.ToString();
+      httpContext.Items[CanonicalUserIdItemKey] = canonicalUserId;
+
+      if (!string.IsNullOrWhiteSpace(normalizedEmail))
+      {
+        int tasksUpdated = await dbContext.TaskItems
+          .Where(task => task.UserId == normalizedEmail)
+          .ExecuteUpdateAsync(setters => setters.SetProperty(task => task.UserId, canonicalUserId), cancellationToken);
+
+        int notesUpdated = await dbContext.NoteItems
+          .Where(note => note.UserId == normalizedEmail)
+          .ExecuteUpdateAsync(setters => setters.SetProperty(note => note.UserId, canonicalUserId), cancellationToken);
+
+        int projectsUpdated = await dbContext.ProjectItems
+          .Where(project => project.UserId == normalizedEmail)
+          .ExecuteUpdateAsync(setters => setters.SetProperty(project => project.UserId, canonicalUserId), cancellationToken);
+
+        logger.LogInformation("Backfilled legacy UserId from email to GUID for {Email}. Tasks={TasksUpdated}, Notes={NotesUpdated}, Projects={ProjectsUpdated}",
+          normalizedEmail,
+          tasksUpdated,
+          notesUpdated,
+          projectsUpdated);
+      }
 
       logger.LogInformation("Inserted Users record. UserId={UserId}, IdentityProvider={IdentityProvider}, ExternalId={ExternalId}, Email={Email}",
         newUser.UserId,
         newUser.IdentityProvider,
         newUser.ExternalId,
         newUser.Email ?? "(null)");
+
+      return canonicalUserId;
     }
 
     private static string? ResolveIdentityProvider(ClaimsPrincipal? user)
