@@ -19,28 +19,16 @@
              Style="{StaticResource SectionTitle}"
              HorizontalTextAlignment="Center"/>
 
-      <Grid Grid.Row="1">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="3"/>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="1"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="1"/>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+      <Border Grid.Row="1"
+              Style="{DynamicResource ThemedCard}"
+              StrokeThickness="{DynamicResource CardBorderThickness}">
+        <Border.StrokeShape>
+          <RoundRectangle CornerRadius="{DynamicResource ListCardCornerRadius}"/>
+        </Border.StrokeShape>
 
-        <BoxView Grid.ColumnSpan="2"
-                 HeightRequest="3"
-                 BackgroundColor="{DynamicResource Ink}"/>
-        <BoxView Grid.RowSpan="3"
-                 WidthRequest="1"
-                 BackgroundColor="{DynamicResource Ink}"/>
-
-        <ScrollView Grid.Row="1"
-                    Grid.Column="1"
-                    HorizontalOptions="Fill"
-                    VerticalOptions="Fill">
+        <ScrollView HorizontalOptions="Fill"
+                    VerticalOptions="Fill"
+                    BackgroundColor="{DynamicResource WritingPaper}">
 
           <Grid BackgroundColor="{DynamicResource WritingPaper}"
                 Padding="16"
@@ -61,13 +49,7 @@
                    HorizontalTextAlignment="Center"/>
           </Grid>
         </ScrollView>
-
-        <BoxView Grid.Row="2"
-                 Grid.ColumnSpan="2"
-                 HeightRequest="1"
-                 BackgroundColor="{DynamicResource Ink}"/>
-
-      </Grid>
+      </Border>
 
       <Grid Grid.Row="2"
             ColumnDefinitions="*,*"
@@ -76,16 +58,12 @@
         <Button Grid.Column="0"
                 Text="Cancel"
                 Clicked="OnCancelClicked"
-                BackgroundColor="{DynamicResource Ink}"
-                TextColor="{DynamicResource WritingPaper}"
-                CornerRadius="4"
+                Style="{DynamicResource SecondaryActionButton}"
                 HeightRequest="44"/>
         <Button Grid.Column="1"
                 Text="Go"
                 Clicked="OnGoToPageClicked"
-                BackgroundColor="{DynamicResource Accent}"
-                TextColor="{DynamicResource WritingPaper}"
-                CornerRadius="4"
+                Style="{DynamicResource PrimaryActionButton}"
                 HeightRequest="44"/>
       </Grid>
     </Grid>
