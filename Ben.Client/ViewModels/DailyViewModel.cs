@@ -32,6 +32,7 @@ public class DailyViewModel : INotifyPropertyChanged
     private readonly PlannerRepository _repo;
     private readonly IUnifiedAuthService _unifiedAuthService;
     private readonly ICloudAccountService _cloudAccountService;
+    private readonly ILocalDatabaseLifecycleService _localDatabaseLifecycleService;
     private readonly IAuthenticationLifecycleCoordinator _authLifecycleCoordinator;
     private readonly MsalService _authService;
     private readonly DatasyncSyncService _syncService;
@@ -47,6 +48,7 @@ public class DailyViewModel : INotifyPropertyChanged
         PlannerRepository repo,
         IUnifiedAuthService unifiedAuthService,
         ICloudAccountService cloudAccountService,
+        ILocalDatabaseLifecycleService localDatabaseLifecycleService,
         IAuthenticationLifecycleCoordinator authLifecycleCoordinator,
         MsalService authService,
         DatasyncSyncService syncService,
@@ -55,6 +57,7 @@ public class DailyViewModel : INotifyPropertyChanged
         _repo = repo;
         _unifiedAuthService = unifiedAuthService;
         _cloudAccountService = cloudAccountService;
+        _localDatabaseLifecycleService = localDatabaseLifecycleService;
         _authLifecycleCoordinator = authLifecycleCoordinator;
         _authService = authService;
         _syncService = syncService;
@@ -1557,10 +1560,44 @@ public class DailyViewModel : INotifyPropertyChanged
 
     public async Task<DeleteCloudDataResult> DeleteCloudDataAndSignOutAsync(CancellationToken cancellationToken = default)
     {
-        DeleteCloudDataResult deleteResult = await _cloudAccountService.DeleteCloudDataAsync(cancellationToken);
+        DeleteCloudDataResult deleteResult;
 
-        // Account deletion flow must always end in a signed-out state.
-        await SignOutAsync();
+        try
+        {
+            deleteResult = await _cloudAccountService.DeleteCloudDataAsync(cancellationToken);
+
+            if (deleteResult.IsSuccess)
+            {
+                // Keep local data, but queue it as fresh inserts for the next authenticated sync.
+                _syncService.SuppressSyncFor(TimeSpan.FromMinutes(5));
+                bool prepared = await _localDatabaseLifecycleService.RequeueAllLocalDataForUploadAsync();
+                if (!prepared)
+                {
+                    deleteResult = deleteResult with
+                    {
+                        Status = "local_requeue_warning",
+                        Message = deleteResult.Message + " Local data was kept, but it could not be fully prepared for re-upload."
+                    };
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            deleteResult = new DeleteCloudDataResult(
+                false,
+                "client_error",
+                $"Unexpected cloud deletion error: {ex.Message}",
+                0,
+                0,
+                0,
+                0,
+                0);
+        }
+        finally
+        {
+            // Account deletion flow must always end in a signed-out state.
+            await SignOutAsync();
+        }
 
         return deleteResult;
     }

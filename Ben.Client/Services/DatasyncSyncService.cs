@@ -98,6 +98,7 @@ public sealed class DatasyncSyncService : IDisposable
         }
 
         _started = true;
+        Interlocked.Exchange(ref _suppressSyncUntilUnixMs, 0);
         _connectivity.ConnectivityChanged += OnConnectivityChanged;
         _periodicSyncCts = new CancellationTokenSource();
         _periodicSyncTask = RunPendingChangesSyncLoopAsync(_periodicSyncCts.Token);
@@ -121,6 +122,7 @@ public sealed class DatasyncSyncService : IDisposable
             // Unsubscribe from connectivity events to prevent auto-sync attempts
             _connectivity.ConnectivityChanged -= OnConnectivityChanged;
             _started = false;
+            Interlocked.Exchange(ref _suppressSyncUntilUnixMs, 0);
             _periodicSyncCts?.Cancel();
 
             // Try to cancel any in-progress sync operation

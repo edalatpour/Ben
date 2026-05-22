@@ -33,6 +33,7 @@ public partial class SettingsPage : ContentPage
     private readonly ThemeService _themeService;
     private readonly UserFontService _userFontService;
     private readonly DailyViewModel _dailyViewModel;
+    private bool _isDeleteCloudDataInProgress;
     private readonly List<ThemeOption> _availableThemes = new()
     {
         new ThemeOption { Name = "Red",          DisplayName = "Red" },
@@ -119,53 +120,77 @@ public partial class SettingsPage : ContentPage
 
     private async Task DeleteCloudDataAsync()
     {
-        LocalDataNoticeLabel.IsVisible = false;
-
-        if (!_dailyViewModel.IsAuthenticated)
+        if (_isDeleteCloudDataInProgress)
         {
-            await DisplayAlertAsync("Sign in required", "You must be signed in to delete cloud data.", "OK");
             return;
         }
 
-        var identity = await _dailyViewModel.ReauthenticateAsync();
-        if (identity == null)
+        _isDeleteCloudDataInProgress = true;
+        SetDeleteCloudDataBusyState(true);
+
+        try
         {
+            LocalDataNoticeLabel.IsVisible = false;
+
+            if (!_dailyViewModel.IsAuthenticated)
+            {
+                await DisplayAlertAsync("Sign in required", "You must be signed in to delete cloud data.", "OK");
+                return;
+            }
+
+            var identity = await _dailyViewModel.ReauthenticateAsync();
+            if (identity == null)
+            {
+                await DisplayAlertAsync(
+                    "Re-authentication canceled",
+                    "Cloud data was not deleted.",
+                    "OK");
+                return;
+            }
+
+            bool confirmed = await DisplayAlertAsync(
+                "Delete cloud data?",
+                "Your cloud data will be deleted. You will be signed out. Local data will remain on this device unless you choose Delete local data.",
+                "Delete cloud data",
+                "Cancel");
+
+            if (!confirmed)
+            {
+                return;
+            }
+
+            var result = await _dailyViewModel.DeleteCloudDataAndSignOutAsync();
+
+            LocalDataNoticeLabel.Text = "Signed out. Local data remains on this device unless you choose Delete local data.";
+            LocalDataNoticeLabel.IsVisible = true;
+
+            if (result.IsSuccess)
+            {
+                await DisplayAlertAsync(
+                    "Cloud data deleted",
+                    $"{result.Message}\n\nDeleted items:\nTasks: {result.TasksDeleted}\nNotes: {result.NotesDeleted}\nProjects: {result.ProjectsDeleted}\nAccount records: {result.UsersDeleted}\n\nYou were signed out. Local data remains on this device.",
+                    "OK");
+                return;
+            }
+
             await DisplayAlertAsync(
-                "Re-authentication canceled",
-                "Cloud data was not deleted.",
+                "Signed out",
+                $"Cloud data deletion did not complete.\nStatus: {result.Status} ({result.StatusCode})\nDetails: {result.Message}\n\nYou were signed out. Local data remains on this device.",
                 "OK");
-            return;
         }
-
-        bool confirmed = await DisplayAlertAsync(
-            "Delete cloud data?",
-            "Your cloud data will be deleted. You will be signed out. Local data will remain on this device unless you choose Delete local data.",
-            "Delete cloud data",
-            "Cancel");
-
-        if (!confirmed)
+        finally
         {
-            return;
+            SetDeleteCloudDataBusyState(false);
+            _isDeleteCloudDataInProgress = false;
         }
+    }
 
-        var result = await _dailyViewModel.DeleteCloudDataAndSignOutAsync();
-
-        LocalDataNoticeLabel.Text = "Signed out. Local data remains on this device unless you choose Delete local data.";
-        LocalDataNoticeLabel.IsVisible = true;
-
-        if (result.IsSuccess)
-        {
-            await DisplayAlertAsync(
-                "Cloud data deleted",
-                "Your cloud data was deleted and you were signed out. Local data remains on this device.",
-                "OK");
-            return;
-        }
-
-        await DisplayAlertAsync(
-            "Signed out",
-            "You were signed out, but cloud data deletion did not complete. Local data remains on this device.",
-            "OK");
+    private void SetDeleteCloudDataBusyState(bool isBusy)
+    {
+        SignOutButton.IsEnabled = !isBusy;
+        DeleteLocalDataButton.IsEnabled = !isBusy;
+        DeleteCloudDataButton.IsEnabled = !isBusy;
+        DeleteCloudBusyRow.IsVisible = isBusy;
     }
 
     private async void OnSignInMicrosoftTapped(object sender, TappedEventArgs e)

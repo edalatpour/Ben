@@ -50,10 +50,25 @@ public sealed class CloudAccountService : ICloudAccountService
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(_datasyncOptions.Endpoint, "account/delete-cloud-data"));
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
 
-        using var response = await HttpClient.SendAsync(request, cancellationToken);
-        string payload = await response.Content.ReadAsStringAsync(cancellationToken);
+        try
+        {
+            using var response = await HttpClient.SendAsync(request, cancellationToken);
+            string payload = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        return ParseResponse(response.StatusCode, payload);
+            return ParseResponse(response.StatusCode, payload);
+        }
+        catch (OperationCanceledException)
+        {
+            return new DeleteCloudDataResult(false, "canceled", "Cloud deletion request was canceled.", 0, 0, 0, 0, 0);
+        }
+        catch (HttpRequestException ex)
+        {
+            return new DeleteCloudDataResult(false, "network_error", $"Cloud deletion request failed: {ex.Message}", 0, 0, 0, 0, 0);
+        }
+        catch (Exception ex)
+        {
+            return new DeleteCloudDataResult(false, "client_error", $"Unexpected cloud deletion error: {ex.Message}", 0, 0, 0, 0, 0);
+        }
     }
 
     private static DeleteCloudDataResult ParseResponse(System.Net.HttpStatusCode statusCode, string payload)

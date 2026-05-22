@@ -177,7 +177,8 @@
                                    IsVisible="{Binding AuthViewModel.IsAuthenticated}"
                                    LineBreakMode="WordWrap"/>
 
-                            <Button Text="Sign out"
+                            <Button x:Name="SignOutButton"
+                                    Text="Sign out"
                                     Style="{DynamicResource GhostActionButton}"
                                     IsVisible="{Binding AuthViewModel.IsAuthenticated}"
                                     Clicked="OnSignOutOnlyTapped"/>
@@ -189,14 +190,30 @@
                                    TextColor="{DynamicResource Link}"
                                    LineBreakMode="WordWrap"/>
 
-                            <Button Text="Delete local data"
+                            <Button x:Name="DeleteLocalDataButton"
+                                    Text="Delete local data"
                                     Style="{DynamicResource GhostActionButton}"
                                     Clicked="OnDeleteLocalDataTapped"/>
 
-                            <Button Text="Delete cloud data (Delete account)"
+                            <Button x:Name="DeleteCloudDataButton"
+                                    Text="Delete cloud data (Delete account)"
                                     Style="{DynamicResource GhostActionButton}"
                                     IsVisible="{Binding AuthViewModel.IsAuthenticated}"
                                     Clicked="OnDeleteCloudDataTapped"/>
+
+                            <HorizontalStackLayout x:Name="DeleteCloudBusyRow"
+                                                   IsVisible="False"
+                                                   Spacing="8"
+                                                   VerticalOptions="Center">
+                                <ActivityIndicator IsRunning="True"
+                                                   WidthRequest="16"
+                                                   HeightRequest="16"
+                                                   Color="{DynamicResource Link}"/>
+                                <Label Text="Deleting cloud data..."
+                                       FontSize="12"
+                                       TextColor="{DynamicResource Link}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
                         </VerticalStackLayout>
 
                         <Label Grid.Row="4"
