@@ -36,7 +36,7 @@
 
                     <Grid BackgroundColor="{DynamicResource WritingPaper}"
                           Padding="{DynamicResource SpacingLg}"
-                          RowDefinitions="Auto,Auto,Auto,Auto"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                           RowSpacing="{DynamicResource SpacingLg}">
 
                         <!-- Authentication -->
@@ -76,22 +76,6 @@
                                            WidthRequest="24"
                                            HeightRequest="24"/>
                                 </Grid>
-
-                                <Label Grid.Column="1"
-                                       Text="{Binding AuthViewModel.LoginStatusText}"
-                                       FontSize="14"
-                                       TextColor="{DynamicResource Link}"
-                                       TextDecorations="Underline"
-                                       VerticalOptions="Center"
-                                       HorizontalOptions="Start">
-
-                                </Label>
-
-                                <Button Grid.Row="1"
-                                        Grid.ColumnSpan="2"
-                                        Text="Sign out"
-                                        Style="{DynamicResource GhostActionButton}"
-                                        Clicked="OnSignOutTapped"/>
 
                             </Grid>
 
@@ -179,7 +163,43 @@
                                     FontSize="18"/>
                         </Grid>
 
-                        <Label Grid.Row="3"
+                        <!-- Data & Privacy -->
+                        <VerticalStackLayout Grid.Row="3"
+                                             Spacing="{DynamicResource SpacingSm}"
+                                             Padding="{DynamicResource SectionHeaderPadding}">
+                            <Label Text="Data &amp; Privacy"
+                                   Style="{DynamicResource LabelSection}"
+                                   HorizontalOptions="Start"/>
+
+                            <Label Text="{Binding AuthViewModel.LoginStatusText}"
+                                   FontSize="14"
+                                   TextColor="{DynamicResource Link}"
+                                   IsVisible="{Binding AuthViewModel.IsAuthenticated}"
+                                   LineBreakMode="WordWrap"/>
+
+                            <Button Text="Sign out"
+                                    Style="{DynamicResource GhostActionButton}"
+                                    IsVisible="{Binding AuthViewModel.IsAuthenticated}"
+                                    Clicked="OnSignOutOnlyTapped"/>
+
+                            <Label x:Name="LocalDataNoticeLabel"
+                                   IsVisible="False"
+                                   Text=""
+                                   FontSize="12"
+                                   TextColor="{DynamicResource Link}"
+                                   LineBreakMode="WordWrap"/>
+
+                            <Button Text="Delete local data"
+                                    Style="{DynamicResource GhostActionButton}"
+                                    Clicked="OnDeleteLocalDataTapped"/>
+
+                            <Button Text="Delete cloud data (Delete account)"
+                                    Style="{DynamicResource GhostActionButton}"
+                                    IsVisible="{Binding AuthViewModel.IsAuthenticated}"
+                                    Clicked="OnDeleteCloudDataTapped"/>
+                        </VerticalStackLayout>
+
+                        <Label Grid.Row="4"
                                Text="About Daymark"
                                FontSize="14"
                                TextColor="{DynamicResource Link}"

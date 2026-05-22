@@ -48,7 +48,7 @@ public static class MauiProgram
         builder.Services.AddSingleton(new DatasyncOptions { Endpoint = new Uri(Constants.ServiceUri) });
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
 
-        builder.Services.AddSingleton<AuthenticationService>();
+        builder.Services.AddSingleton<MsalService>();
         builder.Services.AddSingleton<ExternalIdAuthService>();
         builder.Services.AddSingleton<IUnifiedAuthSessionStore, PreferencesUnifiedAuthSessionStore>();
         builder.Services.AddSingleton<IUnifiedAuthService, UnifiedAuthService>();
@@ -57,6 +57,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ThemeService>();
         builder.Services.AddSingleton<UserFontService>();
         builder.Services.AddSingleton<SqliteWriteCoordinator>();
+        builder.Services.AddSingleton<ILocalDatabaseLifecycleService, LocalDatabaseLifecycleService>();
         builder.Services.AddSingleton<DatasyncSyncService>();
 
         builder.Services.AddDbContext<LocalSchemaDbContext>(options => options.UseSqlite(sqliteConnectionString));

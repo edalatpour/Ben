@@ -82,10 +82,39 @@ public partial class SettingsPage : ContentPage
         ApplyThemePreview(_selectedTheme);
     }
 
-    private async void OnSignOutTapped(object sender, EventArgs e)
+    private async void OnSignOutOnlyTapped(object sender, EventArgs e)
     {
-        // Handles sign-out when the user is already authenticated (any provider).
         await _dailyViewModel.SignOutAsync();
+        LocalDataNoticeLabel.Text = "Signed out. Local data remains on this device unless you choose Delete local data.";
+        LocalDataNoticeLabel.IsVisible = true;
+    }
+
+    private void OnDeleteLocalDataTapped(object sender, EventArgs e)
+    {
+        _ = DeleteLocalDataAsync();
+    }
+
+    private async Task DeleteLocalDataAsync()
+    {
+        LocalDataNoticeLabel.IsVisible = false;
+
+        bool confirmed = await DisplayAlert(
+            "Delete local data?",
+            "This will delete and recreate the local Daymark database on this device. It will not delete your cloud data.",
+            "Delete local data",
+            "Cancel");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        await _dailyViewModel.DeleteLocalDataAsync();
+    }
+
+    private void OnDeleteCloudDataTapped(object sender, EventArgs e)
+    {
+        // Intentionally left blank for now. UI is in place; behavior will be wired later.
     }
 
     private async void OnSignInMicrosoftTapped(object sender, TappedEventArgs e)

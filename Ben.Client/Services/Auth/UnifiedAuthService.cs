@@ -5,12 +5,12 @@ namespace Ben.Services.Auth;
 
 public sealed class UnifiedAuthService : IUnifiedAuthService
 {
-    private readonly AuthenticationService _authenticationService;
+    private readonly MsalService _authenticationService;
     private readonly ExternalIdAuthService _externalIdAuthService;
     private readonly IUnifiedAuthSessionStore _sessionStore;
 
     public UnifiedAuthService(
-        AuthenticationService authenticationService,
+        MsalService authenticationService,
         ExternalIdAuthService externalIdAuthService,
         IUnifiedAuthSessionStore sessionStore)
     {

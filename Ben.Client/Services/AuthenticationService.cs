@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Ben.Services;
 
-public class AuthenticationService
+public class MsalService
 {
     private readonly IPublicClientApplication _pca;
     private string ClientId = Constants.ApplicationId; // "d5a4dd1f-e90b-4c48-8031-15041bd3c02c"; // TODO: Replace with actual client ID
@@ -21,7 +21,7 @@ public class AuthenticationService
     private static readonly string ProfilePictureFilePath = Path.Combine(FileSystem.AppDataDirectory, "profile_picture.jpg");
     private static readonly HttpClient _httpClient = new();
 
-    public AuthenticationService()
+    public MsalService()
     {
         // Build the public client application
         var builder = PublicClientApplicationBuilder
@@ -55,10 +55,9 @@ public class AuthenticationService
         {
             return builder.Build();
         }
-        catch (Exception ex)
+        catch
         {
 #if IOS || MACCATALYST
-            Console.WriteLine($"MSAL initialization failed with keychain settings; retrying without explicit keychain group. Error: {ex.Message}");
             return PublicClientApplicationBuilder
                 .Create(Constants.ApplicationId)
                 .WithAuthority(AzureCloudInstance.AzurePublic, Constants.AuthorityTenant)

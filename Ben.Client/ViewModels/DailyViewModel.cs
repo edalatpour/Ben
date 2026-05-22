@@ -32,7 +32,7 @@ public class DailyViewModel : INotifyPropertyChanged
     private readonly PlannerRepository _repo;
     private readonly IUnifiedAuthService _unifiedAuthService;
     private readonly IAuthenticationLifecycleCoordinator _authLifecycleCoordinator;
-    private readonly AuthenticationService _authService;
+    private readonly MsalService _authService;
     private readonly DatasyncSyncService _syncService;
     private readonly IConnectivity _connectivity;
     private readonly SemaphoreSlim _refreshAfterSyncLock = new(1, 1);
@@ -46,7 +46,7 @@ public class DailyViewModel : INotifyPropertyChanged
         PlannerRepository repo,
         IUnifiedAuthService unifiedAuthService,
         IAuthenticationLifecycleCoordinator authLifecycleCoordinator,
-        AuthenticationService authService,
+        MsalService authService,
         DatasyncSyncService syncService,
         IConnectivity connectivity)
     {
@@ -88,11 +88,6 @@ public class DailyViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsAuthenticated));
             UserAvatarSource = BuildUserAvatarSource();
 
-            if (!IsAuthenticated)
-            {
-                ResetSignedOutUiState();
-            }
-
             _ = UpdateStatus();
         }
 
@@ -103,27 +98,6 @@ public class DailyViewModel : INotifyPropertyChanged
         }
 
         MainThread.BeginInvokeOnMainThread(ApplyAuthenticationStateChange);
-    }
-
-    private void ResetSignedOutUiState()
-    {
-        _currentProjectName = string.Empty;
-        _lastSyncIssue = null;
-
-        DateTime targetDate = CurrentDate;
-        if (CurrentDay != null && KeyConvention.TryParseDateKey(CurrentDay.Key, out DateTime parsedDate))
-        {
-            targetDate = parsedDate;
-        }
-
-        CurrentDate = targetDate;
-        CurrentDay = new DailyData
-        {
-            Key = KeyConvention.ToDateKey(targetDate),
-            Date = targetDate
-        };
-
-        Console.WriteLine("Reset UI data on sign-out.");
     }
 
     private void OnSyncStarted(object? sender, EventArgs e)
@@ -1550,15 +1524,25 @@ public class DailyViewModel : INotifyPropertyChanged
             return;
         }
 
-        bool success = await _authLifecycleCoordinator.SignOutWithCleanupAsync();
+        bool success = await _authLifecycleCoordinator.SignOutAsync();
         if (!success)
         {
-            Console.WriteLine("Sign-out lifecycle cleanup failed.");
+            Console.WriteLine("Sign-out lifecycle failed.");
         }
-        else
+
+        await UpdateStatus();
+    }
+
+    public async Task DeleteLocalDataAsync()
+    {
+        bool success = await _authLifecycleCoordinator.ResetLocalDataAsync();
+        if (!success)
         {
-            ResetSignedOutUiState();
+            Console.WriteLine("Local data reset failed.");
         }
+
+        string currentKey = CurrentDay?.Key ?? KeyConvention.ToDateKey(CurrentDate);
+        await LoadPageAsync(currentKey);
 
         await UpdateStatus();
     }

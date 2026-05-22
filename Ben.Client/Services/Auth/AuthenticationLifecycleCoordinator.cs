@@ -1,5 +1,5 @@
 using Ben.Data;
-using Microsoft.EntityFrameworkCore;
+using Ben.Services;
 
 namespace Ben.Services.Auth;
 
@@ -9,20 +9,20 @@ public sealed class AuthenticationLifecycleCoordinator : IAuthenticationLifecycl
 
     private readonly DatasyncSyncService _syncService;
     private readonly PlannerDbContext _plannerDbContext;
-    private readonly LocalSchemaDbContext _schemaDbContext;
-    private readonly AuthenticationService _authenticationService;
+    private readonly ILocalDatabaseLifecycleService _localDatabaseLifecycleService;
+    private readonly MsalService _authenticationService;
     private readonly ExternalIdAuthService _externalIdAuthService;
 
     public AuthenticationLifecycleCoordinator(
         DatasyncSyncService syncService,
         PlannerDbContext plannerDbContext,
-        LocalSchemaDbContext schemaDbContext,
-        AuthenticationService authenticationService,
+        ILocalDatabaseLifecycleService localDatabaseLifecycleService,
+        MsalService authenticationService,
         ExternalIdAuthService externalIdAuthService)
     {
         _syncService = syncService;
         _plannerDbContext = plannerDbContext;
-        _schemaDbContext = schemaDbContext;
+        _localDatabaseLifecycleService = localDatabaseLifecycleService;
         _authenticationService = authenticationService;
         _externalIdAuthService = externalIdAuthService;
     }
@@ -31,14 +31,11 @@ public sealed class AuthenticationLifecycleCoordinator : IAuthenticationLifecycl
     {
         try
         {
-            bool dbRecreated = await _plannerDbContext.RecreateAndInitializeDatabaseAsync().ConfigureAwait(false);
-            if (!dbRecreated)
+            bool dbCreated = await _localDatabaseLifecycleService.CreateLocalDatabaseAsync().ConfigureAwait(false);
+            if (!dbCreated)
             {
-                Console.WriteLine("Warning: Database recreation failed, but proceeding with sync initialization.");
+                Console.WriteLine("Warning: Local database creation failed, but proceeding with sync initialization.");
             }
-
-            await _schemaDbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
-            LocalMigrationRunner.ApplyMigrations(_schemaDbContext);
 
             bool clientInitialized = await _plannerDbContext.ReinitializeDatasyncClientAsync().ConfigureAwait(false);
             if (!clientInitialized)
@@ -66,37 +63,11 @@ public sealed class AuthenticationLifecycleCoordinator : IAuthenticationLifecycl
 
             await _syncService.CancelAndDisposeAsync().ConfigureAwait(false);
 
-            _plannerDbContext.ChangeTracker.Clear();
-            _schemaDbContext.ChangeTracker.Clear();
-
-            var plannerConnection = _plannerDbContext.Database.GetDbConnection();
-            if (plannerConnection.State != System.Data.ConnectionState.Closed)
+            bool dbReset = await _localDatabaseLifecycleService.DeleteAndRecreateLocalDatabaseAsync().ConfigureAwait(false);
+            if (!dbReset)
             {
-                plannerConnection.Close();
+                Console.WriteLine("Warning: Local database reset was not fully successful during sign-out.");
             }
-
-            var schemaConnection = _schemaDbContext.Database.GetDbConnection();
-            if (schemaConnection.State != System.Data.ConnectionState.Closed)
-            {
-                schemaConnection.Close();
-            }
-
-            bool dbDeleted = await _plannerDbContext.DeleteDatabaseFileAsync().ConfigureAwait(false);
-            if (!dbDeleted)
-            {
-                Console.WriteLine("Warning: Database file deletion failed, but proceeding with sign-out.");
-            }
-
-            // Immediately recreate a fresh local database so signed-out users can continue
-            // using the app locally without backend connectivity.
-            bool dbRecreated = await _plannerDbContext.RecreateAndInitializeDatabaseAsync().ConfigureAwait(false);
-            if (!dbRecreated)
-            {
-                Console.WriteLine("Warning: Failed to recreate local database after sign-out.");
-            }
-
-            await _schemaDbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
-            LocalMigrationRunner.ApplyMigrations(_schemaDbContext);
 
             if (_authenticationService.IsAuthenticated)
             {
@@ -115,6 +86,66 @@ public sealed class AuthenticationLifecycleCoordinator : IAuthenticationLifecycl
         catch (Exception ex)
         {
             Console.WriteLine($"Authentication lifecycle sign-out failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> SignOutAsync()
+    {
+        try
+        {
+            await _syncService.CancelAndDisposeAsync().ConfigureAwait(false);
+
+            if (_authenticationService.IsAuthenticated)
+            {
+                await _authenticationService.SignOutAsync().ConfigureAwait(false);
+            }
+
+            if (_externalIdAuthService.IsAuthenticated)
+            {
+                _externalIdAuthService.SignOut();
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Authentication lifecycle sign-out failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> ResetLocalDataAsync()
+    {
+        try
+        {
+            await _syncService.CancelAndDisposeAsync().ConfigureAwait(false);
+
+            bool dbReset = await _localDatabaseLifecycleService.DeleteAndRecreateLocalDatabaseAsync().ConfigureAwait(false);
+            if (!dbReset)
+            {
+                Console.WriteLine("Warning: Local database reset was not fully successful.");
+            }
+
+            if (!_authenticationService.IsAuthenticated && !_externalIdAuthService.IsAuthenticated)
+            {
+                return dbReset;
+            }
+
+            bool clientInitialized = await _plannerDbContext.ReinitializeDatasyncClientAsync().ConfigureAwait(false);
+            if (!clientInitialized)
+            {
+                Console.WriteLine("Warning: Datasync client reinitialization failed after local data reset.");
+            }
+
+            _syncService.Start();
+            _ = _syncService.TrySyncNowAsync();
+
+            return dbReset && clientInitialized;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Authentication lifecycle local data reset failed: {ex.Message}");
             return false;
         }
     }
