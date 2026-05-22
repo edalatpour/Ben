@@ -17,5 +17,7 @@ public interface IUnifiedAuthService
 
     Task<UnifiedIdentity?> SignInWithProviderAsync(UnifiedAuthProvider provider, CancellationToken cancellationToken = default);
 
+    Task<UnifiedIdentity?> ReauthenticateAsync(CancellationToken cancellationToken = default);
+
     Task SignOutAsync();
 }

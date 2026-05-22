@@ -88,9 +88,41 @@ public sealed class UnifiedAuthService : IUnifiedAuthService
         _sessionStore.Clear();
     }
 
+    public async Task<UnifiedIdentity?> ReauthenticateAsync(CancellationToken cancellationToken = default)
+    {
+        _ = cancellationToken;
+
+        return ActiveProvider switch
+        {
+            UnifiedAuthProvider.Microsoft => await ReauthenticateWithMicrosoftAsync(),
+            UnifiedAuthProvider.Apple => await _externalIdAuthService.ReauthenticateAsync(),
+            UnifiedAuthProvider.Google => await SignInWithGooglePlaceholderAsync(),
+            _ => null
+        };
+    }
+
     private async Task<UnifiedIdentity?> SignInWithMicrosoftAsync()
     {
         var result = await _authenticationService.SignInAsync();
+        if (result == null)
+        {
+            return null;
+        }
+
+        return new UnifiedIdentity
+        {
+            Provider = UnifiedAuthProvider.Microsoft.ToString(),
+            UserId = result.Account?.HomeAccountId?.Identifier ?? result.Account?.Username ?? string.Empty,
+            Email = result.Account?.Username ?? string.Empty,
+            Name = result.Account?.Username ?? string.Empty,
+            AccessToken = result.AccessToken,
+            IdToken = result.IdToken
+        };
+    }
+
+    private async Task<UnifiedIdentity?> ReauthenticateWithMicrosoftAsync()
+    {
+        var result = await _authenticationService.ReauthenticateAsync();
         if (result == null)
         {
             return null;

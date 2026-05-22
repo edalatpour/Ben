@@ -183,6 +183,37 @@ public class MsalService
         }
     }
 
+    public async Task<AuthenticationResult?> ReauthenticateAsync()
+    {
+        try
+        {
+            var accounts = await _pca.GetAccountsAsync();
+            var firstAccount = accounts.FirstOrDefault();
+
+            var interactiveRequest = _pca.AcquireTokenInteractive(_apiScopes)
+                .WithPrompt(Prompt.ForceLogin);
+
+            if (firstAccount != null)
+            {
+                interactiveRequest = interactiveRequest.WithAccount(firstAccount);
+            }
+
+            var authResult = await interactiveRequest.ExecuteAsync();
+
+            UpdateAuthState(authResult);
+#if DEBUG
+            Console.WriteLine($"[Auth] Re-auth token account: Username={authResult.Account?.Username}, HomeAccountId={authResult.Account?.HomeAccountId?.Identifier}");
+#endif
+            _ = FetchAndStoreProfilePictureAsync(allowInteractiveTokenAcquisition: true, account: authResult.Account);
+            return authResult;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Re-authentication error: {ex.Message}");
+            return null;
+        }
+    }
+
     public async Task SignOutAsync()
     {
         try

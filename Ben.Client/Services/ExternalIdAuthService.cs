@@ -127,6 +127,20 @@ public class ExternalIdAuthService
     /// </returns>
     public async Task<UnifiedIdentity?> AuthenticateAsync()
     {
+        return await AuthenticateInternalAsync(forcePrompt: false);
+    }
+
+    /// <summary>
+    /// Launches a forced re-authentication flow for sensitive actions (for example,
+    /// account deletion), requiring the identity provider login prompt.
+    /// </summary>
+    public async Task<UnifiedIdentity?> ReauthenticateAsync()
+    {
+        return await AuthenticateInternalAsync(forcePrompt: true);
+    }
+
+    private async Task<UnifiedIdentity?> AuthenticateInternalAsync(bool forcePrompt)
+    {
         const string provider = "apple";
 
         if (!OperatingSystem.IsIOS())
@@ -138,7 +152,7 @@ public class ExternalIdAuthService
         try
         {
             // Build the full authorize URL for Apple sign-in
-            var authorizeUrl = BuildAuthorizeUrl();
+            var authorizeUrl = BuildAuthorizeUrl(forcePrompt);
 
             // callbackUri must match the redirect_uri registered in the External ID tenant
             var callbackUri = new Uri(RedirectUri);
@@ -211,8 +225,10 @@ public class ExternalIdAuthService
     ///   &state={random-guid}
     ///   &nonce={random-guid}
     ///   &domain_hint=apple
+    ///   &prompt=login (forced re-auth only)
+    ///   &max_age=0 (forced re-auth only)
     /// </summary>
-    private static string BuildAuthorizeUrl()
+    private static string BuildAuthorizeUrl(bool forcePrompt)
     {
         // Unique values per request to prevent replay attacks
         var state = Guid.NewGuid().ToString("N");
@@ -231,6 +247,14 @@ public class ExternalIdAuthService
             ("nonce",          nonce),
             ("domain_hint",    "apple"),
         };
+
+        if (forcePrompt)
+        {
+            parameters = [.. parameters,
+                ("prompt", "login"),
+                ("max_age", "0")
+            ];
+        }
 
         var queryString = string.Join("&",
             parameters.Select(p =>
