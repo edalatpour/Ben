@@ -44,11 +44,23 @@ public partial class SettingsPage : ContentPage
         new ThemeOption { Name = "Purple",       DisplayName = "Purple" },
         new ThemeOption { Name = "Brown",        DisplayName = "Brown" },
         new ThemeOption { Name = "Gray",         DisplayName = "Gray" },
+        new ThemeOption { Name = "Assateague",   DisplayName = "Assateague" },
         new ThemeOption { Name = "Bodie",        DisplayName = "Bodie" },
         new ThemeOption { Name = "CapeLookout",  DisplayName = "Cape Lookout" },
         new ThemeOption { Name = "Currituck",    DisplayName = "Currituck" },
         new ThemeOption { Name = "Hatteras",     DisplayName = "Hatteras" },
+        new ThemeOption { Name = "HeadHarbour",  DisplayName = "Head Harbour" },
+        new ThemeOption { Name = "Herring",      DisplayName = "Herring" },
+        new ThemeOption { Name = "Hocq",         DisplayName = "Hocq" },
+        new ThemeOption { Name = "Keskiniemi",   DisplayName = "Keskiniemi" },
+        new ThemeOption { Name = "Kingswear",    DisplayName = "Kingswear" },
+        new ThemeOption { Name = "LaMarina",     DisplayName = "La Marina" },
+        new ThemeOption { Name = "Laitakari",    DisplayName = "Laitakari" },
         new ThemeOption { Name = "Ocracoke",     DisplayName = "Ocracoke" },
+        new ThemeOption { Name = "StMartins",    DisplayName = "St. Martins" },
+        new ThemeOption { Name = "Trinity",      DisplayName = "Trinity" },
+        new ThemeOption { Name = "TybeeIsland",  DisplayName = "Tybee Island" },
+        new ThemeOption { Name = "Ystad",        DisplayName = "Ystad" },
     };
 
     public List<ThemeOption> AvailableThemes => _availableThemes;

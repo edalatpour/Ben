@@ -20,6 +20,18 @@ public class ThemeService
         "Ocracoke",
         "Bodie",
         "CapeLookout",
+        "Assateague",
+        "HeadHarbour",
+        "Herring",
+        "Hocq",
+        "Keskiniemi",
+        "Kingswear",
+        "LaMarina",
+        "Laitakari",
+        "StMartins",
+        "Trinity",
+        "TybeeIsland",
+        "Ystad",
     };
 
     private string _currentTheme;
@@ -154,6 +166,18 @@ public class ThemeService
             "Ocracoke" => new Ocracoke(),
             "Bodie" => new Bodie(),
             "CapeLookout" => new CapeLookout(),
+            "Assateague" => new Assateague(),
+            "HeadHarbour" => new HeadHarbour(),
+            "Herring" => new Herring(),
+            "Hocq" => new Hocq(),
+            "Keskiniemi" => new Keskiniemi(),
+            "Kingswear" => new Kingswear(),
+            "LaMarina" => new LaMarina(),
+            "Laitakari" => new Laitakari(),
+            "StMartins" => new StMartins(),
+            "Trinity" => new Trinity(),
+            "TybeeIsland" => new TybeeIsland(),
+            "Ystad" => new Ystad(),
             _ => new Hatteras()
         };
     }

@@ -19,20 +19,22 @@
 
             <!-- Date Header -->
 
-            <Grid RowDefinitions="Auto,Auto"
-                  RowSpacing="4"
+            <Grid ColumnDefinitions="Auto,*"
+                  RowDefinitions="Auto,Auto"
+                  ColumnSpacing="4"
                   HorizontalOptions="Start"
                   VerticalOptions="Start">
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnDateTapped"/>
                 </Grid.GestureRecognizers>
 
-                <Grid Grid.Row="0"
-                      WidthRequest="216"
-                      HeightRequest="72">
+                <Grid Grid.Column="0"
+                      Grid.Row="0"
+                      HorizontalOptions="Start"
+                      VerticalOptions="End">
                     <!-- <Border Style="{DynamicResource DaymarkHeaderBand}"/> -->
 
-                    <Border Margin="0,8,0,8"
+                    <Border Margin="0,8,0,4"
                             WidthRequest="84"
                             HorizontalOptions="Start"
                             Style="{DynamicResource DaymarkDateBadge}">
@@ -42,12 +44,14 @@
                                MaxLines="1"/>
                     </Border>
 
-                    <BoxView Style="{DynamicResource DaymarkHeaderRule}"/>
                 </Grid>
 
-                <VerticalStackLayout Grid.Row="1"
+                <VerticalStackLayout Grid.Column="1"
+                                     Grid.Row="0"
                                      Spacing="0"
-                                     Padding="2,0,0,0">
+                                     Padding="2,0,0,0"
+                                     HorizontalOptions="Start"
+                                     VerticalOptions="Center">
                     <Label Text="{Binding HeaderSecondaryText}"
                            IsVisible="{Binding ShowDateHeaderDetails}"
                            Style="{DynamicResource DaymarkDateMeta}"
@@ -57,6 +61,10 @@
                            Style="{DynamicResource DaymarkDateMeta}"
                            HorizontalTextAlignment="Start"/>
                 </VerticalStackLayout>
+
+                <BoxView Grid.Row="1"
+                         Grid.ColumnSpan="2"
+                         Style="{DynamicResource DaymarkHeaderRule}"/>
             </Grid>
 
             <!-- Section Titles -->

@@ -105,3 +105,99 @@ public partial class CapeLookout : ResourceDictionary
         InitializeComponent();
     }
 }
+
+public partial class Assateague : ResourceDictionary
+{
+    public Assateague()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class HeadHarbour : ResourceDictionary
+{
+    public HeadHarbour()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Herring : ResourceDictionary
+{
+    public Herring()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Hocq : ResourceDictionary
+{
+    public Hocq()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Keskiniemi : ResourceDictionary
+{
+    public Keskiniemi()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Kingswear : ResourceDictionary
+{
+    public Kingswear()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class LaMarina : ResourceDictionary
+{
+    public LaMarina()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Laitakari : ResourceDictionary
+{
+    public Laitakari()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class StMartins : ResourceDictionary
+{
+    public StMartins()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Trinity : ResourceDictionary
+{
+    public Trinity()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class TybeeIsland : ResourceDictionary
+{
+    public TybeeIsland()
+    {
+        InitializeComponent();
+    }
+}
+
+public partial class Ystad : ResourceDictionary
+{
+    public Ystad()
+    {
+        InitializeComponent();
+    }
+}

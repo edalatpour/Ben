@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Ben.Resources.Themes.Hocq">
+
+    <!-- Hocq Lighthouse -->
+
+    <Color x:Key="Paper">#F5F5F5</Color>
+    <Color x:Key="WritingPaper">#FFFFFF</Color>
+
+    <Color x:Key="Ink">#222222</Color>
+    <Color x:Key="Line">#D0D0D0</Color>
+
+    <Color x:Key="Accent">#C0392B</Color>
+    <Color x:Key="Link">#C0392B</Color>
+
+    <Color x:Key="UserText">#000000</Color>
+
+    <Color x:Key="PageBackgroundBrush">#F5F5F5</Color>
+    <Color x:Key="CardBackgroundBrush">#FFFFFF</Color>
+    <Color x:Key="InkBrush">#222222</Color>
+    <Color x:Key="SecondaryInkBrush">#888888</Color>
+    <Color x:Key="GlyphBrush">#1A1A1A</Color>
+    <Color x:Key="AccentBrush">#C0392B</Color>
+    <Color x:Key="SelectionBrush">#80C0392B</Color>
+    <Color x:Key="HighlightBrush">#33C0392B</Color>
+    <Color x:Key="HeaderBackgroundBrush">#1A1A1A</Color>
+    <Color x:Key="HeaderForegroundBrush">#FFFFFF</Color>
+    <Color x:Key="CheckboxStrokeBrush">#444444</Color>
+    <Color x:Key="CheckboxFillBrush">#C0392B</Color>
+    <Color x:Key="BorderColor">#444444</Color>
+    <Color x:Key="GridLineColor">#D0D0D0</Color>
+    <Color x:Key="DividerColor">#D0D0D0</Color>
+    <x:Double x:Key="BorderThickness">1</x:Double>
+
+    <x:Double x:Key="CardBorderThickness">0</x:Double>
+    <x:Double x:Key="DividerThickness">1</x:Double>
+    <x:Double x:Key="CornerRadius">4</x:Double>
+    <Color x:Key="ButtonTextOnAccent">#FFFFFF</Color>
+    <Color x:Key="ButtonTextOnInk">#FFFFFF</Color>
+    <x:String x:Key="HeaderPatternStyle">SpiralHint</x:String>
+    <x:Double x:Key="HeaderPatternOpacity">0.18</x:Double>
+    <x:Double x:Key="PatternStripeWidth">12</x:Double>
+    <x:Double x:Key="PatternAngle">22</x:Double>
+    <x:Double x:Key="SpacingXs">4</x:Double>
+    <x:Double x:Key="SpacingSm">8</x:Double>
+    <x:Double x:Key="SpacingMd">12</x:Double>
+    <x:Double x:Key="SpacingLg">16</x:Double>
+    <x:Double x:Key="SpacingXl">24</x:Double>
+    <x:Double x:Key="RadiusSmall">2</x:Double>
+    <x:Double x:Key="RadiusMedium">4</x:Double>
+    <x:Double x:Key="RadiusLarge">8</x:Double>
+    <CornerRadius x:Key="ListCardCornerRadius">10</CornerRadius>
+    <x:Double x:Key="GridLineOpacity">0.45</x:Double>
+    <x:String x:Key="GridMode">Strong</x:String>
+    <x:String x:Key="ThemeHeaderFont">Inter-Regular</x:String>
+    <x:String x:Key="ThemeDateNumberFont">Inter-Regular</x:String>
+    <x:String x:Key="ThemeDateDayFont">Inter-Regular</x:String>
+    <x:String x:Key="RootGridBackground">hocq.jpg</x:String>
+    <x:String x:Key="RootGridBackgroundAspect">Tile</x:String>
+
+</ResourceDictionary>
