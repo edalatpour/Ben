@@ -7,215 +7,220 @@
              x:Class="Ben.Views.TaskPageView"
              x:DataType="viewModels:DailyViewModel">
 
-    <Grid Padding="{DynamicResource SpacingLg}"
-          RowDefinitions="Auto,Auto,*"
-          RowSpacing="{DynamicResource SpacingSm}">
+    <Grid>
 
-        <!-- Date Header -->
+        <Image
+            Source="{DynamicResource RootGridBackground}"
+            Style="{DynamicResource RootGridBackgroundImage}"/>
 
-        <views:TiledBackground Grid.Row="0"
-                               HeightRequest="128"
-                               ImageSource="{DynamicResource RootGridBackground}"
-                               TileSize="128"
-                               TileOpacity="{DynamicResource HeaderPatternOpacity}"/>
+        <Grid Padding="{DynamicResource SpacingLg}"
+              RowDefinitions="Auto,Auto,*"
+              RowSpacing="{DynamicResource SpacingSm}">
 
-        <Grid RowDefinitions="Auto,Auto"
-              RowSpacing="4"
-              HorizontalOptions="Start"
-              VerticalOptions="Start">
-            <Grid.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnDateTapped"/>
-            </Grid.GestureRecognizers>
+            <!-- Date Header -->
 
-            <Grid Grid.Row="0"
-                  WidthRequest="216"
-                  HeightRequest="72">
-                <!-- <Border Style="{DynamicResource DaymarkHeaderBand}"/> -->
+            <Grid RowDefinitions="Auto,Auto"
+                  RowSpacing="4"
+                  HorizontalOptions="Start"
+                  VerticalOptions="Start">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnDateTapped"/>
+                </Grid.GestureRecognizers>
 
-                <Border Margin="0,8,0,8"
-                        WidthRequest="84"
-                        HorizontalOptions="Start"
-                        Style="{DynamicResource DaymarkDateBadge}">
-                    <Label Text="{Binding HeaderPrimaryText}"
-                           Style="{DynamicResource DaymarkDateNumber}"
-                           LineBreakMode="NoWrap"
-                           MaxLines="1"/>
-                </Border>
+                <Grid Grid.Row="0"
+                      WidthRequest="216"
+                      HeightRequest="72">
+                    <!-- <Border Style="{DynamicResource DaymarkHeaderBand}"/> -->
 
-                <BoxView Style="{DynamicResource DaymarkHeaderRule}"/>
-            </Grid>
+                    <Border Margin="0,8,0,8"
+                            WidthRequest="84"
+                            HorizontalOptions="Start"
+                            Style="{DynamicResource DaymarkDateBadge}">
+                        <Label Text="{Binding HeaderPrimaryText}"
+                               Style="{DynamicResource DaymarkDateNumber}"
+                               LineBreakMode="NoWrap"
+                               MaxLines="1"/>
+                    </Border>
 
-            <VerticalStackLayout Grid.Row="1"
-                                 Spacing="0"
-                                 Padding="2,0,0,0">
-                <Label Text="{Binding HeaderSecondaryText}"
-                       IsVisible="{Binding ShowDateHeaderDetails}"
-                       Style="{DynamicResource DaymarkDateMeta}"
-                       HorizontalTextAlignment="Start"/>
-                <Label Text="{Binding HeaderTertiaryText}"
-                       IsVisible="{Binding ShowDateHeaderDetails}"
-                       Style="{DynamicResource DaymarkDateMeta}"
-                       HorizontalTextAlignment="Start"/>
-            </VerticalStackLayout>
-        </Grid>
-
-        <!-- Section Titles -->
-
-        <Grid Grid.Row="1"
-              ColumnDefinitions="32,38,*"
-              ColumnSpacing="10"
-              Padding="{DynamicResource SectionHeaderPadding}">
-            <Border Grid.Column="0"
-                    Margin="0"
-                    HeightRequest="32"
-                    WidthRequest="32"
-                    IsVisible="{Binding ShowDateHeaderDetails}"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    Stroke="{DynamicResource BorderColor}"
-                    StrokeThickness="{DynamicResource BorderThickness}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="999"/>
-                </Border.StrokeShape>
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnCatchUpClicked"/>
-                </Border.GestureRecognizers>
-                <Label x:Name="CatchUpLabel"
-                       Text="▼"
-                       Style="{StaticResource SectionTitle}"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       HorizontalTextAlignment="Center"
-                       VerticalTextAlignment="Center"/>
-            </Border>
-            <Label Text="◆"
-                   Grid.Column="1"
-                   Style="{StaticResource SectionTitle}"
-                   VerticalOptions="Center"
-                   HorizontalTextAlignment="Center"/>
-            <Label Text="Tasks"
-                   Grid.Column="2"
-                   Style="{DynamicResource SectionTitle}"
-                   VerticalOptions="Center"
-                   HorizontalTextAlignment="Center"/>
-        </Grid>
-
-        <Border Grid.Row="2"
-                Style="{DynamicResource ThemedCard}"
-                StrokeThickness="{DynamicResource CardBorderThickness}">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="{DynamicResource ListCardCornerRadius}"/>
-            </Border.StrokeShape>
-
-            <Grid BackgroundColor="{DynamicResource WritingPaper}"
-                  RowDefinitions="*,Auto">
-                <!-- iOS workaround: retained ListView is used here because CollectionView row measurement
-                     and separator rendering became unstable across repeated date navigation. -->
-                <ListView x:Name="TasksCollectionView"
-                          Grid.Row="0"
-                          Margin="0"
-                          BackgroundColor="Transparent"
-                          CachingStrategy="RetainElement"
-                          HasUnevenRows="True"
-                          SeparatorVisibility="None"
-                          ItemsSource="{Binding CurrentDay.Tasks}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:TaskItem">
-                            <views:AutoSizingViewCell>
-                                <ContentView BackgroundColor="{DynamicResource WritingPaper}">
-                                    <Grid ColumnDefinitions="32,38,*"
-                                          RowDefinitions="Auto,1"
-                                          RowSpacing="0"
-                                          ColumnSpacing="10"
-                                          Padding="0,0,0,0"
-                                          VerticalOptions="Start">
-                                        <Grid.GestureRecognizers>
-                                            <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
-                                            <DropGestureRecognizer Drop="OnTaskDrop"/>
-                                            <TapGestureRecognizer Tapped="OnTaskTapped"/>
-                                        </Grid.GestureRecognizers>
-
-                                        <Label Grid.Column="0"
-                                               Text="{Binding StatusGlyph}"
-                                               FontSize="20"
-                                               HeightRequest="24"
-                                               WidthRequest="24"
-                                               Margin="{OnPlatform iOS='0,0,0,3', Default='0,0,0,3'}"
-                                               HorizontalOptions="Center"
-                                               HorizontalTextAlignment="Center"
-                                               VerticalOptions="Start"
-                                               VerticalTextAlignment="Start"
-                                               Style="{StaticResource Handwriting}"
-                                               FontAttributes="Bold"/>
-
-                                        <Label Grid.Column="1"
-                                               Margin="{OnPlatform iOS='-5,2,-5,3', Default='-5,2,-5,3'}"
-                                               Padding="0"
-                                               Text="{Binding PriorityOrder}"
-                                               LineBreakMode="NoWrap"
-                                               MaxLines="1"
-                                               HorizontalTextAlignment="Center"
-                                               VerticalTextAlignment="Start"
-                                               Style="{StaticResource Handwriting}"/>
-
-                                        <Label Grid.Column="2"
-                                               Margin="{OnPlatform iOS='0,2,0,3', Default='0,2,0,3'}"
-                                               Padding="0"
-                                               LineBreakMode="WordWrap"
-                                               HorizontalTextAlignment="Start"
-                                               VerticalTextAlignment="Start"
-                                               Style="{StaticResource Handwriting}">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="{Binding Title}"
-                                                          Style="{StaticResource Handwriting}"/>
-                                                    <Span Text="{Binding ForwardedFromDate, StringFormat=' ({0})', TargetNullValue=''}"
-                                                          Style="{StaticResource Handwriting}"
-                                                          TextColor="{DynamicResource Accent}"/>
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
-                                        <BoxView Grid.Row="1"
-                                                 Grid.ColumnSpan="3"
-                                                 Style="{DynamicResource DividerSoft}"
-                                                 VerticalOptions="End"/>
-                                    </Grid>
-                                </ContentView>
-                            </views:AutoSizingViewCell>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-
-                <Grid Grid.Row="1"
-                      RowDefinitions="1,Auto"
-                      ColumnDefinitions="32,38,*"
-                      ColumnSpacing="10"
-                      Padding="0,0,0,0">
-                    <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnAddTaskTapped"/>
-                    </Grid.GestureRecognizers>
-                    <BoxView Grid.Row="0"
-                             Grid.ColumnSpan="3"
-                             Style="{DynamicResource DividerSoft}"/>
-                    <Image Grid.Row="1"
-                           Grid.Column="0"
-                           Source="plus.webp"
-                           HeightRequest="24"
-                           WidthRequest="24"
-                           Margin="0,3,0,0"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"/>
-                    <Label Grid.Row="1"
-                           Grid.Column="2"
-                           Text="New task..."
-                           VerticalTextAlignment="Center"
-                           Style="{StaticResource Handwriting}"
-                           FontAttributes="Italic"
-                           TextColor="{DynamicResource Line}"/>
+                    <BoxView Style="{DynamicResource DaymarkHeaderRule}"/>
                 </Grid>
+
+                <VerticalStackLayout Grid.Row="1"
+                                     Spacing="0"
+                                     Padding="2,0,0,0">
+                    <Label Text="{Binding HeaderSecondaryText}"
+                           IsVisible="{Binding ShowDateHeaderDetails}"
+                           Style="{DynamicResource DaymarkDateMeta}"
+                           HorizontalTextAlignment="Start"/>
+                    <Label Text="{Binding HeaderTertiaryText}"
+                           IsVisible="{Binding ShowDateHeaderDetails}"
+                           Style="{DynamicResource DaymarkDateMeta}"
+                           HorizontalTextAlignment="Start"/>
+                </VerticalStackLayout>
             </Grid>
-        </Border>
+
+            <!-- Section Titles -->
+
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="32,38,*"
+                  ColumnSpacing="10"
+                  Padding="{DynamicResource SectionHeaderPadding}">
+                <Border Grid.Column="0"
+                        Margin="0"
+                        HeightRequest="32"
+                        WidthRequest="32"
+                        IsVisible="{Binding ShowDateHeaderDetails}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Stroke="{DynamicResource BorderColor}"
+                        StrokeThickness="{DynamicResource BorderThickness}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="999"/>
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCatchUpClicked"/>
+                    </Border.GestureRecognizers>
+                    <Label x:Name="CatchUpLabel"
+                           Text="▼"
+                           Style="{StaticResource SectionTitle}"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"/>
+                </Border>
+                <Label Text="◆"
+                       Grid.Column="1"
+                       Style="{StaticResource SectionTitle}"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+                <Label Text="Tasks"
+                       Grid.Column="2"
+                       Style="{DynamicResource SectionTitle}"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+            </Grid>
+
+            <Border Grid.Row="2"
+                    Style="{DynamicResource TranslucentThemedCard}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{DynamicResource ListCardCornerRadius}"/>
+                </Border.StrokeShape>
+
+                <Grid Style="{DynamicResource TranslucentCardHostGrid}"
+                      RowDefinitions="*,Auto">
+                    <BoxView Grid.RowSpan="2"
+                             Style="{DynamicResource TranslucentCardOverlay}"/>
+
+                    <!-- iOS workaround: retained ListView is used here because CollectionView row measurement
+                     and separator rendering became unstable across repeated date navigation. -->
+                    <ListView x:Name="TasksCollectionView"
+                              Grid.Row="0"
+                              Margin="0"
+                              BackgroundColor="Transparent"
+                              CachingStrategy="RetainElement"
+                              HasUnevenRows="True"
+                              SeparatorVisibility="None"
+                              ItemsSource="{Binding CurrentDay.Tasks}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:TaskItem">
+                                <views:AutoSizingViewCell>
+                                    <ContentView Style="{DynamicResource OpaqueListRowSurface}">
+                                        <Grid ColumnDefinitions="32,38,*"
+                                              RowDefinitions="Auto,1"
+                                              RowSpacing="0"
+                                              ColumnSpacing="10"
+                                              Padding="0,0,0,0"
+                                              VerticalOptions="Start">
+                                            <Grid.GestureRecognizers>
+                                                <DragGestureRecognizer DragStarting="OnTaskDragStarting"/>
+                                                <DropGestureRecognizer Drop="OnTaskDrop"/>
+                                                <TapGestureRecognizer Tapped="OnTaskTapped"/>
+                                            </Grid.GestureRecognizers>
+
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding StatusGlyph}"
+                                                   FontSize="20"
+                                                   HeightRequest="24"
+                                                   WidthRequest="24"
+                                                   Margin="{OnPlatform iOS='0,0,0,3', Default='0,0,0,3'}"
+                                                   HorizontalOptions="Center"
+                                                   HorizontalTextAlignment="Center"
+                                                   VerticalOptions="Start"
+                                                   VerticalTextAlignment="Start"
+                                                   Style="{StaticResource Handwriting}"
+                                                   FontAttributes="Bold"/>
+
+                                            <Label Grid.Column="1"
+                                                   Margin="{OnPlatform iOS='-5,2,-5,3', Default='-5,2,-5,3'}"
+                                                   Padding="0"
+                                                   Text="{Binding PriorityOrder}"
+                                                   LineBreakMode="NoWrap"
+                                                   MaxLines="1"
+                                                   HorizontalTextAlignment="Center"
+                                                   VerticalTextAlignment="Start"
+                                                   Style="{StaticResource Handwriting}"/>
+
+                                            <Label Grid.Column="2"
+                                                   Margin="{OnPlatform iOS='0,2,0,3', Default='0,2,0,3'}"
+                                                   Padding="0"
+                                                   LineBreakMode="WordWrap"
+                                                   HorizontalTextAlignment="Start"
+                                                   VerticalTextAlignment="Start"
+                                                   Style="{StaticResource Handwriting}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding Title}"
+                                                              Style="{StaticResource Handwriting}"/>
+                                                        <Span Text="{Binding ForwardedFromDate, StringFormat=' ({0})', TargetNullValue=''}"
+                                                              Style="{StaticResource Handwriting}"
+                                                              TextColor="{DynamicResource Accent}"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <BoxView Grid.Row="1"
+                                                     Grid.ColumnSpan="3"
+                                                     Style="{DynamicResource DividerSoft}"
+                                                     VerticalOptions="End"/>
+                                        </Grid>
+                                    </ContentView>
+                                </views:AutoSizingViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Grid Grid.Row="1"
+                          RowDefinitions="1,Auto"
+                          ColumnDefinitions="32,38,*"
+                          Style="{DynamicResource OpaqueListFooterSurface}"
+                          ColumnSpacing="10"
+                          Padding="0,0,0,0">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAddTaskTapped"/>
+                        </Grid.GestureRecognizers>
+                        <BoxView Grid.Row="0"
+                                 Grid.ColumnSpan="3"
+                                 Style="{DynamicResource DividerSoft}"/>
+                        <Image Grid.Row="1"
+                               Grid.Column="0"
+                               Source="plus.webp"
+                               HeightRequest="24"
+                               WidthRequest="24"
+                               Margin="0,3,0,0"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Row="1"
+                               Grid.Column="2"
+                               Text="New task..."
+                               VerticalTextAlignment="Center"
+                               Style="{StaticResource Handwriting}"
+                               FontAttributes="Italic"
+                               TextColor="{DynamicResource Line}"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+        </Grid>
 
     </Grid>
 

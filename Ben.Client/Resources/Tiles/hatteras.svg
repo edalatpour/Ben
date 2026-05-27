@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
-  <!-- Black Background -->
-  <rect width="1024" height="1024" fill="#000000"/>
-
-  <!-- Diagonal white stripes: 45°, equal width -->
-  <polygon points="0,512 512,0 1024,0 0,1024 0,512" fill="#FFFFFF"/>
-  <polygon points="512,1024 1024,512 1024,1024 512,1024" fill="#FFFFFF"/>
-</svg>

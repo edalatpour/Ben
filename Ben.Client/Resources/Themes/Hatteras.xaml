@@ -58,7 +58,7 @@
     <x:String x:Key="ThemeHeaderFont">Inter-Regular</x:String>
     <x:String x:Key="ThemeDateNumberFont">Inter-Regular</x:String>
     <x:String x:Key="ThemeDateDayFont">Inter-Regular</x:String>
-    <x:String x:Key="RootGridBackground">hatteras.png</x:String>
+    <x:String x:Key="RootGridBackground">hatteras.jpg</x:String>
     <x:String x:Key="RootGridBackgroundAspect">Tile</x:String>
 
 </ResourceDictionary>

@@ -1,2 +1,2 @@
-select distinct UserId
-from TaskItems;
+select *
+from Users;

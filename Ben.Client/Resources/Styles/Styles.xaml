@@ -3,6 +3,9 @@
         xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
         xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
+        <x:Double x:Key="RootGridBackgroundImageOpacity">0.5</x:Double>
+        <x:Double x:Key="TranslucentCardOverlayOpacity">0.25</x:Double>
+
         <Style x:Key="DateNumber"
                TargetType="Label">
                 <Setter Property="FontFamily"
@@ -184,6 +187,53 @@
                         Value="{DynamicResource DividerThickness}"/>
                 <Setter Property="Padding"
                         Value="{DynamicResource SpacingMd}"/>
+        </Style>
+
+        <Style x:Key="RootGridBackgroundImage"
+               TargetType="Image">
+                <Setter Property="Opacity"
+                        Value="{DynamicResource RootGridBackgroundImageOpacity}"/>
+                <Setter Property="Aspect"
+                        Value="AspectFill"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="InputTransparent"
+                        Value="True"/>
+        </Style>
+
+        <Style x:Key="TranslucentThemedCard"
+               TargetType="Border"
+               BasedOn="{StaticResource ThemedCard}">
+                <Setter Property="BackgroundColor"
+                        Value="Transparent"/>
+                <Setter Property="StrokeThickness"
+                        Value="{DynamicResource CardBorderThickness}"/>
+        </Style>
+
+        <Style x:Key="TranslucentCardHostGrid"
+               TargetType="Grid">
+                <Setter Property="BackgroundColor"
+                        Value="Transparent"/>
+        </Style>
+
+        <Style x:Key="TranslucentCardOverlay"
+               TargetType="BoxView">
+                <Setter Property="Color"
+                        Value="{DynamicResource WritingPaper}"/>
+                <Setter Property="Opacity"
+                        Value="{DynamicResource TranslucentCardOverlayOpacity}"/>
+        </Style>
+
+        <Style x:Key="OpaqueListRowSurface"
+               TargetType="ContentView">
+                <Setter Property="BackgroundColor"
+                        Value="{DynamicResource WritingPaper}"/>
+        </Style>
+
+        <Style x:Key="OpaqueListFooterSurface"
+               TargetType="Grid">
+                <Setter Property="BackgroundColor"
+                        Value="{DynamicResource WritingPaper}"/>
         </Style>
 
         <Style x:Key="HeaderContainer"

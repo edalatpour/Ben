@@ -59,7 +59,7 @@
     <x:String x:Key="ThemeHeaderFont">Montserrat-SemiBold</x:String>
     <x:String x:Key="ThemeDateNumberFont">Montserrat-SemiBold</x:String>
     <x:String x:Key="ThemeDateDayFont">Inter-Regular</x:String>
-    <x:String x:Key="RootGridBackground">cape_lookout.png</x:String>
+    <x:String x:Key="RootGridBackground">cape_lookout.jpg</x:String>
     <x:String x:Key="RootGridBackgroundAspect">Tile</x:String>
 
 </ResourceDictionary>

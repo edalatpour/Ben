@@ -18,7 +18,6 @@ public class ThemeService
         "Currituck",
         "Hatteras",
         "Ocracoke",
-        "OakIsland",
         "Bodie",
         "CapeLookout",
     };
@@ -153,7 +152,6 @@ public class ThemeService
             "Currituck" => new Currituck(),
             "Hatteras" => new Hatteras(),
             "Ocracoke" => new Ocracoke(),
-            "OakIsland" => new OakIsland(),
             "Bodie" => new Bodie(),
             "CapeLookout" => new CapeLookout(),
             _ => new Hatteras()

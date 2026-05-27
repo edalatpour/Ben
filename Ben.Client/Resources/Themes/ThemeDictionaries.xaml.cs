@@ -90,14 +90,6 @@ public partial class Ocracoke : ResourceDictionary
     }
 }
 
-public partial class OakIsland : ResourceDictionary
-{
-    public OakIsland()
-    {
-        InitializeComponent();
-    }
-}
-
 public partial class Bodie : ResourceDictionary
 {
     public Bodie()

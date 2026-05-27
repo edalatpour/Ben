@@ -57,7 +57,7 @@
     <x:String x:Key="ThemeHeaderFont">SourceSerifPro-SemiBold</x:String>
     <x:String x:Key="ThemeDateNumberFont">SourceSerifPro-SemiBold</x:String>
     <x:String x:Key="ThemeDateDayFont">NotoSerif-Regular</x:String>
-    <x:String x:Key="RootGridBackground">currituck.png</x:String>
+    <x:String x:Key="RootGridBackground">currituck.jpg</x:String>
     <x:String x:Key="RootGridBackgroundAspect">Tile</x:String>
 
 </ResourceDictionary>

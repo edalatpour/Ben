@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
-  <!-- Black Background -->
-  <rect width="1024" height="1024" fill="#000000"/>
-
-<!-- White diamonds-->
-  <polygon points="0,512 256,0 512,512 256,1024 0,512" fill="#FFFFFF"/>
-  <polygon points="512,512 768,0 1024,512 768,1024 512,512" fill="#FFFFFF"/>
-
-</svg>

@@ -48,7 +48,6 @@ public partial class SettingsPage : ContentPage
         new ThemeOption { Name = "CapeLookout",  DisplayName = "Cape Lookout" },
         new ThemeOption { Name = "Currituck",    DisplayName = "Currituck" },
         new ThemeOption { Name = "Hatteras",     DisplayName = "Hatteras" },
-        new ThemeOption { Name = "OakIsland",    DisplayName = "Oak Island" },
         new ThemeOption { Name = "Ocracoke",     DisplayName = "Ocracoke" },
     };
 
