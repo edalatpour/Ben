@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             ios:Page.UseSafeArea="False"
              xmlns:viewModels="clr-namespace:Ben.ViewModels"
              x:Class="Ben.Views.DailyHostPage"
              x:DataType="viewModels:DailyViewModel"
              x:Name="HostPage">
-  <!-- SafeAreaEdges="None" -->
 
   <Grid x:Name="RootGrid"
         Style="{DynamicResource PaperRootGrid}"
