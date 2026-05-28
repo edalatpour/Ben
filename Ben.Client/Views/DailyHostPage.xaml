@@ -2,15 +2,23 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
-             ios:Page.UseSafeArea="False"
+             ios:Page.SafeAreaEdges="None"
              xmlns:viewModels="clr-namespace:Ben.ViewModels"
              x:Class="Ben.Views.DailyHostPage"
              x:DataType="viewModels:DailyViewModel"
-             x:Name="HostPage">
+             x:Name="HostPage"
+             BackgroundColor="Transparent">
 
   <Grid x:Name="RootGrid"
-        Style="{DynamicResource PaperRootGrid}"
+        BackgroundColor="{DynamicResource Paper}"
         RowDefinitions="*,Auto">
+
+    <Image
+      Grid.RowSpan="2"
+      HorizontalOptions="Fill"
+      VerticalOptions="Fill"
+      Source="{DynamicResource RootGridBackground}"
+      Style="{DynamicResource RootGridBackgroundImage}"/>
 
     <!-- SafeAreaEdges="None" -->
     <Grid.GestureRecognizers>
@@ -22,11 +30,14 @@
 
     <!-- Landscape: show both pages -->
     <Grid x:Name="LandscapeGrid"
+          BackgroundColor="Transparent"
           ColumnDefinitions="*,*"
           IsVisible="False">
-      <ContentView x:Name="LandscapeTasksHost"/>
+      <ContentView x:Name="LandscapeTasksHost"
+                   BackgroundColor="Transparent"/>
       <ContentView x:Name="LandscapeNotesHost"
-                   Grid.Column="1"/>
+                   Grid.Column="1"
+                   BackgroundColor="Transparent"/>
 
       <Grid x:Name="LandscapeTurnOverlay"
             Grid.ColumnSpan="2"
@@ -103,8 +114,10 @@
 
     <!-- Portrait: show one page at a time -->
     <Grid x:Name="PortraitGrid"
+          BackgroundColor="Transparent"
           IsVisible="True">
-      <ContentView x:Name="SinglePageHost"/>
+      <ContentView x:Name="SinglePageHost"
+                   BackgroundColor="Transparent"/>
     </Grid>
 
     <Grid x:Name="DesktopNavigationButtons"

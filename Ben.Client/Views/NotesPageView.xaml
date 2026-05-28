@@ -5,15 +5,13 @@
              xmlns:viewModels="clr-namespace:Ben.ViewModels"
              xmlns:models="clr-namespace:Ben.Models"
              x:Class="Ben.Views.NotesPageView"
-             x:DataType="viewModels:DailyViewModel">
+             x:DataType="viewModels:DailyViewModel"
+             Background="Transparent">
 
-    <Grid>
+    <Grid Background="Transparent">
 
-        <Image
-            Source="{DynamicResource RootGridBackground}"
-            Style="{DynamicResource RootGridBackgroundImage}"/>
-
-        <Grid Padding="{DynamicResource SpacingLg}"
+        <Grid Background="Transparent"
+              Padding="{DynamicResource SpacingLg}"
               RowDefinitions="Auto,Auto,*"
               RowSpacing="{DynamicResource SpacingSm}">
 
